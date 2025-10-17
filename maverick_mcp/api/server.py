@@ -735,6 +735,185 @@ async def get_mcp_connection_status() -> dict[str, Any]:
         }
 
 
+@mcp.tool()
+async def get_indian_market_recommendations(
+    strategy: str = "bullish",
+    limit: int = 20
+) -> dict[str, Any]:
+    """
+    Get stock recommendations for Indian market (NSE/BSE) using specified strategy.
+    
+    Strategies:
+    - "bullish": Maverick bullish strategy adapted for Indian market (10% circuit breakers)
+    - "bearish": Bearish/short opportunities
+    - "momentum": Nifty 50 momentum plays
+    - "value": Value investing picks (P/E < 20, dividend > 2%)
+    - "dividend": High dividend yield stocks
+    - "smallcap": Small-cap breakout opportunities
+    - "sector_rotation": Nifty sector rotation analysis
+    
+    Args:
+        strategy: Screening strategy to use
+        limit: Maximum number of recommendations (default: 20)
+        
+    Returns:
+        Dict with recommendations and metadata
+    """
+    try:
+        from maverick_mcp.application.screening.indian_market import (
+            get_maverick_bullish_india,
+            get_maverick_bearish_india,
+            get_nifty50_momentum,
+            get_value_picks_india,
+            get_high_dividend_india,
+            get_smallcap_breakouts_india,
+            get_nifty_sector_rotation
+        )
+        
+        strategies = {
+            "bullish": get_maverick_bullish_india,
+            "bearish": get_maverick_bearish_india,
+            "momentum": get_nifty50_momentum,
+            "value": get_value_picks_india,
+            "dividend": get_high_dividend_india,
+            "smallcap": get_smallcap_breakouts_india,
+            "sector_rotation": get_nifty_sector_rotation
+        }
+        
+        if strategy not in strategies:
+            return {
+                "error": f"Unknown strategy: {strategy}",
+                "available_strategies": list(strategies.keys()),
+                "status": "error"
+            }
+        
+        logger.info(f"Running Indian market {strategy} strategy (limit={limit})")
+        
+        # Handle sector_rotation differently (doesn't use limit param)
+        if strategy == "sector_rotation":
+            results = strategies[strategy](lookback_days=90, top_n=3)
+        else:
+            results = strategies[strategy](limit=limit)
+        
+        return {
+            "strategy": strategy,
+            "market": "Indian (NSE/BSE)",
+            "count": len(results) if isinstance(results, list) else len(results.get("top_sectors", [])),
+            "recommendations": results,
+            "timestamp": datetime.now(UTC).isoformat(),
+            "status": "success"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting Indian market recommendations: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
+@mcp.tool()
+async def analyze_nifty_sectors() -> dict[str, Any]:
+    """
+    Analyze Nifty 50 sector rotation and performance.
+    
+    Returns sector rankings based on 90-day performance, momentum indicators,
+    and top 3 performing stocks in each sector.
+    
+    Useful for identifying hot sectors in the Indian market.
+    
+    Returns:
+        Dict with sector analysis including top performing sectors and stocks
+    """
+    try:
+        from maverick_mcp.application.screening.indian_market import get_nifty_sector_rotation
+        
+        logger.info("Analyzing Nifty sector rotation")
+        results = get_nifty_sector_rotation(lookback_days=90, top_n=3)
+        
+        return {
+            **results,
+            "status": "success"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error analyzing Nifty sectors: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
+@mcp.tool()
+async def get_indian_market_overview() -> dict[str, Any]:
+    """
+    Get comprehensive overview of Indian stock market.
+    
+    Includes:
+    - Current market status (open/closed/holiday)
+    - Trading hours and timezone
+    - Number of tracked stocks (NSE and BSE)
+    - Nifty 50 and Sensex constituent counts
+    - Sample of major stocks
+    
+    Returns:
+        Dict with Indian market overview and statistics
+    """
+    try:
+        from maverick_mcp.providers.indian_market_data import IndianMarketDataProvider
+        from maverick_mcp.data.models import Stock, SessionLocal
+        
+        provider = IndianMarketDataProvider()
+        session = SessionLocal()
+        
+        try:
+            # Get market status
+            status = provider.get_indian_market_status()
+            
+            # Get stock counts
+            nse_count = session.query(Stock).filter(Stock.market == "NSE").count()
+            bse_count = session.query(Stock).filter(Stock.market == "BSE").count()
+            
+            # Get Nifty 50 and Sensex
+            nifty50 = provider.get_nifty50_constituents()
+            sensex = provider.get_sensex_constituents()
+            
+            return {
+                "market_status": status,
+                "statistics": {
+                    "nse_stocks_tracked": nse_count,
+                    "bse_stocks_tracked": bse_count,
+                    "nifty50_constituents": len(nifty50),
+                    "sensex_constituents": len(sensex)
+                },
+                "indices": {
+                    "nifty50_sample": nifty50[:5],  # First 5
+                    "sensex_sample": sensex[:5]  # First 5
+                },
+                "market_info": {
+                    "trading_hours": "9:15 AM - 3:30 PM IST",
+                    "timezone": "Asia/Kolkata",
+                    "circuit_breaker": "10%",
+                    "settlement": "T+1",
+                    "currency": "INR"
+                },
+                "status": "success",
+                "timestamp": datetime.now(UTC).isoformat()
+            }
+        finally:
+            session.close()
+        
+    except Exception as e:
+        logger.error(f"Error getting Indian market overview: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
 # Resources (public access)
 @mcp.resource("stock://{ticker}")
 def stock_resource(ticker: str) -> Any:
