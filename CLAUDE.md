@@ -756,6 +756,19 @@ Once connected to Claude Desktop, test the backtesting framework:
 
 See `docs/MULTI_MARKET_SUPPORT.md` for complete documentation.
 
+### Indian Market Data Integration - Phase 2 (NEW)
+
+- **Indian Market Data Provider**: Specialized provider for NSE and BSE stocks
+- **Symbol Validation**: Automatic validation and formatting for .NS and .BO symbols
+- **Nifty 50 & Sensex**: Built-in constituent lists for major Indian indices
+- **Market Status Checking**: Real-time status (open/closed/holiday) for Indian markets
+- **Database Seeding**: Seed script for 50+ major Indian stocks (Nifty 50, Sensex)
+- **Convenience Functions**: Quick-access methods for common Indian stock operations
+- **Full Integration**: Works seamlessly with existing multi-market infrastructure
+- **Comprehensive Tests**: Complete test suite for Indian market functionality
+
+See `docs/PHASE2_INDIAN_MARKET.md` for complete documentation and usage examples.
+
 ### Production-Ready Backtesting Framework (NEW)
 
 - **VectorBT Integration**: High-performance vectorized backtesting engine
