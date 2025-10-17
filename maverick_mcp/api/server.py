@@ -914,6 +914,216 @@ async def get_indian_market_overview() -> dict[str, Any]:
         }
 
 
+@mcp.tool()
+async def get_indian_economic_indicators() -> dict[str, Any]:
+    """
+    Get current Indian economic indicators from RBI and related sources.
+    
+    Returns:
+    - RBI policy rates (Repo, Reverse Repo, CRR, SLR)
+    - GDP growth figures
+    - Foreign exchange reserves
+    - Economic calendar (upcoming events)
+    
+    Returns:
+        Dict with comprehensive economic data
+    """
+    try:
+        from maverick_mcp.providers.rbi_data import RBIDataProvider
+        
+        logger.info("Fetching Indian economic indicators")
+        provider = RBIDataProvider()
+        
+        indicators = provider.get_all_indicators()
+        
+        return {
+            **indicators,
+            "status": "success"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting Indian economic indicators: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
+@mcp.tool()
+async def get_indian_stock_news(
+    symbol: str,
+    limit: int = 10
+) -> dict[str, Any]:
+    """
+    Get news articles for an Indian stock with sentiment analysis.
+    
+    Args:
+        symbol: Stock ticker symbol (e.g., "RELIANCE.NS")
+        limit: Maximum number of articles (default: 10)
+        
+    Returns:
+        Dict with news articles and sentiment analysis
+    """
+    try:
+        from maverick_mcp.providers.indian_news import IndianNewsProvider
+        
+        logger.info(f"Fetching news for {symbol}")
+        provider = IndianNewsProvider()
+        
+        # Get news articles
+        articles = provider.get_stock_news(symbol, limit)
+        
+        # Get sentiment analysis
+        sentiment = provider.analyze_sentiment(symbol)
+        
+        return {
+            "symbol": symbol,
+            "articles": articles,
+            "sentiment_analysis": sentiment,
+            "status": "success",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting Indian stock news: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
+@mcp.tool()
+async def compare_us_indian_markets(
+    period: str = "1y"
+) -> dict[str, Any]:
+    """
+    Compare US (S&P 500) and Indian (Nifty 50) market performance.
+    
+    Provides:
+    - Returns comparison
+    - Volatility analysis
+    - Correlation coefficient
+    - Performance metrics
+    
+    Args:
+        period: Time period for comparison (1m, 3m, 6m, 1y, 5y)
+        
+    Returns:
+        Dict with market comparison results
+    """
+    try:
+        from maverick_mcp.analysis.market_comparison import MarketComparisonAnalyzer
+        
+        logger.info(f"Comparing US and Indian markets for period: {period}")
+        analyzer = MarketComparisonAnalyzer()
+        
+        comparison = analyzer.compare_indices(period)
+        
+        return comparison
+        
+    except Exception as e:
+        logger.error(f"Error comparing markets: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
+@mcp.tool()
+async def convert_currency(
+    amount: float,
+    from_currency: str = "INR",
+    to_currency: str = "USD"
+) -> dict[str, Any]:
+    """
+    Convert amount between INR and USD.
+    
+    Uses current exchange rate (approximately 83 INR = 1 USD).
+    
+    Args:
+        amount: Amount to convert
+        from_currency: Source currency (INR or USD)
+        to_currency: Target currency (INR or USD)
+        
+    Returns:
+        Dict with conversion result
+    """
+    try:
+        from maverick_mcp.utils.currency_converter import CurrencyConverter
+        
+        logger.info(f"Converting {amount} {from_currency} to {to_currency}")
+        converter = CurrencyConverter()
+        
+        converted_amount = converter.convert(amount, from_currency, to_currency)
+        exchange_rate = converter.get_exchange_rate(from_currency, to_currency)
+        
+        return {
+            "original_amount": amount,
+            "from_currency": from_currency.upper(),
+            "to_currency": to_currency.upper(),
+            "converted_amount": round(converted_amount, 2),
+            "exchange_rate": round(exchange_rate, 4),
+            "calculation": f"{amount} {from_currency} × {exchange_rate:.4f} = {converted_amount:.2f} {to_currency}",
+            "status": "success",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "note": "Using approximate exchange rate. Configure API for real-time rates."
+        }
+        
+    except Exception as e:
+        logger.error(f"Error converting currency: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
+@mcp.tool()
+async def compare_similar_companies(
+    us_symbol: str,
+    indian_symbol: str,
+    currency: str = "USD"
+) -> dict[str, Any]:
+    """
+    Compare similar companies from US and Indian markets.
+    
+    Example: compare_similar_companies("MSFT", "TCS.NS", "USD")
+    
+    Args:
+        us_symbol: US stock symbol (e.g., "AAPL", "MSFT")
+        indian_symbol: Indian stock symbol (e.g., "RELIANCE.NS", "TCS.NS")
+        currency: Currency for comparison (USD or INR)
+        
+    Returns:
+        Dict with detailed comparison including returns, prices, and correlation
+    """
+    try:
+        from maverick_mcp.analysis.market_comparison import MarketComparisonAnalyzer
+        
+        logger.info(f"Comparing {us_symbol} vs {indian_symbol}")
+        analyzer = MarketComparisonAnalyzer()
+        
+        comparison = analyzer.compare_stocks(
+            us_symbol,
+            indian_symbol,
+            period="1y",
+            currency=currency.upper()
+        )
+        
+        return comparison
+        
+    except Exception as e:
+        logger.error(f"Error comparing companies: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
 # Resources (public access)
 @mcp.resource("stock://{ticker}")
 def stock_resource(ticker: str) -> Any:

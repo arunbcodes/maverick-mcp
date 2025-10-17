@@ -34,7 +34,11 @@ MaverickMCP provides professional-grade financial analysis tools directly within
 - **Fast Development**: Comprehensive Makefile, smart error handling, hot reload, and parallel processing
 - **Stock Data Access**: Historical and real-time stock data with intelligent caching across all markets
 - **Technical Analysis**: 20+ indicators including SMA, EMA, RSI, MACD, Bollinger Bands, and more
-- **Stock Screening**: Multiple strategies (Maverick Bullish/Bearish, Trending Breakouts) with parallel processing
+- **Stock Screening**: Multiple strategies (Maverick Bullish/Bearish, Trending Breakouts) with parallel processing for US and 7 specialized strategies for Indian markets
+- **Indian Economic Data**: RBI policy rates, GDP growth, inflation, and forex reserves
+- **News & Sentiment**: Indian financial news with sentiment analysis from multiple sources
+- **Market Comparison**: Cross-market correlation and performance analysis (US vs India)
+- **Currency Conversion**: INR/USD conversion with historical rates
 - **Portfolio Tools**: Correlation analysis, returns calculation, and optimization
 - **Market Data**: Sector performance, market movers, and earnings information
 - **Smart Caching**: Redis-powered performance with automatic fallback to in-memory storage
@@ -725,6 +729,17 @@ For issues or questions:
 5. **Contribute**: See our [Contributing Guide](CONTRIBUTING.md) for development setup
 
 ## Recent Updates
+
+### Indian Economic Indicators & Market Comparison - Phase 4 (NEW)
+
+- **RBI Data Integration**: Policy rates, GDP growth, inflation data, and forex reserves
+- **Indian News Provider**: Multi-source financial news with sentiment analysis
+- **Market Comparison Tools**: US vs India correlation and performance analysis
+- **Currency Conversion**: INR/USD with historical rate support
+- **Economic Calendar**: Upcoming RBI announcements and data releases
+- **MCP Tools**: Fully integrated with Claude Desktop for easy access
+
+See `docs/PHASE4_IMPLEMENTATION.md` for complete documentation.
 
 ### Production-Ready Backtesting Framework (NEW)
 
