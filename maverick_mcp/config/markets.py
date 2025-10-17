@@ -138,7 +138,7 @@ MARKET_CONFIGS = {
         country="IN",
         currency="INR",
         timezone="Asia/Kolkata",
-        calendar_name="NSE",
+        calendar_name="BSE",  # pandas_market_calendars uses BSE for Indian market
         symbol_suffix=".NS",
         trading_hours_start=time(9, 15),
         trading_hours_end=time(15, 30),
@@ -151,7 +151,7 @@ MARKET_CONFIGS = {
         country="IN",
         currency="INR",
         timezone="Asia/Kolkata",
-        calendar_name="NSE",  # Use NSE calendar (same holidays as BSE)
+        calendar_name="BSE",  # pandas_market_calendars uses BSE for Indian market
         symbol_suffix=".BO",
         trading_hours_start=time(9, 15),
         trading_hours_end=time(15, 30),
@@ -238,31 +238,30 @@ def get_markets_by_country(country_code: str) -> list[Market]:
     ]
 
 
-def is_indian_market(symbol: str) -> bool:
+def is_indian_market(market: Market) -> bool:
     """
-    Check if symbol belongs to Indian market (NSE or BSE).
+    Check if market is Indian (NSE or BSE).
 
     Args:
-        symbol: Stock ticker symbol
+        market: Market enum value
 
     Returns:
-        True if symbol is from NSE or BSE, False otherwise
+        True if market is NSE or BSE, False otherwise
     """
-    market = get_market_from_symbol(symbol)
     return market in [Market.INDIA_NSE, Market.INDIA_BSE]
 
 
-def is_us_market(symbol: str) -> bool:
+def is_us_market(market: Market) -> bool:
     """
-    Check if symbol belongs to US market.
+    Check if market is US.
 
     Args:
-        symbol: Stock ticker symbol
+        market: Market enum value
 
     Returns:
-        True if symbol is from US market, False otherwise
+        True if market is US, False otherwise
     """
-    return get_market_from_symbol(symbol) == Market.US
+    return market == Market.US
 
 
 # Export key classes and functions
