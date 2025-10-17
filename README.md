@@ -395,6 +395,44 @@ Configure MaverickMCP via `.env` file or environment variables:
 - `CACHE_ENABLED=true` - Enable Redis caching
 - `CACHE_TTL_SECONDS=3600` - Cache duration
 
+## Multi-Market Usage
+
+MaverickMCP supports US (NASDAQ/NYSE) and Indian (NSE/BSE) stock markets with seamless integration.
+
+### Quick Examples
+
+**Analyze US Stock:**
+```
+"Get me technical analysis for Apple stock"
+"Show bullish stocks from S&P 500"
+```
+
+**Analyze Indian Stocks:**
+```
+"Show me bullish Indian stock recommendations"
+"Get technical analysis for RELIANCE.NS"
+"What are the current RBI policy rates?"
+"Compare Microsoft with TCS"
+```
+
+**Symbol Format:**
+- US Stocks: `AAPL`, `MSFT`, `GOOGL` (no suffix)
+- NSE Stocks: `RELIANCE.NS`, `TCS.NS`, `INFY.NS` (.NS suffix)
+- BSE Stocks: `RELIANCE.BO`, `TCS.BO`, `INFY.BO` (.BO suffix)
+
+**Market Selection:**
+```
+"List supported markets"
+"What market is RELIANCE.NS in?"
+```
+
+For complete Indian market documentation, see [`docs/INDIAN_MARKET.md`](docs/INDIAN_MARKET.md).
+
+For examples, run:
+```bash
+python examples/indian_market_analysis.py
+```
+
 ## Usage Examples
 
 ### Backtesting Example

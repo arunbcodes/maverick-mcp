@@ -1124,6 +1124,118 @@ async def compare_similar_companies(
         }
 
 
+@mcp.tool()
+async def list_supported_markets() -> dict[str, Any]:
+    """
+    List all supported stock markets and their details.
+    
+    Provides information about available markets, symbol formats,
+    and trading characteristics.
+    
+    Returns:
+        Dict with market information
+    """
+    try:
+        from maverick_mcp.config.markets import MARKET_CONFIGS, Market
+        
+        markets = []
+        
+        for market, config in MARKET_CONFIGS.items():
+            markets.append({
+                "market": market.value,
+                "name": config.name,
+                "country": config.country,
+                "currency": config.currency,
+                "symbol_suffix": config.symbol_suffix if config.symbol_suffix else "none",
+                "timezone": config.timezone,
+                "trading_hours": f"{config.trading_hours_start.strftime('%H:%M')} - {config.trading_hours_end.strftime('%H:%M')}",
+                "circuit_breaker": f"{config.circuit_breaker_percent}%",
+                "settlement": config.settlement_cycle,
+                "examples": _get_market_examples(market)
+            })
+        
+        return {
+            "supported_markets": markets,
+            "total_count": len(markets),
+            "usage_tips": {
+                "us_stocks": "Use plain symbols: AAPL, MSFT, GOOGL",
+                "nse_stocks": "Add .NS suffix: RELIANCE.NS, TCS.NS, INFY.NS",
+                "bse_stocks": "Add .BO suffix: RELIANCE.BO, TCS.BO, INFY.BO"
+            },
+            "status": "success"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing markets: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error"
+        }
+
+
+def _get_market_examples(market) -> list[str]:
+    """Get example symbols for a market"""
+    from maverick_mcp.config.markets import Market
+    
+    if market == Market.US:
+        return ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
+    elif market == Market.INDIA_NSE:
+        return ["RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ITC.NS"]
+    elif market == Market.INDIA_BSE:
+        return ["RELIANCE.BO", "TCS.BO", "INFY.BO", "HDFCBANK.BO", "ITC.BO"]
+    return []
+
+
+@mcp.tool()
+async def get_market_info(symbol: str) -> dict[str, Any]:
+    """
+    Get detailed market information for a specific stock symbol.
+    
+    Provides market-specific details like trading hours, circuit breakers,
+    and settlement cycles.
+    
+    Args:
+        symbol: Stock symbol (e.g., "AAPL", "RELIANCE.NS", "TCS.BO")
+        
+    Returns:
+        Dict with market information for the symbol
+    """
+    try:
+        from maverick_mcp.config.markets import get_market_from_symbol, get_market_config
+        
+        market = get_market_from_symbol(symbol)
+        config = get_market_config(symbol)
+        
+        return {
+            "symbol": symbol,
+            "market": market.value,
+            "market_name": config.name,
+            "country": config.country,
+            "currency": config.currency,
+            "timezone": config.timezone,
+            "trading_hours": {
+                "start": config.trading_hours_start.strftime("%H:%M"),
+                "end": config.trading_hours_end.strftime("%H:%M"),
+                "timezone": config.timezone
+            },
+            "trading_rules": {
+                "circuit_breaker": f"{config.circuit_breaker_percent}%",
+                "settlement_cycle": config.settlement_cycle,
+                "min_tick_size": config.min_tick_size
+            },
+            "status": "success",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting market info for {symbol}: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "error",
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+
+
 # Resources (public access)
 @mcp.resource("stock://{ticker}")
 def stock_resource(ticker: str) -> Any:
