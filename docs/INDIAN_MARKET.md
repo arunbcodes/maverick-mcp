@@ -675,6 +675,169 @@ All features available through Claude Desktop:
 
 ---
 
+## Future Enhancements
+
+### Current Implementation Status
+
+MaverickMCP currently uses **working prototypes** with basic implementations. The following features are functional but use placeholder/approximate data and can be enhanced with real APIs:
+
+#### ✅ Currently Working (Basic Implementation)
+
+| Feature | Current Status | Data Source |
+|---------|---------------|-------------|
+| RBI Policy Rates | Fixed approximate values (6.50% repo rate) | Hardcoded + notes |
+| GDP Data | Real but limited | World Bank API |
+| News Articles | Placeholder data | Simulated |
+| News Sentiment | Basic classification (pos/neg/neutral) | Rule-based |
+| Currency Conversion | Fixed rate (~83 INR/USD) | Hardcoded |
+| Market Comparison | Basic correlation | Simple calculations |
+
+#### 🚀 Available for Enhancement
+
+These features are **not yet implemented** and represent opportunities for future development:
+
+##### 1. Real-Time Data Integration
+
+**RBI Data Scraping**
+- [ ] Scrape RBI official website for live policy rates
+- [ ] Parse MPC meeting minutes and decisions
+- [ ] Track rate change history
+- **Complexity:** Medium | **Impact:** High | **Effort:** 2-3 days
+
+**News API Integration**
+- [ ] MoneyControl RSS feeds or API
+- [ ] Economic Times web scraping
+- [ ] LiveMint API integration
+- [ ] Business Standard integration
+- [ ] Rate limiting and error handling
+- **Complexity:** Medium | **Impact:** High | **Effort:** 3-4 days
+
+**Exchange Rate API**
+- [ ] Exchange Rate API integration (https://exchangerate-api.com/)
+- [ ] Yahoo Finance currency data
+- [ ] RBI official reference rates
+- [ ] Historical rate storage
+- **Complexity:** Low | **Impact:** Medium | **Effort:** 1-2 days
+
+##### 2. Advanced Analytics
+
+**Advanced NLP Sentiment Analysis**
+- [ ] FinBERT model integration (financial sentiment)
+- [ ] Named Entity Recognition for companies
+- [ ] Aspect-based sentiment analysis
+- [ ] Training on Indian financial corpus
+- **Complexity:** High | **Impact:** High | **Effort:** 1-2 weeks
+
+**Advanced Market Correlations**
+- [ ] Rolling correlations (time-varying)
+- [ ] Granger causality tests
+- [ ] Cointegration analysis
+- [ ] Lead-lag relationships
+- [ ] Regime detection (bull/bear/sideways)
+- **Complexity:** Medium | **Impact:** Medium | **Effort:** 3-5 days
+
+##### 3. Infrastructure Enhancements
+
+**Database Storage**
+- [ ] News article persistence
+- [ ] Historical exchange rates storage
+- [ ] Economic indicator history
+- [ ] Sentiment score tracking
+- **Complexity:** Low | **Impact:** Medium | **Effort:** 2-3 days
+
+**Background Workers**
+- [ ] Celery task queue integration
+- [ ] Scheduled data updates (every 15 min for news, hourly for rates)
+- [ ] Automatic cache warming
+- [ ] Failed task retry logic
+- **Complexity:** Medium | **Impact:** High | **Effort:** 3-4 days
+
+**Real-Time Streaming**
+- [ ] WebSocket integration for live data
+- [ ] Stock price streaming
+- [ ] News feed streaming
+- [ ] Alert system
+- **Complexity:** High | **Impact:** High | **Effort:** 1-2 weeks
+
+##### 4. Production Features
+
+**Rate Limiting & Resilience**
+- [ ] API rate limit management
+- [ ] Automatic retry with exponential backoff
+- [ ] Circuit breaker patterns
+- [ ] Fallback data sources
+- **Complexity:** Medium | **Impact:** High | **Effort:** 2-3 days
+
+**Monitoring & Observability**
+- [ ] Data quality metrics
+- [ ] API health dashboards
+- [ ] Alert on stale data
+- [ ] Performance monitoring
+- **Complexity:** Medium | **Impact:** Medium | **Effort:** 2-3 days
+
+### Enhancement Roadmap
+
+#### Phase 6: Real-Time Data (Recommended First)
+**Priority:** High | **Effort:** 1-2 weeks
+
+1. Exchange Rate API (1-2 days)
+2. News API Integration (3-4 days)
+3. RBI Data Scraping (2-3 days)
+4. Background Workers (3-4 days)
+
+**Benefits:**
+- Real, up-to-date data
+- Automatic updates
+- Better user experience
+
+#### Phase 7: Advanced Analytics
+**Priority:** Medium | **Effort:** 2-3 weeks
+
+1. FinBERT Sentiment (1-2 weeks)
+2. Advanced Correlations (3-5 days)
+3. Named Entity Recognition (3-4 days)
+
+**Benefits:**
+- More sophisticated analysis
+- Better insights
+- Differentiation from competitors
+
+#### Phase 8: Infrastructure & Scale
+**Priority:** Medium | **Effort:** 1-2 weeks
+
+1. Database Storage (2-3 days)
+2. Rate Limiting (2-3 days)
+3. Monitoring (2-3 days)
+4. WebSocket Streaming (1-2 weeks)
+
+**Benefits:**
+- Production-grade reliability
+- Scalability
+- Real-time features
+
+### How to Contribute
+
+Want to implement any of these enhancements?
+
+1. **Check the complexity** rating above
+2. **Review** the implementation details in `docs/PHASE4_IMPLEMENTATION.md`
+3. **Create a branch** for your feature
+4. **Implement** with tests and documentation
+5. **Submit PR** with description of changes
+
+### API Keys Needed for Enhancements
+
+To implement the above features, you'll need:
+
+| Feature | API/Service | Cost | URL |
+|---------|-------------|------|-----|
+| Exchange Rates | Exchange Rate API | Free tier available | https://exchangerate-api.com/ |
+| News | NewsAPI | Free tier: 100 req/day | https://newsapi.org/ |
+| Advanced Data | Trading Economics | Paid (varies) | https://tradingeconomics.com/ |
+| NLP Models | Hugging Face | Free | https://huggingface.co/ |
+
+---
+
 ## Support
 
 For issues or questions:
@@ -685,5 +848,5 @@ For issues or questions:
 ---
 
 **Last Updated:** Phase 5 - Polish & Documentation  
-**Status:** Production Ready ✅
+**Status:** Production Ready ✅ (with placeholder data for some features - see Future Enhancements)
 

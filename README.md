@@ -777,6 +777,8 @@ For issues or questions:
 - **Economic Calendar**: Upcoming RBI announcements and data releases
 - **MCP Tools**: Fully integrated with Claude Desktop for easy access
 
+**Note:** Currently using working prototypes with placeholder/approximate data for some features (RBI rates, news, exchange rates). See [`docs/INDIAN_MARKET.md` → Future Enhancements](docs/INDIAN_MARKET.md#future-enhancements) for enhancement opportunities.
+
 See `docs/PHASE4_IMPLEMENTATION.md` for complete documentation.
 
 ### Production-Ready Backtesting Framework (NEW)
