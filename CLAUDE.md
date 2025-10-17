@@ -769,6 +769,17 @@ See `docs/MULTI_MARKET_SUPPORT.md` for complete documentation.
 
 See `docs/PHASE2_INDIAN_MARKET.md` for complete documentation and usage examples.
 
+### Indian Market Screening Strategies - Phase 3 (NEW)
+
+- **7 Screening Strategies**: Bullish, Bearish, Momentum, Value, Dividend, Small-cap, Sector Rotation
+- **Market-Specific Adaptations**: 10% circuit breakers, INR currency formatting, T+1 settlement
+- **MCP Tools for Claude Desktop**: Get recommendations with simple commands
+- **Nifty Sector Analysis**: Identify hot sectors and top performers
+- **Indian Market Overview**: Real-time status, statistics, and major indices
+- **Comprehensive Testing**: Full test coverage for all screening strategies
+
+See `docs/PHASE3_NOTES.md` for implementation details.
+
 ### Production-Ready Backtesting Framework (NEW)
 
 - **VectorBT Integration**: High-performance vectorized backtesting engine
