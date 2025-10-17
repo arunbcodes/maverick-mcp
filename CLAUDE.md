@@ -8,8 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It provides:
 
+- **Multi-Market Support**: Analyze stocks from US (NASDAQ/NYSE), Indian NSE, and Indian BSE markets
 - Pre-seeded database with all 520 S&P 500 stocks and screening recommendations
 - Real-time and historical stock data access with intelligent caching
+- Market-aware trading calendars (NYSE for US, NSE for India)
 - Advanced technical analysis tools (RSI, MACD, Bollinger Bands, etc.)
 - Multiple stock screening strategies (Maverick Bullish/Bearish, Supply/Demand Breakouts)
 - Portfolio optimization and correlation analysis
@@ -373,12 +375,24 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 
 ## Key Features
 
+### Multi-Market Support (NEW - Phase 1)
+
+- **Supported Markets**: US (NASDAQ/NYSE), Indian NSE (.NS suffix), Indian BSE (.BO suffix)
+- **Automatic Market Detection**: Symbol suffix determines market (e.g., "RELIANCE.NS" → NSE)
+- **Market-Specific Calendars**: Accurate trading day detection for each market
+- **Currency Support**: USD for US stocks, INR for Indian stocks
+- **Trading Hours**: Market-specific hours (US: 9:30 AM-4:00 PM EST, India: 9:15 AM-3:30 PM IST)
+- **Circuit Breakers**: Market-specific limits (US: 7%, India: 10%)
+
+See `docs/MULTI_MARKET_SUPPORT.md` for full documentation.
+
 ### Stock Analysis
 
 - Historical price data with database caching
 - Technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands)
 - Support/resistance levels
 - Volume analysis and patterns
+- Works across all supported markets (US, Indian NSE/BSE)
 
 ### Stock Screening (Pre-seeded S&P 500 Data)
 
@@ -706,6 +720,19 @@ Once connected to Claude Desktop, test the backtesting framework:
 ```
 
 ## Recent Updates
+
+### Multi-Market Support - Phase 1 (NEW)
+
+- **Multi-Exchange Support**: Analyze stocks from US, Indian NSE (.NS), and Indian BSE (.BO) markets
+- **Automatic Market Detection**: Symbol suffix determines market automatically
+- **Market-Specific Calendars**: Accurate trading day detection using pandas_market_calendars
+- **Currency & Timezone Handling**: Proper handling of USD/INR, EST/IST
+- **Market-Specific Configuration**: Circuit breakers, settlement cycles, trading hours per market
+- **Database Schema**: Extended to support market identification and multi-currency
+- **Backward Compatible**: All existing S&P 500 functionality unchanged
+- **Comprehensive Testing**: Full test suite for market detection, calendars, and database integration
+
+See `docs/MULTI_MARKET_SUPPORT.md` for complete documentation.
 
 ### Production-Ready Backtesting Framework (NEW)
 
