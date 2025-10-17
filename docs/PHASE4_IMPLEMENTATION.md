@@ -627,8 +627,84 @@ uv add python-forex beautifulsoup4 lxml newspaper3k pandas-datareader
 - [World Bank Data API](https://data.worldbank.org/)
 - [FRED Economic Data](https://fred.stlouisfed.org/)
 
+## Current Implementation Status
+
+### ⚠️ Working Prototypes with Placeholder Data
+
+Phase 4 features are currently implemented as **working prototypes** using approximate/placeholder data:
+
+| Component | Status | Data Source | Production Ready? |
+|-----------|--------|-------------|-------------------|
+| RBI Data Provider | ✅ Working | Approximate values + World Bank API | ⚠️ Placeholder |
+| Indian News Provider | ✅ Working | Simulated articles | ⚠️ Placeholder |
+| Market Comparison | ✅ Working | Basic correlation calculations | ✅ Yes |
+| Currency Converter | ✅ Working | Fixed rate (~83 INR/USD) | ⚠️ Placeholder |
+
+### 🚀 Enhancement Opportunities
+
+The following features are **NOT YET IMPLEMENTED** and represent opportunities for future development:
+
+#### High Priority (Recommended Next)
+
+1. **Real-Time Exchange Rates** (1-2 days effort)
+   - Integrate Exchange Rate API or Yahoo Finance
+   - Store historical rates in database
+   - Automatic hourly updates
+
+2. **News API Integration** (3-4 days effort)
+   - MoneyControl RSS/API
+   - Economic Times web scraping
+   - NewsAPI integration
+   - Rate limiting and retry logic
+
+3. **RBI Data Scraping** (2-3 days effort)
+   - Scrape RBI website for live policy rates
+   - Parse MPC decisions
+   - Track historical changes
+
+#### Medium Priority (Advanced Features)
+
+4. **Advanced NLP Sentiment** (1-2 weeks effort)
+   - FinBERT model integration
+   - Named Entity Recognition
+   - Aspect-based sentiment
+   - Training on Indian financial corpus
+
+5. **Advanced Correlations** (3-5 days effort)
+   - Rolling correlations
+   - Granger causality tests
+   - Cointegration analysis
+   - Regime detection
+
+#### Lower Priority (Infrastructure)
+
+6. **Database Storage** (2-3 days effort)
+   - Historical news storage
+   - Exchange rate history
+   - Economic indicator tracking
+
+7. **Background Workers** (3-4 days effort)
+   - Celery task queue
+   - Scheduled updates
+   - Cache warming
+
+8. **WebSocket Streaming** (1-2 weeks effort)
+   - Real-time data feeds
+   - Live price updates
+   - Alert system
+
+### Implementation Guide
+
+For detailed implementation guidance, see:
+- **Complete Enhancement List**: [`docs/INDIAN_MARKET.md` → Future Enhancements](./INDIAN_MARKET.md#future-enhancements)
+- **API Keys Required**: See enhancement section for required services
+- **Complexity Ratings**: Each feature includes complexity and effort estimates
+
+---
+
 ## Related Documentation
 
 - [Phase 1: Multi-Market Infrastructure](./MULTI_MARKET_SUPPORT.md)
 - [Phase 2: Indian Market Data Integration](./PHASE2_INDIAN_MARKET.md)
 - [Phase 3: Indian Market Screening](./PHASE3_IMPLEMENTATION.md)
+- [Complete User Guide with Future Enhancements](./INDIAN_MARKET.md)
