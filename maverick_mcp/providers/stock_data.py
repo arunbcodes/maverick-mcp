@@ -46,11 +46,14 @@ logger = logging.getLogger("maverick_mcp.stock_data")
 class EnhancedStockDataProvider:
     """
     Enhanced provider for stock data with database caching and screening recommendations.
+    
+    Supports multi-market functionality for US, Indian NSE, and Indian BSE stocks.
+    Market-specific calendars and trading hours are automatically applied based on ticker symbols.
     """
 
     def __init__(self, db_session: Session | None = None):
         """
-        Initialize the stock data provider.
+        Initialize the stock data provider with multi-market support.
 
         Args:
             db_session: Optional database session for dependency injection.
@@ -59,8 +62,12 @@ class EnhancedStockDataProvider:
         self.timeout = 30
         self.max_retries = 3
         self.cache_days = 1  # Cache data for 1 day by default
-        # Initialize NYSE calendar for US stock market
+        
+        # Multi-market calendar support - lazily loaded per market
+        self.market_calendars = {}
+        # Initialize default NYSE calendar for backward compatibility
         self.market_calendar = mcal.get_calendar("NYSE")
+        
         self._db_session = db_session
         # Initialize yfinance connection pool
         self._yf_pool = get_yfinance_pool()
@@ -70,6 +77,44 @@ class EnhancedStockDataProvider:
         else:
             # Test creating a new session
             self._test_db_connection()
+    
+    def _get_market_calendar(self, symbol: str | None = None):
+        """
+        Get the appropriate market calendar for a symbol.
+        
+        Args:
+            symbol: Stock ticker symbol (e.g., "AAPL", "RELIANCE.NS", "SENSEX.BO")
+                   If None, returns default NYSE calendar
+        
+        Returns:
+            pandas_market_calendars calendar instance for the symbol's market
+        """
+        if symbol is None:
+            return self.market_calendar
+        
+        try:
+            from maverick_mcp.config.markets import get_market_config
+            
+            market_config = get_market_config(symbol)
+            market_key = market_config.name
+            
+            # Cache calendar instances to avoid repeated initialization
+            if market_key not in self.market_calendars:
+                try:
+                    self.market_calendars[market_key] = market_config.get_calendar()
+                    logger.debug(f"Loaded {market_config.calendar_name} calendar for {symbol}")
+                except Exception as e:
+                    logger.warning(
+                        f"Could not load calendar for {market_config.name}: {e}. "
+                        f"Falling back to NYSE calendar."
+                    )
+                    self.market_calendars[market_key] = self.market_calendar
+            
+            return self.market_calendars[market_key]
+            
+        except Exception as e:
+            logger.warning(f"Error determining market for {symbol}: {e}. Using default NYSE calendar.")
+            return self.market_calendar
 
     def _test_db_connection(self):
         """Test database connection on initialization."""
@@ -340,13 +385,14 @@ class EnhancedStockDataProvider:
         trading_days = self._get_trading_days(check_start, end_date)
         return len(trading_days) > 0
 
-    def _get_trading_days(self, start_date, end_date) -> pd.DatetimeIndex:
+    def _get_trading_days(self, start_date, end_date, symbol: str | None = None) -> pd.DatetimeIndex:
         """
-        Get all trading days between start and end dates.
+        Get all trading days between start and end dates for a specific market.
 
         Args:
             start_date: Start date (can be string or datetime)
             end_date: End date (can be string or datetime)
+            symbol: Optional stock symbol to determine market calendar
 
         Returns:
             DatetimeIndex of trading days (timezone-naive)
@@ -361,19 +407,23 @@ class EnhancedStockDataProvider:
         else:
             end_date = pd.to_datetime(end_date).tz_localize(None)
 
+        # Get market-specific calendar
+        calendar = self._get_market_calendar(symbol)
+        
         # Get valid trading days from market calendar
-        schedule = self.market_calendar.schedule(
+        schedule = calendar.schedule(
             start_date=start_date, end_date=end_date
         )
         # Return timezone-naive index
         return schedule.index.tz_localize(None)
 
-    def _get_last_trading_day(self, date) -> pd.Timestamp:
+    def _get_last_trading_day(self, date, symbol: str | None = None) -> pd.Timestamp:
         """
-        Get the last trading day on or before the given date.
+        Get the last trading day on or before the given date for a specific market.
 
         Args:
             date: Date to check (can be string or datetime)
+            symbol: Optional stock symbol to determine market calendar
 
         Returns:
             Last trading day as pd.Timestamp
@@ -382,24 +432,25 @@ class EnhancedStockDataProvider:
             date = pd.to_datetime(date)
 
         # Check if the date itself is a trading day
-        if self._is_trading_day(date):
+        if self._is_trading_day(date, symbol):
             return date
 
         # Otherwise, find the previous trading day
         for i in range(1, 10):  # Look back up to 10 days
             check_date = date - timedelta(days=i)
-            if self._is_trading_day(check_date):
+            if self._is_trading_day(check_date, symbol):
                 return check_date
 
         # Fallback to the date itself if no trading day found
         return date
 
-    def _is_trading_day(self, date) -> bool:
+    def _is_trading_day(self, date, symbol: str | None = None) -> bool:
         """
-        Check if a specific date is a trading day.
+        Check if a specific date is a trading day for a specific market.
 
         Args:
             date: Date to check
+            symbol: Optional stock symbol to determine market calendar
 
         Returns:
             True if it's a trading day
@@ -407,7 +458,9 @@ class EnhancedStockDataProvider:
         if isinstance(date, str):
             date = pd.to_datetime(date)
 
-        schedule = self.market_calendar.schedule(start_date=date, end_date=date)
+        # Get market-specific calendar
+        calendar = self._get_market_calendar(symbol)
+        schedule = calendar.schedule(start_date=date, end_date=date)
         return len(schedule) > 0
 
     def _get_db_session(self) -> tuple[Session, bool]:
@@ -572,12 +625,13 @@ class EnhancedStockDataProvider:
 
         # For daily data, adjust end date to last trading day if it's not a trading day
         # This prevents unnecessary cache misses on weekends/holidays
+        # Use market-specific calendar based on symbol
         if interval == "1d" and use_cache:
             end_dt = pd.to_datetime(end_date)
-            if not self._is_trading_day(end_dt):
-                last_trading = self._get_last_trading_day(end_dt)
+            if not self._is_trading_day(end_dt, symbol):
+                last_trading = self._get_last_trading_day(end_dt, symbol)
                 logger.debug(
-                    f"Adjusting end date from {end_date} to last trading day {last_trading.strftime('%Y-%m-%d')}"
+                    f"Adjusting end date from {end_date} to last trading day {last_trading.strftime('%Y-%m-%d')} for {symbol}"
                 )
                 end_date = last_trading.strftime("%Y-%m-%d")
 

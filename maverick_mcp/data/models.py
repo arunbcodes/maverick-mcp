@@ -350,19 +350,35 @@ class TimestampMixin:
 
 
 class Stock(Base, TimestampMixin):
-    """Stock model for storing basic stock information."""
+    """
+    Stock model for storing basic stock information.
+    
+    Supports multi-market functionality for US, Indian NSE, and Indian BSE stocks.
+    Market is automatically determined from ticker symbol suffix (e.g., .NS for NSE, .BO for BSE).
+    """
 
     __tablename__ = "mcp_stocks"
+    __table_args__ = (
+        # Composite indexes for efficient multi-market queries
+        Index('idx_stock_market_country', 'market', 'country'),
+        Index('idx_stock_market_sector', 'market', 'sector'),
+        Index('idx_stock_country_active', 'country', 'is_active'),
+    )
 
     stock_id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    ticker_symbol = Column(String(10), unique=True, nullable=False, index=True)
+    ticker_symbol = Column(String(20), unique=True, nullable=False, index=True)  # Increased from 10 to 20 for suffixes
     company_name = Column(String(255))
     description = Column(Text)
+    
+    # Multi-market support fields
+    market = Column(String(10), nullable=False, default="US", index=True)  # "US", "NSE", "BSE"
+    exchange = Column(String(50))  # "NASDAQ", "NYSE", "NSE", "BSE"
+    country = Column(String(2), default="US")  # ISO 3166-1 alpha-2: "US", "IN"
+    currency = Column(String(3), default="USD")  # ISO 4217: "USD", "INR"
+    
+    # Stock classification
     sector = Column(String(100))
     industry = Column(String(100))
-    exchange = Column(String(50))
-    country = Column(String(50))
-    currency = Column(String(3))
     isin = Column(String(12))
 
     # Additional stock metadata
@@ -394,16 +410,50 @@ class Stock(Base, TimestampMixin):
     )
 
     def __repr__(self):
-        return f"<Stock(ticker={self.ticker_symbol}, name={self.company_name})>"
+        return f"<Stock(ticker={self.ticker_symbol}, name={self.company_name}, market={self.market})>"
 
     @classmethod
     def get_or_create(cls, session: Session, ticker_symbol: str, **kwargs) -> Stock:
-        """Get existing stock or create new one."""
-        stock = (
-            session.query(cls).filter_by(ticker_symbol=ticker_symbol.upper()).first()
-        )
+        """
+        Get existing stock or create new one with automatic market detection.
+        
+        Market is automatically determined from ticker symbol suffix:
+        - No suffix or US tickers: US market
+        - .NS suffix: Indian NSE market
+        - .BO suffix: Indian BSE market
+        
+        Args:
+            session: Database session
+            ticker_symbol: Stock ticker symbol (e.g., "AAPL", "RELIANCE.NS", "SENSEX.BO")
+            **kwargs: Additional stock attributes
+            
+        Returns:
+            Stock instance
+        """
+        ticker_upper = ticker_symbol.upper()
+        stock = session.query(cls).filter_by(ticker_symbol=ticker_upper).first()
+        
         if not stock:
-            stock = cls(ticker_symbol=ticker_symbol.upper(), **kwargs)
+            # Auto-detect market if not provided
+            if 'market' not in kwargs:
+                from maverick_mcp.config.markets import get_market_from_symbol
+                market = get_market_from_symbol(ticker_upper)
+                kwargs['market'] = market.value
+                
+            # Auto-set country and currency if not provided
+            if 'country' not in kwargs:
+                if kwargs.get('market') in ['NSE', 'BSE']:
+                    kwargs['country'] = 'IN'
+                else:
+                    kwargs['country'] = 'US'
+                    
+            if 'currency' not in kwargs:
+                if kwargs.get('market') in ['NSE', 'BSE']:
+                    kwargs['currency'] = 'INR'
+                else:
+                    kwargs['currency'] = 'USD'
+            
+            stock = cls(ticker_symbol=ticker_upper, **kwargs)
             session.add(stock)
             session.commit()
         return stock
