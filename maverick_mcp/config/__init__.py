@@ -12,6 +12,17 @@ from .database import (
     get_pool_config_from_settings,
     validate_production_config,
 )
+from .markets import (
+    Market,
+    MarketConfig,
+    MARKET_CONFIGS,
+    get_all_markets,
+    get_market_config,
+    get_market_from_symbol,
+    get_markets_by_country,
+    is_indian_market,
+    is_us_market,
+)
 
 __all__ = [
     "CONFIG",
@@ -24,4 +35,14 @@ __all__ = [
     "get_pool_config_from_settings",
     "create_engine_with_enhanced_config",
     "validate_production_config",
+    # Multi-market support
+    "Market",
+    "MarketConfig",
+    "MARKET_CONFIGS",
+    "get_market_from_symbol",
+    "get_market_config",
+    "get_all_markets",
+    "get_markets_by_country",
+    "is_indian_market",
+    "is_us_market",
 ]

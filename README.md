@@ -28,15 +28,17 @@ MaverickMCP provides professional-grade financial analysis tools directly within
 
 ## Features
 
+- **Multi-Market Support**: Analyze stocks from US (NASDAQ/NYSE), Indian NSE (.NS), and Indian BSE (.BO) markets with automatic detection
 - **Pre-seeded Database**: 520 S&P 500 stocks with comprehensive screening recommendations
 - **Advanced Backtesting**: VectorBT-powered engine with 15+ built-in strategies and ML algorithms
 - **Fast Development**: Comprehensive Makefile, smart error handling, hot reload, and parallel processing
-- **Stock Data Access**: Historical and real-time stock data with intelligent caching
+- **Stock Data Access**: Historical and real-time stock data with intelligent caching across all markets
 - **Technical Analysis**: 20+ indicators including SMA, EMA, RSI, MACD, Bollinger Bands, and more
 - **Stock Screening**: Multiple strategies (Maverick Bullish/Bearish, Trending Breakouts) with parallel processing
 - **Portfolio Tools**: Correlation analysis, returns calculation, and optimization
 - **Market Data**: Sector performance, market movers, and earnings information
 - **Smart Caching**: Redis-powered performance with automatic fallback to in-memory storage
+- **Market-Aware Calendars**: Accurate trading day detection for US and Indian markets
 - **Database Support**: SQLAlchemy integration with PostgreSQL/SQLite (defaults to SQLite)
 - **Multi-Transport Support**: HTTP, SSE, and STDIO transports for all MCP clients
 
