@@ -8,8 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It provides:
 
+- **Multi-Market Support**: Analyze stocks from US (NASDAQ/NYSE), Indian NSE, and Indian BSE markets
 - Pre-seeded database with all 520 S&P 500 stocks and screening recommendations
 - Real-time and historical stock data access with intelligent caching
+- Market-aware trading calendars (NYSE for US, NSE for India)
 - Advanced technical analysis tools (RSI, MACD, Bollinger Bands, etc.)
 - Multiple stock screening strategies (Maverick Bullish/Bearish, Supply/Demand Breakouts)
 - Portfolio optimization and correlation analysis
@@ -77,7 +79,7 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
    ```
    # OpenRouter API (strongly recommended for research - access to 400+ AI models with intelligent cost optimization)
    OPENROUTER_API_KEY=your-openrouter-key
-   
+
    # Web Search API (recommended for research features)
    EXA_API_KEY=your-exa-key
 
@@ -146,6 +148,7 @@ make c                # Alias for make check
 This is the **tested and proven method for Claude Desktop** - provides stable tool registration:
 
 1. **Start the SSE server**:
+
    ```bash
    make dev  # Runs SSE server on port 8003
    ```
@@ -167,6 +170,7 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
    > **CRITICAL**: Note the trailing slash in `/sse/` - this is REQUIRED to prevent 307 redirect issues that cause tools to disappear!
 
 **Why This Configuration Works Best**:
+
 - ✅ **Prevents Tool Disappearing**: Tools remain available throughout your session (trailing slash is critical!)
 - ✅ **Stable Connection**: SSE transport provides consistent communication
 - ✅ **Session Persistence**: Maintains connection state for complex analysis workflows
@@ -174,8 +178,9 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
 - ✅ **Tested and Confirmed**: This exact configuration has been verified to work
 
 #### Method B: HTTP Streamable Server with mcp-remote Bridge (Alternative)
-   
+
 1. **Start the HTTP Streamable server**:
+
    ```bash
    make dev  # Runs HTTP streamable server on port 8003
    ```
@@ -195,13 +200,14 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
    ```
 
 **Benefits**:
+
 - ✅ Uses HTTP Streamable transport
 - ✅ Alternative to SSE endpoint
 - ✅ Supports remote access
 
 #### Method C: Remote via Claude.ai (Alternative)
-   
-   For native remote server support, use [Claude.ai web interface](https://claude.ai/settings/integrations) instead of Claude Desktop.
+
+For native remote server support, use [Claude.ai web interface](https://claude.ai/settings/integrations) instead of Claude Desktop.
 
 3. **Restart Claude Desktop** and test with: "Show me technical analysis for AAPL"
 
@@ -211,19 +217,20 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
 
 #### Transport Compatibility Matrix
 
-| MCP Client           | STDIO | HTTP | SSE | Optimal Method                                |
-|----------------------|-------|------|-----|-----------------------------------------------|
-| **Claude Desktop**   | ❌    | ❌   | ✅  | **SSE via mcp-remote** (stable, tested)      |
-| **Cursor IDE**       | ✅    | ❌   | ✅  | SSE and STDIO supported                       |
-| **Claude Code CLI**  | ✅    | ✅   | ✅  | All transports supported                      |
-| **Continue.dev**     | ✅    | ❌   | ✅  | SSE and STDIO supported                       |
-| **Windsurf IDE**     | ✅    | ❌   | ✅  | SSE and STDIO supported                       |
+| MCP Client          | STDIO | HTTP | SSE | Optimal Method                          |
+| ------------------- | ----- | ---- | --- | --------------------------------------- |
+| **Claude Desktop**  | ❌    | ❌   | ✅  | **SSE via mcp-remote** (stable, tested) |
+| **Cursor IDE**      | ✅    | ❌   | ✅  | SSE and STDIO supported                 |
+| **Claude Code CLI** | ✅    | ✅   | ✅  | All transports supported                |
+| **Continue.dev**    | ✅    | ❌   | ✅  | SSE and STDIO supported                 |
+| **Windsurf IDE**    | ✅    | ❌   | ✅  | SSE and STDIO supported                 |
 
 #### Claude Desktop (Most Commonly Used)
 
 **✅ TESTED CONFIGURATION**: Use SSE endpoint with mcp-remote bridge - prevents tools from disappearing and ensures stable connection.
 
 **Configuration Location:**
+
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 - Linux: `~/.config/Claude/claude_desktop_config.json`
@@ -231,11 +238,13 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
 **SSE Connection with mcp-remote (Tested and Stable):**
 
 1. Start the server:
+
    ```bash
    make dev  # Starts SSE server on port 8003
    ```
 
 2. Configure Claude Desktop:
+
    ```json
    {
      "mcpServers": {
@@ -246,7 +255,7 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
      }
    }
    ```
-   
+
    > **CRITICAL**: Always include the trailing slash (`/sse/`) to prevent 307 redirects!
 
 **Important**: This exact configuration has been tested and confirmed to prevent the common issue where tools appear initially but then disappear from Claude Desktop.
@@ -256,6 +265,7 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
 #### Cursor IDE - SSE and STDIO Support
 
 **Option 1: Direct SSE (Recommended):**
+
 ```json
 {
   "mcpServers": {
@@ -271,16 +281,19 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
 #### Claude Code CLI - Full Transport Support
 
 **SSE Transport (Recommended):**
+
 ```bash
 claude mcp add --transport sse maverick-mcp http://localhost:8003/sse/
 ```
 
 **HTTP Transport (Alternative):**
+
 ```bash
 claude mcp add --transport http maverick-mcp http://localhost:8003/mcp/
 ```
 
 **STDIO Transport (Development only):**
+
 ```bash
 claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport stdio
 ```
@@ -288,6 +301,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 #### Continue.dev - SSE and STDIO Support
 
 **Option 1: Direct SSE (Recommended):**
+
 ```json
 {
   "mcpServers": {
@@ -299,6 +313,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 ```
 
 **Option 2: SSE via mcp-remote (Alternative):**
+
 ```json
 {
   "experimental": {
@@ -318,6 +333,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 #### Windsurf IDE - SSE and STDIO Support
 
 **Option 1: Direct SSE (Recommended):**
+
 ```json
 {
   "mcpServers": {
@@ -329,6 +345,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 ```
 
 **Option 2: SSE via mcp-remote (Alternative):**
+
 ```json
 {
   "mcpServers": {
@@ -345,6 +362,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 ### How It Works
 
 **Connection Architecture:**
+
 - **STDIO Mode (Optimal for Claude Desktop)**: Direct subprocess communication - fastest, most reliable
 - **Streamable-HTTP Endpoint**: `http://localhost:8003/` - For remote access via mcp-remote bridge
 - **SSE Endpoint**: `http://localhost:8003/sse/` - For other clients with native SSE support
@@ -352,26 +370,41 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 > **Key Finding**: Direct STDIO is the optimal transport for Claude Desktop. HTTP/SSE require the mcp-remote bridge tool, adding latency and complexity. SSE is particularly problematic as it's incompatible with mcp-remote (GET vs POST mismatch).
 
 **Transport Limitations by Client:**
+
 - **Claude Desktop**: STDIO-only, cannot directly connect to HTTP/SSE
 - **Most Other Clients**: Support STDIO + SSE (but not HTTP)
 - **Claude Code CLI**: Full transport support (STDIO, HTTP, SSE)
 
 **mcp-remote Bridge Tool:**
+
 - **Purpose**: Converts STDIO client calls to HTTP/SSE server requests
 - **Why Needed**: Bridges the gap between STDIO-only clients and HTTP/SSE servers
 - **Connection Flow**: Client (STDIO) ↔ mcp-remote ↔ HTTP/SSE Server
 - **Installation**: `npx mcp-remote <server-url>`
 
 **Key Transport Facts:**
+
 - **STDIO**: All clients support this for local connections
 - **HTTP**: Only Claude Code CLI supports direct HTTP connections
-- **SSE**: Cursor, Continue.dev, Windsurf support direct SSE connections  
+- **SSE**: Cursor, Continue.dev, Windsurf support direct SSE connections
 - **Claude Desktop Limitation**: Cannot connect to HTTP/SSE without mcp-remote bridge
 
 **Alternatives for Remote Access:**
+
 - Use Claude.ai web interface for native remote server support (no mcp-remote needed)
 
 ## Key Features
+
+### Multi-Market Support (NEW - Phase 1)
+
+- **Supported Markets**: US (NASDAQ/NYSE), Indian NSE (.NS suffix), Indian BSE (.BO suffix)
+- **Automatic Market Detection**: Symbol suffix determines market (e.g., "RELIANCE.NS" → NSE)
+- **Market-Specific Calendars**: Accurate trading day detection for each market
+- **Currency Support**: USD for US stocks, INR for Indian stocks
+- **Trading Hours**: Market-specific hours (US: 9:30 AM-4:00 PM EST, India: 9:15 AM-3:30 PM IST)
+- **Circuit Breakers**: Market-specific limits (US: 7%, India: 10%)
+
+See `docs/MULTI_MARKET_SUPPORT.md` for full documentation.
 
 ### Stock Analysis
 
@@ -379,6 +412,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 - Technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands)
 - Support/resistance levels
 - Volume analysis and patterns
+- Works across all supported markets (US, Indian NSE/BSE)
 
 ### Stock Screening (Pre-seeded S&P 500 Data)
 
@@ -432,6 +466,7 @@ All tools are organized into logical groups (35+ tools total):
 - `coordinate_agents` - Multi-agent supervisor for complex research orchestration
 
 **Research Features:**
+
 - **Parallel Execution**: 7-256x speedup with intelligent agent orchestration
 - **Adaptive Timeouts**: 120s-600s based on research depth and complexity
 - **Smart Model Selection**: Automatic selection from 400+ models via OpenRouter
@@ -455,6 +490,7 @@ All tools are organized into logical groups (35+ tools total):
 - `get_backtest_report` - Generate detailed HTML reports
 
 **Capabilities:**
+
 - 15+ built-in strategies including ML algorithms
 - VectorBT engine for vectorized performance
 - Parallel processing with 7-256x speedup
@@ -706,6 +742,19 @@ Once connected to Claude Desktop, test the backtesting framework:
 ```
 
 ## Recent Updates
+
+### Multi-Market Support - Phase 1 (NEW)
+
+- **Multi-Exchange Support**: Analyze stocks from US, Indian NSE (.NS), and Indian BSE (.BO) markets
+- **Automatic Market Detection**: Symbol suffix determines market automatically
+- **Market-Specific Calendars**: Accurate trading day detection using pandas_market_calendars
+- **Currency & Timezone Handling**: Proper handling of USD/INR, EST/IST
+- **Market-Specific Configuration**: Circuit breakers, settlement cycles, trading hours per market
+- **Database Schema**: Extended to support market identification and multi-currency
+- **Backward Compatible**: All existing S&P 500 functionality unchanged
+- **Comprehensive Testing**: Full test suite for market detection, calendars, and database integration
+
+See `docs/MULTI_MARKET_SUPPORT.md` for complete documentation.
 
 ### Production-Ready Backtesting Framework (NEW)
 
