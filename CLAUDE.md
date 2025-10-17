@@ -421,6 +421,15 @@ See `docs/MULTI_MARKET_SUPPORT.md` for full documentation.
 - **Supply/Demand Breakouts**: Stocks in confirmed uptrend phases with technical breakout patterns
 - All screening data is pre-calculated and stored in database for instant results
 
+### Indian Market Features (Phases 2-4)
+
+- **Indian Market Screening**: 7 specialized strategies for NSE/BSE stocks
+- **Economic Indicators**: RBI policy rates, GDP, inflation, forex reserves
+- **News Sentiment Analysis**: Multi-source Indian financial news with sentiment scoring
+- **Market Comparison**: US vs India correlation and performance analysis
+- **Currency Conversion**: INR/USD with historical rates
+- **Nifty 50 & Sensex**: Pre-configured constituent lists and sector analysis
+
 ### Portfolio Analysis
 
 - Portfolio optimization using Modern Portfolio Theory
@@ -778,7 +787,20 @@ See `docs/PHASE2_INDIAN_MARKET.md` for complete documentation and usage examples
 - **Indian Market Overview**: Real-time status, statistics, and major indices
 - **Comprehensive Testing**: Full test coverage for all screening strategies
 
-See `docs/PHASE3_NOTES.md` for implementation details.
+See `docs/PHASE3_IMPLEMENTATION.md` for implementation details.
+
+### Indian Economic Indicators & Market Comparison - Phase 4 (NEW)
+
+- **RBI Data Integration**: Policy rates (Repo, CRR, SLR), GDP growth, inflation, forex reserves
+- **Indian News Provider**: Multi-source news with sentiment analysis (MoneyControl, Economic Times, etc.)
+- **Market Comparison Tools**: US vs India correlation, index comparison, company-to-company analysis
+- **Currency Conversion**: INR/USD conversion with historical rates
+- **Economic Calendar**: Upcoming RBI announcements and data releases
+- **Cross-Market Analysis**: Compare similar companies across US and Indian markets
+- **MCP Tools**: Economic indicators, news sentiment, market comparison, currency conversion
+- **Working Prototypes**: Basic implementations ready for production enhancement
+
+See `docs/PHASE4_IMPLEMENTATION.md` for complete documentation and usage examples.
 
 ### Production-Ready Backtesting Framework (NEW)
 
