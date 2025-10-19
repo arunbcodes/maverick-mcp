@@ -687,12 +687,13 @@ MaverickMCP currently uses **working prototypes** with basic implementations. Th
 |---------|---------------|-------------|
 | RBI Policy Rates | Fixed approximate values (6.50% repo rate) | Hardcoded + notes |
 | GDP Data | Real but limited | World Bank API |
-| News Articles | Placeholder data | Simulated |
-| News Sentiment | Basic classification (pos/neg/neutral) | Rule-based |
+| **News Articles** | **✅ Real-time from multiple sources** | **MoneyControl + Economic Times RSS/Scraping** |
+| **News Sentiment** | **✅ Keyword-based analysis** | **Multi-source aggregation with deduplication** |
 | **Currency Conversion** | **✅ Real-time rates** | **Yahoo Finance / Exchange Rate API** |
 | Market Comparison | Basic correlation | Simple calculations |
 
-**🎉 Phase 6 Completed:** Real-time exchange rates now integrated! See Phase 6 details below.
+**🎉 Phase 6 Completed:** Real-time exchange rates now integrated!  
+**🎉 Phase 7 Completed:** Real news from MoneyControl + Economic Times! See Phase 7 details below.
 
 #### 🚀 Available for Enhancement
 
@@ -706,13 +707,17 @@ These features are **not yet implemented** and represent opportunities for futur
 - [ ] Track rate change history
 - **Complexity:** Medium | **Impact:** High | **Effort:** 2-3 days
 
-**News API Integration**
-- [ ] MoneyControl RSS feeds or API
-- [ ] Economic Times web scraping
-- [ ] LiveMint API integration
-- [ ] Business Standard integration
-- [ ] Rate limiting and error handling
+**✅ News API Integration (Phase 7 - COMPLETED)**
+- [x] MoneyControl RSS feeds and web scraping
+- [x] Economic Times RSS feeds and web scraping
+- [x] Multi-source aggregation with deduplication
+- [x] Database persistence (NewsArticle model)
+- [x] Keyword-based sentiment analysis
+- [x] 30-minute caching for performance
+- [ ] LiveMint API integration (future)
+- [ ] Business Standard integration (future)
 - **Complexity:** Medium | **Impact:** High | **Effort:** 3-4 days
+- **Status:** ✅ Implemented in Phase 7.1-7.3, 7.5
 
 **✅ Exchange Rate API (Phase 6 - COMPLETED)**
 - [x] Exchange Rate API integration (https://exchangerate-api.com/)
@@ -726,12 +731,16 @@ These features are **not yet implemented** and represent opportunities for futur
 
 ##### 2. Advanced Analytics
 
-**Advanced NLP Sentiment Analysis**
+**Advanced NLP Sentiment Analysis (Phase 7.4 - SKIPPED, Available for Future)**
 - [ ] FinBERT model integration (financial sentiment)
 - [ ] Named Entity Recognition for companies
 - [ ] Aspect-based sentiment analysis
 - [ ] Training on Indian financial corpus
-- **Complexity:** High | **Impact:** High | **Effort:** 1-2 weeks
+- [ ] Replace keyword matching with transformer models
+- **Complexity:** High | **Impact:** Medium-High | **Effort:** 1-2 weeks
+- **Status:** ⏭️ Intentionally skipped in Phase 7 to prioritize getting real news working first
+- **Current:** Keyword-based sentiment (38 bullish + 39 bearish keywords) works well for MVP
+- **Note:** Can be implemented later to enhance sentiment accuracy without breaking existing functionality
 
 **Advanced Market Correlations**
 - [ ] Rolling correlations (time-varying)
@@ -743,12 +752,13 @@ These features are **not yet implemented** and represent opportunities for futur
 
 ##### 3. Infrastructure Enhancements
 
-**Database Storage**
-- [ ] News article persistence
-- [ ] Historical exchange rates storage
+**Database Storage (Partially Complete)**
+- [x] News article persistence (Phase 7.1)
+- [x] Historical exchange rates storage (Phase 6.3)
 - [ ] Economic indicator history
-- [ ] Sentiment score tracking
+- [x] Sentiment score tracking (Phase 7.1)
 - **Complexity:** Low | **Impact:** Medium | **Effort:** 2-3 days
+- **Status:** 🟡 Partially complete - News and exchange rates done, economic indicators pending
 
 **Background Workers**
 - [ ] Celery task queue integration
@@ -799,24 +809,45 @@ These features are **not yet implemented** and represent opportunities for futur
 - ✅ Historical rate tracking
 - ✅ Better user experience
 
-**See Phase 6 Details:** `docs/PHASE6_IMPLEMENTATION.md` (to be created)
+**See Phase 6 Details:** `docs/PHASE6_IMPLEMENTATION.md`
 
-#### Phase 7: Real-Time Data (Remaining Items)
-**Priority:** High | **Effort:** 1-2 weeks
+#### ✅ Phase 7: Real-Time News Integration (COMPLETED)
+**Priority:** High | **Effort:** 3-4 days | **Status:** ✅ Completed (Phases 7.1-7.3, 7.5)
 
-1. News API Integration (3-4 days)
-2. RBI Data Scraping (2-3 days)
-3. Background Workers (3-4 days)
+**Implemented:**
+1. ✅ NewsArticle database model with sentiment tracking (Phase 7.1)
+2. ✅ MoneyControl scraper (RSS + web scraping) (Phase 7.2)
+3. ✅ Economic Times scraper (RSS + web scraping) (Phase 7.3)
+4. ✅ Multi-source aggregation with deduplication (Phase 7.3)
+5. ✅ Keyword-based sentiment analysis (38 bullish + 39 bearish keywords)
+6. ✅ Database persistence and 30-minute caching
+7. ✅ Updated MCP `get_indian_stock_news()` tool with real data (Phase 7.5)
+8. ⏭️ Phase 7.4 (Advanced NLP Sentiment) intentionally skipped - can be added later
+
+**Benefits Achieved:**
+- ✅ Real, up-to-date news from MoneyControl and Economic Times
+- ✅ Multi-source aggregation prevents duplicate articles
+- ✅ Automatic sentiment analysis (keyword-based)
+- ✅ Database storage for historical tracking
+- ✅ Per-source statistics and trending topics
+
+**See Phase 7 Details:** Coming soon in `docs/PHASE7_IMPLEMENTATION.md`
+
+#### Phase 8: Real-Time Data (Remaining Items)
+**Priority:** High | **Effort:** 1 week
+
+1. RBI Data Scraping (2-3 days)
+2. Background Workers (3-4 days)
 
 **Benefits:**
-- Real, up-to-date news and economic data
+- Real, up-to-date economic data
 - Automatic updates
 - Continued improvement in user experience
 
-#### Phase 8: Advanced Analytics
+#### Phase 9: Advanced Analytics
 **Priority:** Medium | **Effort:** 2-3 weeks
 
-1. FinBERT Sentiment (1-2 weeks)
+1. FinBERT Sentiment (1-2 weeks) - Phase 7.4 enhancement
 2. Advanced Correlations (3-5 days)
 3. Named Entity Recognition (3-4 days)
 
@@ -825,7 +856,7 @@ These features are **not yet implemented** and represent opportunities for futur
 - Better insights
 - Differentiation from competitors
 
-#### Phase 9: Infrastructure & Scale
+#### Phase 10: Infrastructure & Scale
 **Priority:** Medium | **Effort:** 1-2 weeks
 
 1. Database Storage (2-3 days)
@@ -870,6 +901,7 @@ For issues or questions:
 
 ---
 
-**Last Updated:** Phase 5 - Polish & Documentation  
-**Status:** Production Ready ✅ (with placeholder data for some features - see Future Enhancements)
+**Last Updated:** Phase 7 - Real-Time News Integration  
+**Status:** Production Ready ✅  
+**Real Data Sources:** Exchange rates (Phase 6), News articles (Phase 7 - MoneyControl + Economic Times)
 
