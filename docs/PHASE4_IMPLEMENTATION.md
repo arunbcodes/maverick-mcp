@@ -633,12 +633,12 @@ uv add python-forex beautifulsoup4 lxml newspaper3k pandas-datareader
 
 Phase 4 features are currently implemented as **working prototypes** using approximate/placeholder data:
 
-| Component | Status | Data Source | Production Ready? |
-|-----------|--------|-------------|-------------------|
-| RBI Data Provider | ✅ Working | Approximate values + World Bank API | ⚠️ Placeholder |
-| Indian News Provider | ✅ Working | Simulated articles | ⚠️ Placeholder |
-| Market Comparison | ✅ Working | Basic correlation calculations | ✅ Yes |
-| Currency Converter | ✅ Working | Fixed rate (~83 INR/USD) | ⚠️ Placeholder |
+| Component            | Status     | Data Source                         | Production Ready? |
+| -------------------- | ---------- | ----------------------------------- | ----------------- |
+| RBI Data Provider    | ✅ Working | Approximate values + World Bank API | ⚠️ Placeholder    |
+| Indian News Provider | ✅ Working | Simulated articles                  | ⚠️ Placeholder    |
+| Market Comparison    | ✅ Working | Basic correlation calculations      | ✅ Yes            |
+| Currency Converter   | ✅ Working | Fixed rate (~83 INR/USD)            | ⚠️ Placeholder    |
 
 ### 🚀 Enhancement Opportunities
 
@@ -647,11 +647,13 @@ The following features are **NOT YET IMPLEMENTED** and represent opportunities f
 #### High Priority (Recommended Next)
 
 1. **Real-Time Exchange Rates** (1-2 days effort)
+
    - Integrate Exchange Rate API or Yahoo Finance
    - Store historical rates in database
    - Automatic hourly updates
 
 2. **News API Integration** (3-4 days effort)
+
    - MoneyControl RSS/API
    - Economic Times web scraping
    - NewsAPI integration
@@ -665,6 +667,7 @@ The following features are **NOT YET IMPLEMENTED** and represent opportunities f
 #### Medium Priority (Advanced Features)
 
 4. **Advanced NLP Sentiment** (1-2 weeks effort)
+
    - FinBERT model integration
    - Named Entity Recognition
    - Aspect-based sentiment
@@ -679,11 +682,13 @@ The following features are **NOT YET IMPLEMENTED** and represent opportunities f
 #### Lower Priority (Infrastructure)
 
 6. **Database Storage** (2-3 days effort)
+
    - Historical news storage
    - Exchange rate history
    - Economic indicator tracking
 
 7. **Background Workers** (3-4 days effort)
+
    - Celery task queue
    - Scheduled updates
    - Cache warming
@@ -696,6 +701,7 @@ The following features are **NOT YET IMPLEMENTED** and represent opportunities f
 ### Implementation Guide
 
 For detailed implementation guidance, see:
+
 - **Complete Enhancement List**: [`docs/INDIAN_MARKET.md` → Future Enhancements](./INDIAN_MARKET.md#future-enhancements)
 - **API Keys Required**: See enhancement section for required services
 - **Complexity Ratings**: Each feature includes complexity and effort estimates
