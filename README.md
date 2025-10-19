@@ -3,9 +3,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![FastMCP](https://img.shields.io/badge/FastMCP-2.0-green.svg)](https://github.com/jlowin/fastmcp)
-[![GitHub Stars](https://img.shields.io/github/stars/wshobson/maverick-mcp?style=social)](https://github.com/wshobson/maverick-mcp)
-[![GitHub Issues](https://img.shields.io/github/issues/wshobson/maverick-mcp)](https://github.com/wshobson/maverick-mcp/issues)
-[![GitHub Forks](https://img.shields.io/github/forks/wshobson/maverick-mcp?style=social)](https://github.com/wshobson/maverick-mcp/network/members)
+[![GitHub Stars](https://img.shields.io/github/stars/arunbcodes/maverick-mcp?style=social)](https://github.com/arunbcodes/maverick-mcp)
+[![GitHub Issues](https://img.shields.io/github/issues/arunbcodes/maverick-mcp)](https://github.com/arunbcodes/maverick-mcp/issues)
+[![GitHub Forks](https://img.shields.io/github/forks/arunbcodes/maverick-mcp?style=social)](https://github.com/arunbcodes/maverick-mcp/network/members)
+
+> **Note:** This is a fork with significant enhancements. Original project by [wshobson](https://github.com/wshobson/maverick-mcp).
 
 **MaverickMCP** is a personal-use FastMCP 2.0 server that provides professional-grade financial data analysis, technical indicators, and portfolio optimization tools directly to your Claude Desktop interface. Built for individual traders and investors, it offers comprehensive stock analysis capabilities without any authentication or billing complexity.
 
@@ -118,7 +120,7 @@ pip install uv
 
 ```bash
 # Clone the repository
-git clone https://github.com/wshobson/maverick-mcp.git
+git clone https://github.com/arunbcodes/maverick-mcp.git
 cd maverick-mcp
 
 # Install dependencies and create virtual environment in one command
@@ -133,7 +135,7 @@ cp .env.example .env
 
 ```bash
 # Clone the repository
-git clone https://github.com/wshobson/maverick-mcp.git
+git clone https://github.com/arunbcodes/maverick-mcp.git
 cd maverick-mcp
 
 # Create virtual environment and install
@@ -761,8 +763,8 @@ MaverickMCP includes helpful error diagnostics:
 For issues or questions:
 
 1. **Check Documentation**: Start with this README and [CLAUDE.md](CLAUDE.md)
-2. **Search Issues**: Look through existing [GitHub issues](https://github.com/wshobson/maverick-mcp/issues)
-3. **Report Bugs**: Create a new [issue](https://github.com/wshobson/maverick-mcp/issues/new) with details
+2. **Search Issues**: Look through existing [GitHub issues](https://github.com/arunbcodes/maverick-mcp/issues)
+3. **Report Bugs**: Create a new [issue](https://github.com/arunbcodes/maverick-mcp/issues/new) with details
 4. **Request Features**: Suggest improvements via GitHub issues
 5. **Contribute**: See our [Contributing Guide](CONTRIBUTING.md) for development setup
 
@@ -867,9 +869,20 @@ If you find MaverickMCP useful:
 
 Built for traders and investors. Happy Trading!
 
-[![MSeeP.ai Security Assessment Badge](https://mseep.net/pr/wshobson-maverick-mcp-badge.png)](https://mseep.ai/app/wshobson-maverick-mcp)
+## Credits & Attribution
 
-**Read the full build guide**: [How to Build an MCP Stock Analysis Server](https://sethhobson.com/2025/08/how-to-build-an-mcp-stock-analysis-server/)
+**Original Author**: [wshobson](https://github.com/wshobson) - [Original MaverickMCP Repository](https://github.com/wshobson/maverick-mcp)
+
+**This Fork**: Maintained by [arunbcodes](https://github.com/arunbcodes) with significant enhancements:
+- Multi-market support (Indian NSE/BSE)
+- Market strategy pattern for easy extensibility
+- Refactored architecture with SOLID principles
+- Indian economic data and news integration
+- Enhanced documentation and testing
+
+**Build Guide**: For learning how to build MCP servers, see wshobson's excellent guide: [How to Build an MCP Stock Analysis Server](https://sethhobson.com/2025/08/how-to-build-an-mcp-stock-analysis-server/)
+
+This project is built on the solid foundation of the original MaverickMCP and continues to evolve with new features and improvements.
 
 ## Disclaimer
 
