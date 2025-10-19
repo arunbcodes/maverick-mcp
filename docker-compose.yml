@@ -2,10 +2,11 @@ services:
   backend:
     build: .
     ports:
-      - "8003:8003"
+      - "8003:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/maverick_mcp
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:55432/maverick_mcp
       - REDIS_HOST=redis
+      - REDIS_PORT=56379
       # Required API Keys
       - TIINGO_API_KEY=${TIINGO_API_KEY}
       # Optional API Keys for Enhanced Features
@@ -17,7 +18,7 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       # Server Configuration
       - API_HOST=0.0.0.0
-      - API_PORT=8003
+      - API_PORT=8000
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-production}
     volumes:
@@ -34,17 +35,20 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=maverick_mcp
+      - PGPORT=55432
+    command: -p 55432
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "55432:55432"
 
   redis:
     image: redis:7-alpine
+    command: redis-server --port 56379
     volumes:
       - redis-data:/data
     ports:
-      - "6379:6379"
+      - "56379:56379"
 
 volumes:
   postgres-data:

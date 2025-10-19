@@ -666,11 +666,18 @@ cp .env.example .env
 docker build -t maverick_mcp .
 docker run -p 8003:8003 --env-file .env maverick_mcp
 
-# Or start with docker-compose
+# Or start with docker-compose (recommended)
 docker-compose up -d
 ```
 
-**Note**: The Dockerfile uses `uv` for fast dependency installation and smaller image sizes.
+**Docker Port Mappings:**
+- MaverickMCP: `localhost:8003`
+- PostgreSQL: `localhost:55432` (container also uses port 55432)
+- Redis: `localhost:56379` (container also uses port 56379)
+
+**Note**: The Dockerfile uses `uv` for fast dependency installation and smaller image sizes. 
+
+**For Rancher Desktop Users**: Non-standard ports (55432, 56379) are used because Rancher Desktop's Lima VM reserves standard ports (5432, 6379) via SSH tunnel. The containers are configured to listen on these non-standard ports internally to avoid `port already allocated` errors.
 
 ## Troubleshooting
 
