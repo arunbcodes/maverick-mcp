@@ -1,8 +1,13 @@
 """
 Currency Converter - INR/USD Conversion
 
-Provides basic currency conversion between INR and USD with fallback to approximate rates.
-Can be enhanced with real-time APIs in production.
+Provides currency conversion between INR and USD with real-time rates.
+
+Now supports:
+- Real-time rates via Exchange Rate API
+- Automatic fallback to Yahoo Finance
+- Graceful degradation to approximate rates
+- Caching for performance
 """
 
 import logging
@@ -15,22 +20,57 @@ logger = logging.getLogger(__name__)
 
 class CurrencyConverter:
     """
-    Basic currency converter for INR/USD.
+    Currency converter with real-time exchange rates.
     
-    Uses approximate exchange rate with fallback options.
-    Can be enhanced with real-time API integration (Exchange Rate API, RBI, etc.)
+    Features:
+    - Real-time rates from Exchange Rate API (if API key configured)
+    - Automatic fallback to Yahoo Finance
+    - Graceful degradation to approximate rates
+    - 1-hour caching for performance
+    - Backward compatible with existing code
+    
+    Usage:
+        # With real-time rates (if API key configured)
+        converter = CurrencyConverter(use_live_rates=True)
+        
+        # With approximate rates (legacy behavior)
+        converter = CurrencyConverter(use_live_rates=False)
     """
     
-    def __init__(self):
-        """Initialize currency converter with approximate rates."""
-        # Approximate USD/INR rate (as of late 2024)
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        use_live_rates: bool = True
+    ):
+        """
+        Initialize currency converter.
+        
+        Args:
+            api_key: Optional Exchange Rate API key
+            use_live_rates: Whether to use real-time rates (default: True)
+        """
+        self.use_live_rates = use_live_rates
         self.default_usd_inr_rate = 83.0
-        logger.info("CurrencyConverter initialized with approximate rates")
+        
+        # Initialize exchange rate provider if using live rates
+        if self.use_live_rates:
+            try:
+                from maverick_mcp.providers.exchange_rate import ExchangeRateProvider
+                self.rate_provider = ExchangeRateProvider(api_key=api_key)
+                logger.info("CurrencyConverter initialized with real-time rates")
+            except Exception as e:
+                logger.warning(f"Failed to initialize rate provider: {e}. Using approximate rates.")
+                self.use_live_rates = False
+                self.rate_provider = None
+        else:
+            self.rate_provider = None
+            logger.info("CurrencyConverter initialized with approximate rates")
     
     def get_exchange_rate(
         self,
         from_currency: str = "INR",
-        to_currency: str = "USD"
+        to_currency: str = "USD",
+        force_refresh: bool = False
     ) -> float:
         """
         Get current exchange rate between two currencies.
@@ -38,6 +78,7 @@ class CurrencyConverter:
         Args:
             from_currency: Source currency code (INR or USD)
             to_currency: Target currency code (INR or USD)
+            force_refresh: Force fresh rate instead of cached
             
         Returns:
             Exchange rate
@@ -48,12 +89,84 @@ class CurrencyConverter:
         if from_currency == to_currency:
             return 1.0
         
+        # Use live rates if available
+        if self.use_live_rates and self.rate_provider:
+            try:
+                result = self.rate_provider.get_rate(
+                    from_currency,
+                    to_currency,
+                    force_refresh=force_refresh
+                )
+                return result.get("rate", self._get_approximate_rate(from_currency, to_currency))
+            except Exception as e:
+                logger.warning(f"Failed to get live rate: {e}. Using approximate rate.")
+                return self._get_approximate_rate(from_currency, to_currency)
+        else:
+            # Use approximate rates (legacy behavior)
+            return self._get_approximate_rate(from_currency, to_currency)
+    
+    def _get_approximate_rate(self, from_currency: str, to_currency: str) -> float:
+        """
+        Get approximate rate as fallback.
+        
+        Args:
+            from_currency: Source currency
+            to_currency: Target currency
+            
+        Returns:
+            Approximate exchange rate
+        """
         if from_currency == "USD" and to_currency == "INR":
             return self.default_usd_inr_rate
         elif from_currency == "INR" and to_currency == "USD":
             return 1.0 / self.default_usd_inr_rate
         else:
             raise ValueError(f"Unsupported currency pair: {from_currency}/{to_currency}")
+    
+    def get_rate_info(
+        self,
+        from_currency: str,
+        to_currency: str,
+        force_refresh: bool = False
+    ) -> dict:
+        """
+        Get detailed exchange rate information including source.
+        
+        Args:
+            from_currency: Source currency
+            to_currency: Target currency
+            force_refresh: Force fresh rate
+            
+        Returns:
+            Dict with rate, source, timestamp, and other metadata
+        """
+        if self.use_live_rates and self.rate_provider:
+            try:
+                return self.rate_provider.get_rate(
+                    from_currency,
+                    to_currency,
+                    force_refresh=force_refresh
+                )
+            except Exception as e:
+                logger.error(f"Failed to get rate info: {e}")
+                # Return approximate info
+                return {
+                    "from_currency": from_currency.upper(),
+                    "to_currency": to_currency.upper(),
+                    "rate": self._get_approximate_rate(from_currency, to_currency),
+                    "source": "approximate",
+                    "timestamp": datetime.now().isoformat(),
+                    "warning": "Using approximate rate due to API failure"
+                }
+        else:
+            # Return approximate info
+            return {
+                "from_currency": from_currency.upper(),
+                "to_currency": to_currency.upper(),
+                "rate": self._get_approximate_rate(from_currency, to_currency),
+                "source": "approximate",
+                "timestamp": datetime.now().isoformat()
+            }
     
     def convert(
         self,
