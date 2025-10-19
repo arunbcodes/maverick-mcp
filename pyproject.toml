@@ -64,6 +64,10 @@ dependencies = [
     "pandas-datareader>=0.10.0",
     "pandas-market-calendars>=5.1.0",
     "tiingo>=0.16.1",
+    # News scraping and parsing
+    "feedparser>=6.0.11",
+    "beautifulsoup4>=4.12.3",
+    "cachetools>=5.3.3",
     # Visualization (essential only)
     "matplotlib>=3.10.3",
     "plotly>=5.0.0",
