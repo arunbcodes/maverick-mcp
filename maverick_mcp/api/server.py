@@ -1036,41 +1036,57 @@ async def compare_us_indian_markets(
 async def convert_currency(
     amount: float,
     from_currency: str = "INR",
-    to_currency: str = "USD"
+    to_currency: str = "USD",
+    use_live_rates: bool = True
 ) -> dict[str, Any]:
     """
-    Convert amount between INR and USD.
+    Convert amount between currencies with real-time or approximate rates.
     
-    Uses current exchange rate (approximately 83 INR = 1 USD).
+    Now uses real-time exchange rates from multiple sources (Exchange Rate API, Yahoo Finance).
+    Falls back to approximate rates if live data is unavailable.
     
     Args:
         amount: Amount to convert
-        from_currency: Source currency (INR or USD)
-        to_currency: Target currency (INR or USD)
+        from_currency: Source currency (INR, USD, EUR, GBP, JPY, etc.)
+        to_currency: Target currency (INR, USD, EUR, GBP, JPY, etc.)
+        use_live_rates: Use real-time rates (default: True)
         
     Returns:
-        Dict with conversion result
+        Dict with conversion result including rate source and timestamp
     """
     try:
         from maverick_mcp.utils.currency_converter import CurrencyConverter
         
-        logger.info(f"Converting {amount} {from_currency} to {to_currency}")
-        converter = CurrencyConverter()
+        logger.info(f"Converting {amount} {from_currency} to {to_currency} (live_rates={use_live_rates})")
+        converter = CurrencyConverter(use_live_rates=use_live_rates)
         
+        # Convert amount
         converted_amount = converter.convert(amount, from_currency, to_currency)
         exchange_rate = converter.get_exchange_rate(from_currency, to_currency)
         
-        return {
+        # Get rate info (source, timestamp, etc.)
+        rate_info = converter.get_rate_info(from_currency, to_currency)
+        
+        result = {
             "original_amount": amount,
             "from_currency": from_currency.upper(),
             "to_currency": to_currency.upper(),
             "converted_amount": round(converted_amount, 2),
             "exchange_rate": round(exchange_rate, 4),
             "calculation": f"{amount} {from_currency} × {exchange_rate:.4f} = {converted_amount:.2f} {to_currency}",
+            "rate_source": rate_info.get("source", "unknown"),
+            "rate_timestamp": rate_info.get("timestamp", ""),
             "status": "success",
-            "timestamp": datetime.now(UTC).isoformat(),
-            "note": "Using approximate exchange rate. Configure API for real-time rates."
+            "timestamp": datetime.now(UTC).isoformat()
         }
+        
+        # Add note about rate type
+        if rate_info.get("source") == "approximate":
+            result["note"] = "Using approximate exchange rate. Configure EXCHANGE_RATE_API_KEY for real-time rates."
+        else:
+            result["note"] = f"Using real-time rate from {rate_info.get('source', 'unknown')}"
+        
+        return result
         
     except Exception as e:
         logger.error(f"Error converting currency: {str(e)}")
