@@ -1,7 +1,7 @@
 # Maverick-MCP Makefile
 # Central command interface for agent-friendly development
 
-.PHONY: help dev stop test test-all test-watch test-specific test-parallel test-cov test-speed test-speed-quick test-speed-emergency test-speed-comparison test-strategies lint format typecheck clean tail-log backend check migrate setup redis-start redis-stop experiment experiment-once benchmark-parallel benchmark-speed docker-up docker-down docker-logs
+.PHONY: help dev stop test test-all test-watch test-specific test-parallel test-cov test-speed test-speed-quick test-speed-emergency test-speed-comparison test-strategies lint format typecheck clean tail-log backend check migrate setup redis-start redis-stop experiment experiment-once benchmark-parallel benchmark-speed docker-up docker-down docker-logs security-audit security-install setup-hooks
 
 # Default target
 help:
@@ -28,6 +28,10 @@ help:
 	@echo "  make format       - Auto-format code"
 	@echo "  make typecheck    - Run type checking"
 	@echo "  make check        - Run all checks (lint + type check)"
+	@echo ""
+	@echo "  make security-audit    - Run security audit (safety, bandit)"
+	@echo "  make security-install  - Install security tools (safety, bandit)"
+	@echo "  make setup-hooks       - Install git pre-push hooks"
 	@echo ""
 	@echo "  make tail-log     - Follow backend logs"
 	@echo ""
@@ -221,3 +225,17 @@ docker-down:
 docker-logs:
 	@echo "Following Docker logs (Ctrl+C to stop)..."
 	@docker-compose logs -f
+
+# Security commands
+security-audit:
+	@echo "Running security audit..."
+	@./scripts/security_audit.sh
+
+security-install:
+	@echo "Installing security tools..."
+	@uv pip install safety bandit
+	@echo "Security tools installed successfully!"
+
+setup-hooks:
+	@echo "Setting up git hooks..."
+	@./scripts/setup_git_hooks.sh
