@@ -130,9 +130,9 @@ In case of a security incident:
 
 ## Security Contacts
 
-- **Primary**: [GitHub Security Advisories](https://github.com/wshobson/maverick-mcp/security) (Recommended)
-- **Alternative**: [GitHub Issues](https://github.com/wshobson/maverick-mcp/issues) (Public security issues only)
-- **Community**: [GitHub Discussions](https://github.com/wshobson/maverick-mcp/discussions)
+- **Primary**: [GitHub Security Advisories](https://github.com/arunbcodes/maverick-mcp/security) (Recommended)
+- **Alternative**: [GitHub Issues](https://github.com/arunbcodes/maverick-mcp/issues) (Public security issues only)
+- **Community**: [GitHub Discussions](https://github.com/arunbcodes/maverick-mcp/discussions)
 
 ## Acknowledgments
 
