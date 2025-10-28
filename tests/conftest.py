@@ -10,6 +10,9 @@ import os
 
 os.environ["MAVERICK_TEST_ENV"] = "true"
 
+# Check if running inside Docker container - skip Docker fixtures if so
+RUNNING_IN_DOCKER = os.path.exists("/.dockerenv") or os.path.exists("/run/.containerenv")
+
 import asyncio
 import sys
 from collections.abc import AsyncGenerator, Generator
@@ -18,8 +21,10 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from testcontainers.postgres import PostgresContainer
-from testcontainers.redis import RedisContainer
+
+if not RUNNING_IN_DOCKER:
+    from testcontainers.postgres import PostgresContainer
+    from testcontainers.redis import RedisContainer
 
 # Add the parent directory to the path to enable imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -32,36 +37,54 @@ from maverick_mcp.database.base import Base
 
 
 # Container fixtures (session scope for efficiency)
-@pytest.fixture(scope="session")
-def postgres_container():
-    """Create a PostgreSQL test container for the test session."""
-    with PostgresContainer("postgres:15-alpine") as postgres:
-        postgres.with_env("POSTGRES_PASSWORD", "test")
-        postgres.with_env("POSTGRES_USER", "test")
-        postgres.with_env("POSTGRES_DB", "test")
-        yield postgres
+if not RUNNING_IN_DOCKER:
+    @pytest.fixture(scope="session")
+    def postgres_container():
+        """Create a PostgreSQL test container for the test session."""
+        with PostgresContainer("postgres:15-alpine") as postgres:
+            postgres.with_env("POSTGRES_PASSWORD", "test")
+            postgres.with_env("POSTGRES_USER", "test")
+            postgres.with_env("POSTGRES_DB", "test")
+            yield postgres
 
 
-@pytest.fixture(scope="session")
-def redis_container():
-    """Create a Redis test container for the test session."""
-    with RedisContainer("redis:7-alpine") as redis:
-        yield redis
+    @pytest.fixture(scope="session")
+    def redis_container():
+        """Create a Redis test container for the test session."""
+        with RedisContainer("redis:7-alpine") as redis:
+            yield redis
 
 
-# Database setup fixtures
-@pytest.fixture(scope="session")
-def database_url(postgres_container: PostgresContainer) -> str:
-    """Get the database URL from the test container."""
-    return postgres_container.get_connection_url()
+    # Database setup fixtures
+    @pytest.fixture(scope="session")
+    def database_url(postgres_container: PostgresContainer) -> str:
+        """Get the database URL from the test container."""
+        return postgres_container.get_connection_url()
 
 
-@pytest.fixture(scope="session")
-def redis_url(redis_container: RedisContainer) -> str:
-    """Get the Redis URL from the test container."""
-    host = redis_container.get_container_host_ip()
-    port = redis_container.get_exposed_port(6379)
-    return f"redis://{host}:{port}/0"
+    @pytest.fixture(scope="session")
+    def redis_url(redis_container: RedisContainer) -> str:
+        """Get the Redis URL from the test container."""
+        host = redis_container.get_container_host_ip()
+        port = redis_container.get_exposed_port(6379)
+        return f"redis://{host}:{port}/0"
+else:
+    # When running inside Docker, use the existing services
+    @pytest.fixture(scope="session")
+    def database_url() -> str:
+        """Get the database URL from environment when running in Docker."""
+        return os.environ.get(
+            "DATABASE_URL", 
+            "postgresql://postgres:postgres@postgres:55432/maverick_mcp"
+        )
+
+
+    @pytest.fixture(scope="session")
+    def redis_url() -> str:
+        """Get the Redis URL from environment when running in Docker."""
+        redis_host = os.environ.get("REDIS_HOST", "redis")
+        redis_port = os.environ.get("REDIS_PORT", "56379")
+        return f"redis://{redis_host}:{redis_port}/0"
 
 
 @pytest.fixture(scope="session")
@@ -112,8 +135,9 @@ def db_session(engine) -> Generator[Session, None, None]:
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_env(database_url: str, redis_url: str):
     """Set up test environment variables."""
-    os.environ["DATABASE_URL"] = database_url
-    os.environ["REDIS_URL"] = redis_url
+    if not RUNNING_IN_DOCKER:
+        os.environ["DATABASE_URL"] = database_url
+        os.environ["REDIS_URL"] = redis_url
     os.environ["ENVIRONMENT"] = "test"
     os.environ["AUTH_ENABLED"] = "true"
     os.environ["LOG_LEVEL"] = "INFO"

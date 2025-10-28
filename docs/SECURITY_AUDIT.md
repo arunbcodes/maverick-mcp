@@ -5,6 +5,7 @@ MaverickMCP includes automated security auditing to help maintain code security 
 ## Overview
 
 The security audit system includes:
+
 - **Dependency vulnerability scanning** with `safety`
 - **Static security analysis** with `bandit`
 - **Secret detection** to prevent accidental commits
@@ -19,6 +20,7 @@ make security-install
 ```
 
 This installs:
+
 - `safety`: Scans dependencies for known security vulnerabilities
 - `bandit`: Static analysis tool for Python code security issues
 
@@ -53,11 +55,13 @@ safety check
 ```
 
 **What it catches:**
+
 - Known CVEs in dependencies
 - Deprecated packages with security issues
 - Vulnerable package versions
 
 **Example output:**
+
 ```
 ✓ No known vulnerabilities found in dependencies
 ```
@@ -71,6 +75,7 @@ bandit -r maverick_mcp/ -c .bandit
 ```
 
 **What it catches:**
+
 - Hardcoded passwords, API keys, tokens
 - SQL injection vulnerabilities
 - Use of insecure functions (eval, exec, pickle)
@@ -79,6 +84,7 @@ bandit -r maverick_mcp/ -c .bandit
 - Path traversal vulnerabilities
 
 **Example issues:**
+
 - `B105`: Hardcoded password in code
 - `B201`: Flask app with debug=True
 - `B608`: SQL injection via string formatting
@@ -88,11 +94,13 @@ bandit -r maverick_mcp/ -c .bandit
 Scans staged git changes for potential secrets:
 
 **What it catches:**
+
 - API keys, passwords, tokens in code
 - `.env` file accidentally staged
 - Bearer tokens, authentication credentials
 
 **Patterns detected:**
+
 - `password`, `api_key`, `secret`, `token`
 - `bearer`, `auth`, `credential`
 - And more...
@@ -179,6 +187,7 @@ security_audit:
 ### Issue: safety check fails due to outdated database
 
 **Solution:**
+
 ```bash
 safety check --db
 ```
@@ -186,6 +195,7 @@ safety check --db
 ### Issue: bandit reports false positives
 
 **Solution:** Add skip codes to `.bandit`:
+
 ```ini
 skips = ['B101', 'B601', 'B404']
 ```
@@ -193,6 +203,7 @@ skips = ['B101', 'B601', 'B404']
 ### Issue: Secret detected in staged changes
 
 **Solution:**
+
 1. Remove the secret from code
 2. Use environment variables instead
 3. Update `.env` file (not committed)
@@ -201,6 +212,7 @@ skips = ['B101', 'B601', 'B404']
 ### Issue: Want to skip audit temporarily
 
 **Solution:**
+
 ```bash
 # Skip this push only
 git push --no-verify
@@ -239,6 +251,7 @@ export SECURITY_AUDIT_SKIP=true
 ### Permission denied: ./scripts/security_audit.sh
 
 **Fix:**
+
 ```bash
 chmod +x scripts/security_audit.sh
 chmod +x scripts/setup_git_hooks.sh
@@ -247,6 +260,7 @@ chmod +x scripts/setup_git_hooks.sh
 ### Hook not running
 
 **Fix:**
+
 ```bash
 # Reinstall hooks
 ./scripts/setup_git_hooks.sh
@@ -258,6 +272,7 @@ ls -la .git/hooks/pre-push
 ### Security tools not found
 
 **Fix:**
+
 ```bash
 # Install tools
 make security-install
@@ -277,4 +292,3 @@ Found a security vulnerability? See `SECURITY.md` for reporting instructions.
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Python Security Best Practices](https://python.readthedocs.io/en/latest/library/security_warnings.html)
 - [MaverickMCP Security Policy](../SECURITY.md)
-
