@@ -141,6 +141,10 @@ class MarketCalendarService:
         else:
             end_date = pd.to_datetime(end_date).tz_localize(None)
         
+        # Handle reversed dates by swapping them
+        if start_date > end_date:
+            start_date, end_date = end_date, start_date
+        
         # Get market-specific calendar
         calendar = self._get_market_calendar(symbol)
         

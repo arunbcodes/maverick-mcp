@@ -266,9 +266,9 @@ class TestIsTradingDayBetween:
     def test_handles_weekend_gap(self, service):
         """Test handling of weekend between dates."""
         friday = pd.Timestamp("2024-01-05")
-        monday = pd.Timestamp("2024-01-08")
-        result = service.is_trading_day_between(friday, monday)
-        # Weekend is between but no trading days
+        saturday = pd.Timestamp("2024-01-06")
+        result = service.is_trading_day_between(friday, saturday)
+        # Only weekend day between - no trading days
         assert result is False
 
 

@@ -24,6 +24,7 @@ services:
     volumes:
       - ./maverick_mcp:/app/maverick_mcp
       - ./alembic:/app/alembic
+      - ./tests:/app/tests
       - ./.env:/app/.env
     depends_on:
       - postgres
