@@ -142,7 +142,7 @@ class TestGetTradingDays:
     def test_accepts_different_date_formats(self, service):
         """Test that method accepts various date formats."""
         start_str = "2024-01-02"
-        end_datetime = datetime(2024, 01, 31)
+        end_datetime = datetime(2024, 1, 31)
         
         result = service.get_trading_days(start_str, end_datetime)
         assert isinstance(result, pd.DatetimeIndex)
@@ -399,6 +399,5 @@ class TestPerformance:
         assert isinstance(result, pd.DatetimeIndex)
 
 
-# Integration test marker
-pytestmark = pytest.mark.unit
+# Note: These are unit tests that don't require external dependencies
 
