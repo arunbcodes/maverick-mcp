@@ -47,12 +47,14 @@ pytest tests/services/ --cov=maverick_mcp.services --cov-report=html
 ## Test Requirements
 
 Tests require the following dependencies (included in `pyproject.toml`):
+
 - `pytest>=8.4.0`
 - `pytest-asyncio>=1.1.0`
 - `pytest-cov>=6.2.1`
 - `pandas-market-calendars>=5.1.0`
 
 Install with:
+
 ```bash
 uv sync  # or: pip install -e ".[dev]"
 ```
@@ -72,4 +74,3 @@ Each service test file follows this structure:
 Target: 70%+ coverage for each service
 
 Current status will be shown when running `make test-cov`.
-
