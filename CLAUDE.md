@@ -14,7 +14,8 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
 - Market-aware trading calendars (NYSE for US, NSE for India)
 - Advanced technical analysis tools (RSI, MACD, Bollinger Bands, etc.)
 - Multiple stock screening strategies (Maverick Bullish/Bearish, Supply/Demand Breakouts)
-- Portfolio optimization and correlation analysis
+- **Personal portfolio tracking with cost basis averaging and live P&L** (NEW)
+- Portfolio optimization and correlation analysis with auto-detection
 - Market and macroeconomic data integration
 - SQLAlchemy-based database integration with SQLite default (PostgreSQL optional)
 - Redis caching for high performance (optional)
@@ -104,7 +105,10 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
 
 ```bash
 # Start the MCP server
-make dev              # One command to start everything
+make dev              # Start with SSE transport (default, recommended)
+make dev-sse          # Start with SSE transport (same as dev)
+make dev-http         # Start with Streamable-HTTP transport (for testing/debugging)
+make dev-stdio        # Start with STDIO transport (direct connection)
 
 # Development
 make backend          # Start backend server only
@@ -132,6 +136,8 @@ make redis-start      # Start Redis (if using caching)
 
 # Quick shortcuts
 make d                # Alias for make dev
+make dh               # Alias for make dev-http
+make ds               # Alias for make dev-stdio
 make t                # Alias for make test
 make l                # Alias for make lint
 make c                # Alias for make check
@@ -161,21 +167,19 @@ This is the **tested and proven method for Claude Desktop** - provides stable to
      "mcpServers": {
        "maverick-mcp": {
          "command": "npx",
-         "args": ["-y", "mcp-remote", "http://localhost:8003/sse/"]
+         "args": ["-y", "mcp-remote", "http://localhost:8003/sse"]
        }
      }
    }
    ```
 
-   > **CRITICAL**: Note the trailing slash in `/sse/` - this is REQUIRED to prevent 307 redirect issues that cause tools to disappear!
-
 **Why This Configuration Works Best**:
-
-- ✅ **Prevents Tool Disappearing**: Tools remain available throughout your session (trailing slash is critical!)
+- ✅ **Prevents Tool Disappearing**: Tools remain available throughout your session
 - ✅ **Stable Connection**: SSE transport provides consistent communication
 - ✅ **Session Persistence**: Maintains connection state for complex analysis workflows
 - ✅ **All 35+ Tools Available**: Reliable access to all financial and research tools
 - ✅ **Tested and Confirmed**: This exact configuration has been verified to work
+- ✅ **No Trailing Slash Issues**: Server automatically handles both `/sse` and `/sse/` paths
 
 #### Method B: HTTP Streamable Server with mcp-remote Bridge (Alternative)
 
@@ -250,15 +254,13 @@ For native remote server support, use [Claude.ai web interface](https://claude.a
      "mcpServers": {
        "maverick-mcp": {
          "command": "npx",
-         "args": ["-y", "mcp-remote", "http://localhost:8003/sse/"]
+         "args": ["-y", "mcp-remote", "http://localhost:8003/sse"]
        }
      }
    }
    ```
 
-   > **CRITICAL**: Always include the trailing slash (`/sse/`) to prevent 307 redirects!
-
-**Important**: This exact configuration has been tested and confirmed to prevent the common issue where tools appear initially but then disappear from Claude Desktop.
+**Important**: This exact configuration has been tested and confirmed to prevent the common issue where tools appear initially but then disappear from Claude Desktop. The server now accepts both `/sse` and `/sse/` paths without redirects.
 
 **Restart Required:** Always restart Claude Desktop after config changes.
 
@@ -270,7 +272,7 @@ For native remote server support, use [Claude.ai web interface](https://claude.a
 {
   "mcpServers": {
     "maverick-mcp": {
-      "url": "http://localhost:8003/sse/"
+      "url": "http://localhost:8003/sse"
     }
   }
 }
@@ -283,7 +285,7 @@ For native remote server support, use [Claude.ai web interface](https://claude.a
 **SSE Transport (Recommended):**
 
 ```bash
-claude mcp add --transport sse maverick-mcp http://localhost:8003/sse/
+claude mcp add --transport sse maverick-mcp http://localhost:8003/sse
 ```
 
 **HTTP Transport (Alternative):**
@@ -306,7 +308,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 {
   "mcpServers": {
     "maverick-mcp": {
-      "url": "http://localhost:8003/sse/"
+      "url": "http://localhost:8003/sse"
     }
   }
 }
@@ -321,7 +323,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
       "transport": {
         "type": "stdio",
         "command": "npx",
-        "args": ["-y", "mcp-remote", "http://localhost:8003/sse/"]
+        "args": ["-y", "mcp-remote", "http://localhost:8003/sse"]
       }
     }
   }
@@ -338,7 +340,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 {
   "mcpServers": {
     "maverick-mcp": {
-      "serverUrl": "http://localhost:8003/sse/"
+      "serverUrl": "http://localhost:8003/sse"
     }
   }
 }
@@ -351,7 +353,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
   "mcpServers": {
     "maverick-mcp": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "http://localhost:8003/sse/"]
+      "args": ["-y", "mcp-remote", "http://localhost:8003/sse"]
     }
   }
 }
@@ -365,7 +367,7 @@ claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport
 
 - **STDIO Mode (Optimal for Claude Desktop)**: Direct subprocess communication - fastest, most reliable
 - **Streamable-HTTP Endpoint**: `http://localhost:8003/` - For remote access via mcp-remote bridge
-- **SSE Endpoint**: `http://localhost:8003/sse/` - For other clients with native SSE support
+- **SSE Endpoint**: `http://localhost:8003/sse` - For other clients with native SSE support (accepts both `/sse` and `/sse/`)
 
 > **Key Finding**: Direct STDIO is the optimal transport for Claude Desktop. HTTP/SSE require the mcp-remote bridge tool, adding latency and complexity. SSE is particularly problematic as it's incompatible with mcp-remote (GET vs POST mismatch).
 
@@ -444,7 +446,7 @@ See `docs/MULTI_MARKET_SUPPORT.md` for full documentation.
 
 ## Available Tools
 
-All tools are organized into logical groups (35+ tools total):
+All tools are organized into logical groups (39+ tools total):
 
 ### Data Tools (`/data/*`) - S&P 500 Pre-seeded
 
@@ -484,11 +486,31 @@ All tools are organized into logical groups (35+ tools total):
 - **Content Filtering**: High-credibility source prioritization
 - **Error Recovery**: Circuit breakers and comprehensive error handling
 
-### Portfolio Analysis (`/portfolio/*`)
+### Portfolio Management (`/portfolio/*`) - Personal Holdings Tracking (NEW)
 
-- `optimize_portfolio` - Portfolio optimization
-- `analyze_portfolio_risk` - Risk assessment
-- `calculate_correlation_matrix` - Asset correlations
+- `portfolio_add_position` - Add or update positions with automatic cost basis averaging
+- `portfolio_get_my_portfolio` - View portfolio with live P&L calculations
+- `portfolio_remove_position` - Remove partial or full positions
+- `portfolio_clear_portfolio` - Clear all positions with safety confirmation
+
+**Key Features:**
+- Persistent storage with cost basis tracking (average cost method)
+- Live unrealized P&L calculations with real-time prices
+- Automatic cost averaging on repeat purchases
+- Support for fractional shares and high-precision decimals
+- Multi-portfolio support (track IRA, 401k, taxable separately)
+- Portfolio resource (`portfolio://my-holdings`) for AI context
+
+### Portfolio Analysis (`/portfolio/*`) - Intelligent Integration
+
+- `risk_adjusted_analysis` - Risk-based position sizing (shows your existing positions)
+- `compare_tickers` - Side-by-side comparison (auto-uses portfolio if no tickers provided)
+- `portfolio_correlation_analysis` - Correlation matrix (auto-analyzes your holdings)
+
+**Smart Features:**
+- Tools auto-detect your portfolio positions
+- Position-aware recommendations (averaging up/down, profit taking)
+- No manual ticker entry needed for portfolio analysis
 
 ### Backtesting (`/backtesting/*`) - VectorBT-Powered Strategy Testing
 
@@ -516,22 +538,25 @@ All tools are organized into logical groups (35+ tools total):
 ### Running the Server
 
 ```bash
-# Development mode (recommended)
-make dev                    # Uses Makefile for full setup
+# Development mode (recommended - Makefile commands)
+make dev                    # SSE transport (default, recommended for Claude Desktop)
+make dev-http               # Streamable-HTTP transport (for testing with curl/Postman)
+make dev-stdio              # STDIO transport (direct connection)
 
-# Alternative direct commands
-# Streamable-HTTP transport (FastMCP 2.0 standard - use with mcp-remote)
-uv run python -m maverick_mcp.api.server --transport streamable-http --port 8003
-
-# SSE transport (direct connections only, not mcp-remote)
+# Alternative: Direct commands (manual)
 uv run python -m maverick_mcp.api.server --transport sse --port 8003
+uv run python -m maverick_mcp.api.server --transport streamable-http --port 8003
+uv run python -m maverick_mcp.api.server --transport stdio
 
-# STDIO transport (development)
-uv run python -m maverick_mcp.api.server  # Defaults to stdio
-
-# Script-based startup
-./scripts/dev.sh           # Includes additional setup
+# Script-based startup (with environment variable)
+./scripts/dev.sh                        # Defaults to SSE
+MAVERICK_TRANSPORT=streamable-http ./scripts/dev.sh
 ```
+
+**When to use each transport:**
+- **SSE** (`make dev` or `make dev-sse`): Best for Claude Desktop - tested and stable
+- **Streamable-HTTP** (`make dev-http`): Ideal for testing with curl/Postman, debugging transport issues
+- **STDIO** (`make dev-stdio`): Direct connection without network layer, good for development
 
 ### Testing
 
@@ -684,18 +709,17 @@ make migrate
 
 1. Verify server is running: `lsof -i :8003` (check if port 8003 is in use)
 2. Check `claude_desktop_config.json` syntax and correct port (8003)
-3. **Use the tested SSE configuration with trailing slash**: `http://localhost:8003/sse/` with mcp-remote
+3. **Use the tested SSE configuration**: `http://localhost:8003/sse` with mcp-remote
 4. Restart Claude Desktop completely
 5. Test with: "Get AAPL stock data"
 
 **Tools appearing then disappearing**:
 
-1. **CRITICAL FIX**: Ensure SSE endpoint has trailing slash: `http://localhost:8003/sse/`
-2. The 307 redirect from `/sse` to `/sse/` causes tool registration to fail
-3. **Use the recommended SSE configuration** (prevents this issue)
-4. Ensure you're using the exact configuration shown above with trailing slash
-5. **Avoid STDIO direct connections** for stable operation
-6. The SSE + mcp-remote setup with trailing slash has been tested and prevents tool disappearing
+1. **FIXED**: Server now accepts both `/sse` and `/sse/` without 307 redirects
+2. Use the recommended SSE configuration with mcp-remote bridge
+3. Ensure you're using the exact configuration shown above
+4. The SSE + mcp-remote setup has been tested and prevents tool disappearing
+5. **No trailing slash required**: Server automatically handles path normalization
 
 **Research Tool Issues**:
 
@@ -866,6 +890,7 @@ See `docs/PHASE4_IMPLEMENTATION.md` for complete documentation and usage example
 ## Additional Resources
 
 - **Architecture docs**: `docs/` directory
+- **Portfolio Guide**: `docs/PORTFOLIO.md` - Complete guide to portfolio features
 - **Test examples**: `tests/` directory
 - **Development tools**: `tools/` directory
 - **Example scripts**: `scripts/` directory
