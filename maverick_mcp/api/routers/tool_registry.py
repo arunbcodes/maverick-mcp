@@ -367,6 +367,30 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
         logger.error(f"✗ Failed to register backtesting tools: {e}")
 
 
+def register_concall_tools(mcp: FastMCP) -> None:
+    """Register conference call analysis tools directly on main server"""
+    try:
+        from maverick_mcp.api.routers.concall import (
+            analyze_sentiment,
+            compare_quarters,
+            fetch_transcript,
+            query_transcript,
+            summarize_transcript,
+        )
+
+        mcp.tool(name="concall_fetch_transcript")(fetch_transcript)
+        mcp.tool(name="concall_summarize_transcript")(summarize_transcript)
+        mcp.tool(name="concall_analyze_sentiment")(analyze_sentiment)
+        mcp.tool(name="concall_query_transcript")(query_transcript)
+        mcp.tool(name="concall_compare_quarters")(compare_quarters)
+
+        logger.info("✓ Conference call analysis tools registered successfully")
+    except ImportError as e:
+        logger.warning(f"Conference call module not available: {e}")
+    except Exception as e:
+        logger.error(f"✗ Failed to register conference call tools: {e}")
+
+
 def register_mcp_prompts_and_resources(mcp: FastMCP) -> None:
     """Register MCP prompts and resources for better client introspection"""
     try:
@@ -453,6 +477,12 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     # Register backtesting tools
     register_backtesting_tools(mcp)
 
+    # Register conference call analysis tools
+    try:
+        register_concall_tools(mcp)
+    except Exception as e:
+        logger.error(f"✗ Failed to register conference call tools: {e}")
+
     # Register MCP prompts and resources for introspection
     register_mcp_prompts_and_resources(mcp)
 
@@ -467,5 +497,6 @@ def register_all_router_tools(mcp: FastMCP) -> None:
     logger.info("   • Research and analysis tools")
     logger.info("   • Health monitoring tools")
     logger.info("   • Backtesting system tools")
+    logger.info("   • Conference call analysis tools")
     logger.info("   • MCP prompts for introspection")
     logger.info("   • Introspection and discovery tools")

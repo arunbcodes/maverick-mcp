@@ -6,6 +6,7 @@ the MCP tools into logical groups for better maintainability.
 Personal-use stock analysis MCP server.
 """
 
+from .concall import concall_router
 from .data import data_router
 from .health_enhanced import router as health_enhanced_router
 from .performance import get_performance_router
@@ -26,6 +27,7 @@ except ImportError:
     has_agents = False
 
 __all__ = [
+    "concall_router",
     "data_router",
     "health_enhanced_router",
     "performance_router",
