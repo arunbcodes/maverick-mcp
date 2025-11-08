@@ -292,13 +292,19 @@ def _get_async_session_factory():
 
 
 def get_db():
-    """Get database session."""
+    """Get database session (generator for FastAPI dependency injection)."""
     ensure_database_schema()
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+
+def get_session():
+    """Get database session (direct session for manual management)."""
+    ensure_database_schema()
+    return SessionLocal()
 
 
 # Async database support - imports moved to top of file
