@@ -9,10 +9,10 @@ Available:
     - HTMLTranscriptLoader: HTML text extraction [IMPLEMENTED]
     - TextTranscriptLoader: Plain text loading [IMPLEMENTED]
     - TranscriptLoaderFactory: Auto-select appropriate loader [IMPLEMENTED]
+    - VectorStoreManager: Chroma vector DB management [IMPLEMENTED]
 
 Future:
     - Quarter date helpers
-    - Text chunking for RAG
 """
 
 from maverick_mcp.concall.utils.transcript_loader import (
@@ -22,6 +22,7 @@ from maverick_mcp.concall.utils.transcript_loader import (
     TranscriptLoader,
     TranscriptLoaderFactory,
 )
+from maverick_mcp.concall.utils.vector_store_manager import VectorStoreManager
 
 __all__ = [
     "TranscriptLoader",
@@ -29,4 +30,5 @@ __all__ = [
     "HTMLTranscriptLoader",
     "TextTranscriptLoader",
     "TranscriptLoaderFactory",
+    "VectorStoreManager",
 ]
