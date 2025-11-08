@@ -1,0 +1,124 @@
+/* Custom styles for Maverick MCP Documentation */
+
+/* Grid cards styling */
+.grid.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.grid.cards > * {
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 0.2rem;
+    padding: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.grid.cards > *:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Code block improvements */
+.highlight {
+    margin: 1.5em 0;
+}
+
+/* Admonition styling improvements */
+.admonition {
+    margin: 1.5em 0;
+}
+
+/* Table improvements */
+table {
+    width: 100%;
+    margin: 1.5em 0;
+}
+
+table th {
+    background-color: var(--md-default-fg-color--lightest);
+    font-weight: 600;
+}
+
+/* Mermaid diagram centering */
+.mermaid {
+    text-align: center;
+    margin: 2em 0;
+}
+
+/* Button styling */
+.md-button {
+    margin: 0.5rem;
+}
+
+/* Logo and branding */
+.md-header__title {
+    font-weight: 600;
+}
+
+/* Navigation improvements */
+.md-nav__item {
+    margin: 0.25rem 0;
+}
+
+/* Search improvements */
+.md-search__input {
+    border-radius: 0.2rem;
+}
+
+/* Footer customization */
+.md-footer {
+    margin-top: 3rem;
+}
+
+/* Code annotation styling */
+.md-annotation {
+    font-size: 0.85em;
+}
+
+/* Tab styling */
+.tabbed-set {
+    margin: 1.5em 0;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 76.1875em) {
+    .grid.cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dark mode specific adjustments */
+[data-md-color-scheme="slate"] {
+    --md-code-bg-color: #1e1e1e;
+}
+
+[data-md-color-scheme="slate"] .grid.cards > * {
+    border-color: var(--md-default-fg-color--light);
+}
+
+[data-md-color-scheme="slate"] table th {
+    background-color: var(--md-default-bg-color--light);
+}
+
+/* API reference improvements */
+.doc-heading {
+    border-bottom: 1px solid var(--md-default-fg-color--lightest);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Parameter tables */
+.doc-parameters table td:first-child {
+    font-family: var(--md-code-font-family);
+    font-size: 0.9em;
+}
+
+/* Example code blocks */
+.doc-example {
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: var(--md-code-bg-color);
+    border-radius: 0.2rem;
+}
