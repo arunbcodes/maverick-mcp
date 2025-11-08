@@ -1,12 +1,32 @@
 """
 Conference Call Utility Functions.
 
-Helper functions and utilities.
-To be populated in future commits with:
-    - PDF/HTML parsers
+Helper functions and utilities for transcript processing.
+
+Available:
+    - TranscriptLoader: Base class for loaders [IMPLEMENTED]
+    - PDFTranscriptLoader: PDF parsing [IMPLEMENTED]
+    - HTMLTranscriptLoader: HTML text extraction [IMPLEMENTED]
+    - TextTranscriptLoader: Plain text loading [IMPLEMENTED]
+    - TranscriptLoaderFactory: Auto-select appropriate loader [IMPLEMENTED]
+
+Future:
     - Quarter date helpers
-    - URL builders
-    - Text processing utilities
+    - Text chunking for RAG
 """
 
-__all__ = []
+from maverick_mcp.concall.utils.transcript_loader import (
+    HTMLTranscriptLoader,
+    PDFTranscriptLoader,
+    TextTranscriptLoader,
+    TranscriptLoader,
+    TranscriptLoaderFactory,
+)
+
+__all__ = [
+    "TranscriptLoader",
+    "PDFTranscriptLoader",
+    "HTMLTranscriptLoader",
+    "TextTranscriptLoader",
+    "TranscriptLoaderFactory",
+]

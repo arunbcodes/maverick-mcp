@@ -21,6 +21,7 @@ from bs4 import BeautifulSoup
 
 from maverick_mcp.concall.models import CompanyIRMapping
 from maverick_mcp.concall.providers.base_provider import ConcallProvider
+from maverick_mcp.concall.utils import TranscriptLoaderFactory
 from maverick_mcp.data.models import get_session
 
 logger = logging.getLogger(__name__)
@@ -352,7 +353,7 @@ class CompanyIRProvider(ConcallProvider):
 
     async def _fetch_transcript_content(self, url: str) -> str | None:
         """
-        Fetch actual transcript content (PDF or HTML).
+        Fetch actual transcript content (PDF, HTML, or TXT).
 
         Args:
             url: URL of transcript file
@@ -360,33 +361,23 @@ class CompanyIRProvider(ConcallProvider):
         Returns:
             str: Transcript text content or None
 
-        Note:
-            PDF parsing will be implemented in utils/transcript_loader.py
-            For now, returns placeholder for PDF files.
+        Algorithm:
+            1. Detect format from URL
+            2. Use TranscriptLoaderFactory to get appropriate loader
+            3. Load and parse transcript
+            4. Return cleaned text
         """
-        if url.endswith(".pdf"):
-            # TODO: Implement PDF parsing in Commit 3
-            logger.info(f"PDF transcript found: {url}")
-            return f"[PDF TRANSCRIPT - TO BE PARSED]\nURL: {url}\nImplement PDF parser in Commit 3"
+        try:
+            # Use factory to auto-select and load
+            loader_factory = TranscriptLoaderFactory()
+            text = loader_factory.load(url)
 
-        # For HTML transcripts
-        html = await self._fetch_page(url)
-        if not html:
+            logger.info(f"Successfully loaded transcript from: {url}")
+            return text
+
+        except Exception as e:
+            logger.error(f"Failed to load transcript from {url}: {e}")
             return None
-
-        # Extract text from HTML
-        soup = BeautifulSoup(html, "html.parser")
-        # Remove script and style elements
-        for script in soup(["script", "style"]):
-            script.decompose()
-
-        text = soup.get_text()
-        # Clean up whitespace
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = "\n".join(chunk for chunk in chunks if chunk)
-
-        return text
 
     def _detect_format(self, url: str) -> str:
         """
