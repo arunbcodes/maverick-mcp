@@ -32,6 +32,7 @@ MaverickMCP provides professional-grade financial analysis tools directly within
 
 - **Multi-Market Support**: Analyze stocks from US (NASDAQ/NYSE), Indian NSE (.NS), and Indian BSE (.BO) markets with automatic detection
 - **Pre-seeded Database**: 520 S&P 500 stocks with comprehensive screening recommendations
+- **Conference Call Analysis** (NEW): Fetch and analyze earnings call transcripts from company IR websites with AI-powered summarization
 - **Advanced Backtesting**: VectorBT-powered engine with 15+ built-in strategies and ML algorithms
 - **Fast Development**: Comprehensive Makefile, smart error handling, hot reload, and parallel processing
 - **Stock Data Access**: Historical and real-time stock data with intelligent caching across all markets
