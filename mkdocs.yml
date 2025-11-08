@@ -1,0 +1,183 @@
+site_name: Maverick MCP Documentation
+site_url: https://arunbcodes.github.io/maverick-mcp/
+site_description: Personal stock analysis MCP server with AI-powered conference call analysis
+site_author: Arun B
+repo_url: https://github.com/arunbcodes/maverick-mcp
+repo_name: arunbcodes/maverick-mcp
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+    admonition:
+      note: octicons/tag-16
+      abstract: octicons/checklist-16
+      info: octicons/info-16
+      tip: octicons/light-bulb-16
+      success: octicons/check-16
+      question: octicons/question-16
+      warning: octicons/alert-16
+      failure: octicons/x-circle-16
+      danger: octicons/zap-16
+      bug: octicons/bug-16
+      example: octicons/beaker-16
+      quote: octicons/quote-16
+
+plugins:
+  - search:
+      lang: en
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_category_heading: true
+            members_order: source
+            group_by_category: true
+            show_if_no_docstring: false
+            annotations_path: brief
+            show_signature_annotations: true
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/arunbcodes/maverick-mcp
+      name: GitHub Repository
+  version:
+    provider: mike
+  generator: false
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+      - Configuration: getting-started/configuration.md
+      - Claude Desktop Setup: getting-started/claude-desktop-setup.md
+  - Features:
+      - Overview: features/overview.md
+      - Stock Analysis: features/stock-analysis.md
+      - Conference Call Analysis: features/conference-call-analysis.md
+      - Technical Analysis: features/technical-analysis.md
+      - Stock Screening: features/stock-screening.md
+      - Portfolio Analysis: features/portfolio-analysis.md
+      - Research Tools: features/research-tools.md
+      - Backtesting: features/backtesting.md
+  - Conference Call System:
+      - Overview: concall/overview.md
+      - Fetching Transcripts: concall/fetching-transcripts.md
+      - AI Summarization: concall/summarization.md
+      - Sentiment Analysis: concall/sentiment-analysis.md
+      - RAG Q&A: concall/rag-qa.md
+      - MCP Tools: concall/mcp-tools.md
+      - Database Schema: concall/database-schema.md
+      - Architecture: concall/architecture.md
+  - User Guide:
+      - MCP Tools Reference: user-guide/mcp-tools-reference.md
+      - Examples: user-guide/examples.md
+      - Troubleshooting: user-guide/troubleshooting.md
+      - Best Practices: user-guide/best-practices.md
+  - API Reference:
+      - Conference Call:
+          - Models: api-reference/concall/models.md
+          - Providers: api-reference/concall/providers.md
+          - Services: api-reference/concall/services.md
+          - Utils: api-reference/concall/utils.md
+      - Core: api-reference/core.md
+      - Providers: api-reference/providers.md
+      - Data: api-reference/data.md
+  - Development:
+      - Contributing: development/contributing.md
+      - Architecture: development/architecture.md
+      - Testing: development/testing.md
+      - Code Style: development/code-style.md
+  - About:
+      - License: about/license.md
+      - Changelog: about/changelog.md
+      - FAQ: about/faq.md
