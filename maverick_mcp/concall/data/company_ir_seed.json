@@ -1,0 +1,141 @@
+{
+  "companies": [
+    {
+      "ticker": "RELIANCE.NS",
+      "company_name": "Reliance Industries Limited",
+      "ir_base_url": "https://www.ril.com/InvestorRelations.aspx",
+      "concall_url_pattern": "https://www.ril.com/InvestorRelations/WebcastAndTranscript.aspx",
+      "concall_section_xpath": "//div[contains(@class, 'transcript')]//a",
+      "concall_section_css": "div.transcript a",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Most comprehensive IR. All transcripts as PDFs with audio. Well-organized by quarter.",
+      "priority": 1
+    },
+    {
+      "ticker": "TCS.NS",
+      "company_name": "Tata Consultancy Services Limited",
+      "ir_base_url": "https://www.tcs.com/investor-relations",
+      "concall_url_pattern": "https://www.tcs.com/investor-relations#quarterly-results",
+      "concall_section_xpath": "//div[@id='quarterly-results']//a",
+      "concall_section_css": "#quarterly-results a",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Clean format for parsing. Scroll to Quarterly Results section.",
+      "priority": 2
+    },
+    {
+      "ticker": "WIPRO.NS",
+      "company_name": "Wipro Limited",
+      "ir_base_url": "https://www.wipro.com/investors/",
+      "concall_url_pattern": "https://www.wipro.com/investors/quarterly-results/",
+      "concall_section_xpath": "//div[contains(@class, 'quarterly-results')]//a",
+      "concall_section_css": ".quarterly-results a",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Easy PDF downloads. Very investor-friendly interface. Direct transcript access.",
+      "priority": 3
+    },
+    {
+      "ticker": "HDFCBANK.NS",
+      "company_name": "HDFC Bank Limited",
+      "ir_base_url": "https://www.hdfcbank.com/personal/about-us/investor-relations",
+      "concall_url_pattern": "https://www.hdfcbank.com/personal/about-us/investor-relations/financial-results",
+      "concall_section_xpath": "//div[@class='financial-results']//a[contains(text(), 'Transcript')]",
+      "concall_section_css": ".financial-results a:contains('Transcript')",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Path: Financial Results > Select FY > Quarter > Look for 'Transcript-Q2 FY26-Analyst Earnings Call'",
+      "priority": 4
+    },
+    {
+      "ticker": "INFY.NS",
+      "company_name": "Infosys Limited",
+      "ir_base_url": "https://www.infosys.com/investors.html",
+      "concall_url_pattern": "https://www.infosys.com/investors/reports-filings/quarterly-results.html",
+      "concall_section_xpath": "//div[@class='quarterly-results']//a",
+      "concall_section_css": ".quarterly-results a",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Audio + Transcript + Presentation available for each quarter. Well-structured.",
+      "priority": 5
+    },
+    {
+      "ticker": "ICICIBANK.NS",
+      "company_name": "ICICI Bank Limited",
+      "ir_base_url": "https://www.icicibank.com/aboutus/investor.page",
+      "concall_url_pattern": "https://www.icicibank.com/aboutus/investor-relation/quarterly-results.page",
+      "concall_section_xpath": "//select[@id='quarter']//option",
+      "concall_section_css": "select#quarter option",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Select quarter from dropdown, then access 'Analyst Call Transcript'.",
+      "priority": 6
+    },
+    {
+      "ticker": "BHARTIARTL.NS",
+      "company_name": "Bharti Airtel Limited",
+      "ir_base_url": "https://www.airtel.in/about-bharti/equity/investor",
+      "concall_url_pattern": "https://www.airtel.in/about-bharti/equity/investor/financial-information",
+      "concall_section_xpath": "//div[@class='financial-info']//a",
+      "concall_section_css": ".financial-info a",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Financial Information section contains quarterly results with transcripts.",
+      "priority": 7
+    },
+    {
+      "ticker": "ITC.NS",
+      "company_name": "ITC Limited",
+      "ir_base_url": "https://www.itcportal.com/about-itc/shareholder-value/investor-relations.aspx",
+      "concall_url_pattern": "https://www.itcportal.com/about-itc/shareholder-value/quarterly-results.aspx",
+      "concall_section_xpath": null,
+      "concall_section_css": null,
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "WARNING: ITC does NOT publish transcripts on website. Use Screener.in or Quartr app instead.",
+      "priority": 8
+    },
+    {
+      "ticker": "BAJFINANCE.NS",
+      "company_name": "Bajaj Finance Limited",
+      "ir_base_url": "https://www.bajajfinserv.in/investor-relations",
+      "concall_url_pattern": "https://www.bajajfinserv.in/investor-relations/bajaj-finance-limited#financial-results",
+      "concall_section_xpath": "//div[@id='financial-results']//a",
+      "concall_section_css": "#financial-results a",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "Presentations readily available. Transcripts may require email request to IR team.",
+      "priority": 9
+    },
+    {
+      "ticker": "SBIN.NS",
+      "company_name": "State Bank of India",
+      "ir_base_url": "https://sbi.co.in/web/investor-relations",
+      "concall_url_pattern": "https://sbi.co.in/web/investor-relations/quarterly-results",
+      "concall_section_xpath": "//div[@class='quarterly-results']//a",
+      "concall_section_css": ".quarterly-results a",
+      "market": "NSE",
+      "country": "IN",
+      "is_active": true,
+      "notes": "SBI provides detailed analyst presentations but full transcripts are rarely published publicly.",
+      "priority": 10
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2025-11-08",
+    "total_companies": 10,
+    "recommended_for_testing": ["RELIANCE.NS", "TCS.NS", "WIPRO.NS"],
+    "notes": "Top 10 Indian companies by market cap with IR URLs. Priority 1-3 recommended for initial testing."
+  }
+}
