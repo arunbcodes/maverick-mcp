@@ -7,13 +7,17 @@ Available:
     - TranscriptFetcher: Orchestrate multi-source fetching [IMPLEMENTED]
     - ConcallSummarizer: AI-powered summarization [IMPLEMENTED]
     - ConcallRAGEngine: Q&A over transcripts [IMPLEMENTED]
-
-Future:
-    - SentimentAnalyzer: Tone and sentiment detection
+    - SentimentAnalyzer: Multi-dimensional sentiment analysis [IMPLEMENTED]
 """
 
 from maverick_mcp.concall.services.concall_rag_engine import ConcallRAGEngine
 from maverick_mcp.concall.services.concall_summarizer import ConcallSummarizer
+from maverick_mcp.concall.services.sentiment_analyzer import SentimentAnalyzer
 from maverick_mcp.concall.services.transcript_fetcher import TranscriptFetcher
 
-__all__ = ["TranscriptFetcher", "ConcallSummarizer", "ConcallRAGEngine"]
+__all__ = [
+    "TranscriptFetcher",
+    "ConcallSummarizer",
+    "ConcallRAGEngine",
+    "SentimentAnalyzer",
+]
