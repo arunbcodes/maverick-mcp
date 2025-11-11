@@ -6,6 +6,11 @@ Open/Closed: Extensible via prompt templates and scoring algorithms.
 Liskov Substitution: Compatible with any LLM provider.
 Interface Segregation: Focused API for sentiment analysis only.
 Dependency Inversion: Depends on abstractions (LLM provider).
+
+Enhanced with multi-tier caching:
+    - L1: Redis/In-memory cache (milliseconds)
+    - L2: Database cache (seconds)
+    - L3: AI sentiment analysis (expensive - minutes)
 """
 
 from __future__ import annotations
@@ -15,6 +20,7 @@ import logging
 import re
 from typing import Any
 
+from maverick_mcp.concall.cache import ConcallCacheService
 from maverick_mcp.concall.models import ConferenceCall
 from maverick_mcp.data.models import get_session
 from maverick_mcp.providers.openrouter_provider import OpenRouterProvider, TaskType
@@ -79,6 +85,7 @@ class SentimentAnalyzer:
         self,
         openrouter_api_key: str | None = None,
         save_to_db: bool = True,
+        cache_service: ConcallCacheService | None = None,
     ):
         """
         Initialize sentiment analyzer.
@@ -86,11 +93,14 @@ class SentimentAnalyzer:
         Args:
             openrouter_api_key: OpenRouter API key (defaults to env var)
             save_to_db: Whether to cache results in database
+            cache_service: Cache service instance (default: auto-created)
         """
         self.openrouter = OpenRouterProvider(openrouter_api_key)
         self.save_to_db = save_to_db
 
-        logger.info("SentimentAnalyzer initialized")
+        # Initialize L1 cache (Redis/in-memory)
+        self.cache_service = cache_service or ConcallCacheService()
+        logger.info("SentimentAnalyzer initialized with caching enabled")
 
     async def analyze_sentiment(
         self,
@@ -124,14 +134,32 @@ class SentimentAnalyzer:
         ticker = ticker.upper()
         quarter = quarter.upper()
 
-        # Check cache
+        # Step 1: Check L1 cache (Redis/in-memory - fastest)
         if use_cache:
-            cached = self._get_from_cache(ticker, quarter, fiscal_year)
-            if cached:
-                logger.info(f"Using cached sentiment for {ticker} {quarter} FY{fiscal_year}")
-                return cached
+            l1_cached = await self.cache_service.get_sentiment(ticker, quarter, fiscal_year)
+            if l1_cached:
+                logger.info(
+                    f"[L1 HIT] Retrieved sentiment for {ticker} {quarter} FY{fiscal_year} from Redis/memory cache"
+                )
+                return l1_cached.get("sentiment")
 
-        # Get transcript
+        # Step 2: Check L2 cache (database - slower but persistent)
+        if use_cache:
+            l2_cached = self._get_from_cache(ticker, quarter, fiscal_year)
+            if l2_cached:
+                logger.info(
+                    f"[L2 HIT] Retrieved sentiment for {ticker} {quarter} FY{fiscal_year} from database"
+                )
+                # Populate L1 cache for future requests
+                await self.cache_service.cache_sentiment(
+                    ticker=ticker,
+                    quarter=quarter,
+                    fiscal_year=fiscal_year,
+                    sentiment_data=l2_cached,
+                )
+                return l2_cached
+
+        # Step 3: Get transcript (from L2 cache or parameter)
         if transcript_text is None:
             transcript_text = self._get_transcript_from_db(ticker, quarter, fiscal_year)
             if not transcript_text:
@@ -141,7 +169,7 @@ class SentimentAnalyzer:
 
         logger.info(f"Analyzing sentiment for {ticker} {quarter} FY{fiscal_year}")
 
-        # Generate sentiment analysis
+        # Step 4: Generate sentiment analysis (expensive AI operation)
         sentiment = await self._generate_sentiment_analysis(
             ticker=ticker,
             quarter=quarter,
@@ -149,10 +177,22 @@ class SentimentAnalyzer:
             transcript_text=transcript_text,
         )
 
-        # Save to database
+        # Step 5: Save to L2 cache (database)
         if self.save_to_db:
             self._save_to_db(ticker, quarter, fiscal_year, sentiment)
 
+        # Step 6: Populate L1 cache (Redis/in-memory)
+        if use_cache:
+            await self.cache_service.cache_sentiment(
+                ticker=ticker,
+                quarter=quarter,
+                fiscal_year=fiscal_year,
+                sentiment_data=sentiment,
+            )
+
+        logger.info(
+            f"[L3 GENERATED] Successfully analyzed sentiment for {ticker} {quarter} FY{fiscal_year}"
+        )
         return sentiment
 
     async def _generate_sentiment_analysis(
