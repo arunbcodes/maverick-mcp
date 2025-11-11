@@ -175,6 +175,9 @@ nav:
       - Providers: api-reference/providers.md
       - Services: api-reference/services.md
       - Data: api-reference/data.md
+  - Deployment:
+      - Docker Guide: deployment/docker.md
+      - Rancher Desktop: deployment/rancher-desktop.md
   - Development:
       - Contributing: development/contributing.md
       - Architecture: development/architecture.md
