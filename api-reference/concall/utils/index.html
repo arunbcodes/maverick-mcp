@@ -151,7 +151,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#utils" class="md-skip">
+        <a href="#conference-call-utilities" class="md-skip">
           Skip to content
         </a>
       
@@ -1800,6 +1800,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utils
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1816,6 +1834,336 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module-maverick_mcpconcallutilstext_processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module: maverick_mcp.concall.utils.text_processing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: maverick_mcp.concall.utils.text_processing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chunk_text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        chunk_text()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_speakers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_speakers()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clean_transcript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clean_transcript()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-maverick_mcpconcallutilsvalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module: maverick_mcp.concall.utils.validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: maverick_mcp.concall.utils.validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#validate_quarter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_quarter()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate_fiscal_year" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_fiscal_year()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate_ticker_for_concall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_ticker_for_concall()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-maverick_mcpconcallutilsdate_helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module: maverick_mcp.concall.utils.date_helpers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: maverick_mcp.concall.utils.date_helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get_quarter_dates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_quarter_dates()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_previous_quarter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_previous_quarter()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estimate_earnings_date" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        estimate_earnings_date()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-maverick_mcpconcallutilscaching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module: maverick_mcp.concall.utils.caching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: maverick_mcp.concall.utils.caching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get_concall_cache_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_concall_cache_key()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache_concall_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cache_concall_data()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_cached_concall_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_cached_concall_data()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-maverick_mcpconcallutilsmetrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module: maverick_mcp.concall.utils.metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: maverick_mcp.concall.utils.metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calculate_sentiment_change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        calculate_sentiment_change()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate_sentiment_trend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aggregate_sentiment_trend()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#text-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Text Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#date-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Date Helpers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2351,8 +2699,372 @@
   
 
 
-<h1 id="utils">utils<a class="headerlink" href="#utils" title="Permanent link">&para;</a></h1>
-<p>Documentation coming soon.</p>
+<h1 id="conference-call-utilities">Conference Call Utilities<a class="headerlink" href="#conference-call-utilities" title="Permanent link">&para;</a></h1>
+<p>Utility functions for conference call processing.</p>
+<h2 id="module-maverick_mcpconcallutilstext_processing">Module: maverick_mcp.concall.utils.text_processing<a class="headerlink" href="#module-maverick_mcpconcallutilstext_processing" title="Permanent link">&para;</a></h2>
+<h3 id="chunk_text">chunk_text()<a class="headerlink" href="#chunk_text" title="Permanent link">&para;</a></h3>
+<p>Split text into manageable chunks for processing.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">chunk_text</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">overlap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>text</code> (str): Text to split
+- <code>chunk_size</code> (int, optional): Target chunk size in tokens. Default: 1000
+- <code>overlap</code> (int, optional): Overlap between chunks. Default: 200</p>
+<p><strong>Returns</strong>:
+- list[str]: Text chunks</p>
+<p><strong>Purpose</strong>: 
+- Maintains context between chunks with overlap
+- Ensures chunks fit within AI model token limits
+- Preserves sentence boundaries</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.text_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">chunk_text</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">transcript</span> <span class="o">=</span> <span class="s2">&quot;Very long transcript text...&quot;</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">chunks</span> <span class="o">=</span> <span class="n">chunk_text</span><span class="p">(</span><span class="n">transcript</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">overlap</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span><span class="si">}</span><span class="s2"> chunks&quot;</span><span class="p">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunks</span><span class="p">):</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Chunk </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span><span class="si">}</span><span class="s2"> characters&quot;</span><span class="p">)</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="extract_speakers">extract_speakers()<a class="headerlink" href="#extract_speakers" title="Permanent link">&para;</a></h3>
+<p>Extract speaker names from transcript.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">extract_speakers</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>text</code> (str): Transcript text</p>
+<p><strong>Returns</strong>:
+- list[str]: Unique speaker names</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.text_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_speakers</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">speakers</span> <span class="o">=</span> <span class="n">extract_speakers</span><span class="p">(</span><span class="n">transcript_text</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Speakers: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">speakers</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># Output: &quot;Speakers: Tim Cook, Luca Maestri, Analyst 1&quot;</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="clean_transcript">clean_transcript()<a class="headerlink" href="#clean_transcript" title="Permanent link">&para;</a></h3>
+<p>Clean and normalize transcript text.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">clean_transcript</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>text</code> (str): Raw transcript text</p>
+<p><strong>Returns</strong>:
+- str: Cleaned transcript</p>
+<p><strong>Cleaning Steps</strong>:
+- Remove HTML tags and entities
+- Normalize whitespace
+- Fix common OCR errors
+- Remove timestamps and metadata
+- Standardize speaker labels</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.text_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">clean_transcript</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">raw_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;p&gt;Tim Cook:&amp;nbsp;&amp;nbsp;Good morning...&lt;/p&gt;&quot;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">cleaned</span> <span class="o">=</span> <span class="n">clean_transcript</span><span class="p">(</span><span class="n">raw_text</span><span class="p">)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="nb">print</span><span class="p">(</span><span class="n">cleaned</span><span class="p">)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># Output: &quot;Tim Cook: Good morning...&quot;</span>
+</span></code></pre></div></p>
+<hr />
+<h2 id="module-maverick_mcpconcallutilsvalidation">Module: maverick_mcp.concall.utils.validation<a class="headerlink" href="#module-maverick_mcpconcallutilsvalidation" title="Permanent link">&para;</a></h2>
+<h3 id="validate_quarter">validate_quarter()<a class="headerlink" href="#validate_quarter" title="Permanent link">&para;</a></h3>
+<p>Validate quarter string.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">validate_quarter</span><span class="p">(</span><span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>quarter</code> (str): Quarter string (e.g., "Q1", "q2", "1")</p>
+<p><strong>Returns</strong>:
+- str: Normalized quarter ("Q1", "Q2", "Q3", "Q4")</p>
+<p><strong>Raises</strong>:
+- ValueError: Invalid quarter</p>
+<p><strong>Accepted Formats</strong>:
+- "Q1", "Q2", "Q3", "Q4" (case insensitive)
+- "1", "2", "3", "4"
+- "FY Q1", "FY Q2", etc.</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_quarter</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">quarter</span> <span class="o">=</span> <span class="n">validate_quarter</span><span class="p">(</span><span class="s2">&quot;q1&quot;</span><span class="p">)</span>  <span class="c1"># Returns &quot;Q1&quot;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">quarter</span> <span class="o">=</span> <span class="n">validate_quarter</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>   <span class="c1"># Returns &quot;Q2&quot;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">quarter</span> <span class="o">=</span> <span class="n">validate_quarter</span><span class="p">(</span><span class="s2">&quot;Q3&quot;</span><span class="p">)</span>  <span class="c1"># Returns &quot;Q3&quot;</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="validate_fiscal_year">validate_fiscal_year()<a class="headerlink" href="#validate_fiscal_year" title="Permanent link">&para;</a></h3>
+<p>Validate fiscal year.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">validate_fiscal_year</span><span class="p">(</span><span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>year</code> (int): Fiscal year</p>
+<p><strong>Returns</strong>:
+- int: Validated year</p>
+<p><strong>Raises</strong>:
+- ValueError: Invalid year (before 2000 or in future)</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_fiscal_year</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">year</span> <span class="o">=</span> <span class="n">validate_fiscal_year</span><span class="p">(</span><span class="mi">2024</span><span class="p">)</span>  <span class="c1"># OK</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">year</span> <span class="o">=</span> <span class="n">validate_fiscal_year</span><span class="p">(</span><span class="mi">1999</span><span class="p">)</span>  <span class="c1"># Raises ValueError</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">year</span> <span class="o">=</span> <span class="n">validate_fiscal_year</span><span class="p">(</span><span class="mi">2030</span><span class="p">)</span>  <span class="c1"># Raises ValueError (future)</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="validate_ticker_for_concall">validate_ticker_for_concall()<a class="headerlink" href="#validate_ticker_for_concall" title="Permanent link">&para;</a></h3>
+<p>Validate ticker for conference call access.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">validate_ticker_for_concall</span><span class="p">(</span><span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>ticker</code> (str): Stock symbol</p>
+<p><strong>Returns</strong>:
+- str: Validated and normalized ticker</p>
+<p><strong>Raises</strong>:
+- ValueError: Invalid ticker format</p>
+<p><strong>Supported Formats</strong>:
+- US stocks: "AAPL", "MSFT", "GOOGL"
+- Indian NSE: "RELIANCE.NS", "TCS.NS"
+- Indian BSE: "INFY.BO", "WIPRO.BO"</p>
+<hr />
+<h2 id="module-maverick_mcpconcallutilsdate_helpers">Module: maverick_mcp.concall.utils.date_helpers<a class="headerlink" href="#module-maverick_mcpconcallutilsdate_helpers" title="Permanent link">&para;</a></h2>
+<h3 id="get_quarter_dates">get_quarter_dates()<a class="headerlink" href="#get_quarter_dates" title="Permanent link">&para;</a></h3>
+<p>Get start and end dates for a quarter.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_quarter_dates</span><span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">fiscal_year</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="n">date</span><span class="p">]</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>quarter</code> (str): Quarter ("Q1", "Q2", "Q3", "Q4")
+- <code>fiscal_year</code> (int): Fiscal year</p>
+<p><strong>Returns</strong>:
+- tuple[date, date]: (start_date, end_date)</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.date_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_quarter_dates</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">get_quarter_dates</span><span class="p">(</span><span class="s2">&quot;Q1&quot;</span><span class="p">,</span> <span class="mi">2024</span><span class="p">)</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Q1 2024: </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1"># Output: &quot;Q1 2024: 2024-01-01 to 2024-03-31&quot;</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="get_previous_quarter">get_previous_quarter()<a class="headerlink" href="#get_previous_quarter" title="Permanent link">&para;</a></h3>
+<p>Get previous quarter.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_previous_quarter</span><span class="p">(</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">fiscal_year</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>quarter</code> (str): Current quarter
+- <code>fiscal_year</code> (int): Current fiscal year</p>
+<p><strong>Returns</strong>:
+- tuple[str, int]: (previous_quarter, year)</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.date_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_previous_quarter</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">prev_q</span><span class="p">,</span> <span class="n">prev_y</span> <span class="o">=</span> <span class="n">get_previous_quarter</span><span class="p">(</span><span class="s2">&quot;Q1&quot;</span><span class="p">,</span> <span class="mi">2024</span><span class="p">)</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Previous: </span><span class="si">{</span><span class="n">prev_q</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">prev_y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># Output: &quot;Previous: Q4 2023&quot;</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">prev_q</span><span class="p">,</span> <span class="n">prev_y</span> <span class="o">=</span> <span class="n">get_previous_quarter</span><span class="p">(</span><span class="s2">&quot;Q2&quot;</span><span class="p">,</span> <span class="mi">2024</span><span class="p">)</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1"># Output: Q1 2024</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="estimate_earnings_date">estimate_earnings_date()<a class="headerlink" href="#estimate_earnings_date" title="Permanent link">&para;</a></h3>
+<p>Estimate earnings call date for a quarter.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">estimate_earnings_date</span><span class="p">(</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">fiscal_year</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">date</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>quarter</code> (str): Quarter
+- <code>fiscal_year</code> (int): Fiscal year</p>
+<p><strong>Returns</strong>:
+- date: Estimated earnings date</p>
+<p><strong>Logic</strong>: Typically 2-4 weeks after quarter end</p>
+<hr />
+<h2 id="module-maverick_mcpconcallutilscaching">Module: maverick_mcp.concall.utils.caching<a class="headerlink" href="#module-maverick_mcpconcallutilscaching" title="Permanent link">&para;</a></h2>
+<h3 id="get_concall_cache_key">get_concall_cache_key()<a class="headerlink" href="#get_concall_cache_key" title="Permanent link">&para;</a></h3>
+<p>Generate cache key for conference call data.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_concall_cache_key</span><span class="p">(</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="n">fiscal_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>ticker</code> (str): Stock symbol
+- <code>quarter</code> (str): Quarter
+- <code>fiscal_year</code> (int): Year
+- <code>data_type</code> (str): Type ("transcript", "summary", "sentiment", "rag")</p>
+<p><strong>Returns</strong>:
+- str: Cache key</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.caching</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_concall_cache_key</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># Transcript cache key</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">key</span> <span class="o">=</span> <span class="n">get_concall_cache_key</span><span class="p">(</span><span class="s2">&quot;AAPL&quot;</span><span class="p">,</span> <span class="s2">&quot;Q4&quot;</span><span class="p">,</span> <span class="mi">2024</span><span class="p">,</span> <span class="s2">&quot;transcript&quot;</span><span class="p">)</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c1"># &quot;concall:transcript:AAPL:Q4:2024&quot;</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># Summary cache key</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="n">key</span> <span class="o">=</span> <span class="n">get_concall_cache_key</span><span class="p">(</span><span class="s2">&quot;AAPL&quot;</span><span class="p">,</span> <span class="s2">&quot;Q4&quot;</span><span class="p">,</span> <span class="mi">2024</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">)</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c1"># &quot;concall:summary:AAPL:Q4:2024&quot;</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="cache_concall_data">cache_concall_data()<a class="headerlink" href="#cache_concall_data" title="Permanent link">&para;</a></h3>
+<p>Cache conference call data.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">cache_concall_data</span><span class="p">(</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="n">fiscal_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">data</span><span class="p">:</span> <span class="n">Any</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>ticker</code> (str): Stock symbol
+- <code>quarter</code> (str): Quarter
+- <code>fiscal_year</code> (int): Year
+- <code>data_type</code> (str): Type
+- <code>data</code> (Any): Data to cache</p>
+<p><strong>Returns</strong>:
+- bool: True if cached successfully</p>
+<p><strong>TTL</strong>: 7 days for all conference call data</p>
+<hr />
+<h3 id="get_cached_concall_data">get_cached_concall_data()<a class="headerlink" href="#get_cached_concall_data" title="Permanent link">&para;</a></h3>
+<p>Retrieve cached conference call data.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_cached_concall_data</span><span class="p">(</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    <span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="n">fiscal_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div></p>
+<p><strong>Returns</strong>:
+- Any | None: Cached data or None</p>
+<hr />
+<h2 id="module-maverick_mcpconcallutilsmetrics">Module: maverick_mcp.concall.utils.metrics<a class="headerlink" href="#module-maverick_mcpconcallutilsmetrics" title="Permanent link">&para;</a></h2>
+<h3 id="calculate_sentiment_change">calculate_sentiment_change()<a class="headerlink" href="#calculate_sentiment_change" title="Permanent link">&para;</a></h3>
+<p>Calculate sentiment change between quarters.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">calculate_sentiment_change</span><span class="p">(</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="n">current_sentiment</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="n">previous_sentiment</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>current_sentiment</code> (float): Current quarter sentiment (1-5)
+- <code>previous_sentiment</code> (float): Previous quarter sentiment (1-5)</p>
+<p><strong>Returns</strong>:
+- dict: Contains:
+  - <code>change</code> (float): Absolute change
+  - <code>change_percent</code> (float): Percentage change
+  - <code>direction</code> (str): "improving", "declining", or "stable"</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_sentiment_change</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="n">change</span> <span class="o">=</span> <span class="n">calculate_sentiment_change</span><span class="p">(</span><span class="mf">4.2</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">)</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Change: </span><span class="si">{</span><span class="n">change</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 0.4</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Direction: </span><span class="si">{</span><span class="n">change</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># &quot;improving&quot;</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="aggregate_sentiment_trend">aggregate_sentiment_trend()<a class="headerlink" href="#aggregate_sentiment_trend" title="Permanent link">&para;</a></h3>
+<p>Calculate trend across multiple quarters.</p>
+<p><strong>Signature</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">aggregate_sentiment_trend</span><span class="p">(</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="n">sentiments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</span></code></pre></div></p>
+<p><strong>Parameters</strong>:
+- <code>sentiments</code> (list[float]): List of sentiment scores in chronological order</p>
+<p><strong>Returns</strong>:
+- dict: Contains:
+  - <code>average</code> (float): Average sentiment
+  - <code>trend</code> (str): "improving", "declining", or "stable"
+  - <code>volatility</code> (float): Sentiment volatility</p>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="text-processing">Text Processing<a class="headerlink" href="#text-processing" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.text_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">clean_transcript</span><span class="p">,</span> <span class="n">chunk_text</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="c1"># Always clean before processing</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="n">raw_text</span> <span class="o">=</span> <span class="n">fetch_transcript</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="n">cleaned</span> <span class="o">=</span> <span class="n">clean_transcript</span><span class="p">(</span><span class="n">raw_text</span><span class="p">)</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="c1"># Use appropriate chunk size for your model</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="n">chunks</span> <span class="o">=</span> <span class="n">chunk_text</span><span class="p">(</span><span class="n">cleaned</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="n">validate_quarter</span><span class="p">,</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">validate_fiscal_year</span><span class="p">,</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="n">validate_ticker_for_concall</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="p">)</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="c1"># Validate all inputs</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="k">try</span><span class="p">:</span>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>    <span class="n">ticker</span> <span class="o">=</span> <span class="n">validate_ticker_for_concall</span><span class="p">(</span><span class="n">user_ticker</span><span class="p">)</span>
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>    <span class="n">quarter</span> <span class="o">=</span> <span class="n">validate_quarter</span><span class="p">(</span><span class="n">user_quarter</span><span class="p">)</span>
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>    <span class="n">year</span> <span class="o">=</span> <span class="n">validate_fiscal_year</span><span class="p">(</span><span class="n">user_year</span><span class="p">)</span>
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a><span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+</span></code></pre></div>
+<h3 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.caching</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    <span class="n">get_cached_concall_data</span><span class="p">,</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    <span class="n">cache_concall_data</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="p">)</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="c1"># Always check cache first</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="n">cached</span> <span class="o">=</span> <span class="n">get_cached_concall_data</span><span class="p">(</span><span class="n">ticker</span><span class="p">,</span> <span class="n">quarter</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">)</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="k">if</span> <span class="n">cached</span><span class="p">:</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    <span class="k">return</span> <span class="n">cached</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="c1"># Generate and cache</span>
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="n">summary</span> <span class="o">=</span> <span class="n">generate_summary</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="n">cache_concall_data</span><span class="p">(</span><span class="n">ticker</span><span class="p">,</span> <span class="n">quarter</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="date-helpers">Date Helpers<a class="headerlink" href="#date-helpers" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.date_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="n">get_quarter_dates</span><span class="p">,</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    <span class="n">get_previous_quarter</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="p">)</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="c1"># Get quarter date range</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">get_quarter_dates</span><span class="p">(</span><span class="s2">&quot;Q1&quot;</span><span class="p">,</span> <span class="mi">2024</span><span class="p">)</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="c1"># Compare with previous quarter</span>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="n">prev_q</span><span class="p">,</span> <span class="n">prev_y</span> <span class="o">=</span> <span class="n">get_previous_quarter</span><span class="p">(</span><span class="s2">&quot;Q1&quot;</span><span class="p">,</span> <span class="mi">2024</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="metrics">Metrics<a class="headerlink" href="#metrics" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.utils.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="n">calculate_sentiment_change</span><span class="p">,</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    <span class="n">aggregate_sentiment_trend</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="p">)</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="c1"># Track sentiment changes</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="n">change</span> <span class="o">=</span> <span class="n">calculate_sentiment_change</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">previous</span><span class="p">)</span>
+</span><span id="__span-27-8"><a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="k">if</span> <span class="n">change</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;declining&quot;</span><span class="p">:</span>
+</span><span id="__span-27-9"><a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚠️ Sentiment deteriorating&quot;</span><span class="p">)</span>
+</span><span id="__span-27-10"><a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
+</span><span id="__span-27-11"><a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="c1"># Analyze long-term trend</span>
+</span><span id="__span-27-12"><a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="n">trend</span> <span class="o">=</span> <span class="n">aggregate_sentiment_trend</span><span class="p">([</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">3.7</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">])</span>
+</span><span id="__span-27-13"><a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trend: </span><span class="si">{</span><span class="n">trend</span><span class="p">[</span><span class="s1">&#39;trend&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># &quot;improving&quot;</span>
+</span></code></pre></div>
 
 
 
@@ -2375,7 +3087,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 8, 2025 16:45:09 UTC"><span class="timeago" datetime="2025-11-08T16:45:09+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 8, 2025 16:45:09 UTC">2025-11-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 11, 2025 19:39:48 UTC"><span class="timeago" datetime="2025-11-11T19:39:48+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 11, 2025 19:39:48 UTC">2025-11-11</span>
   </span>
 
     

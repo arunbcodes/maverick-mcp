@@ -151,7 +151,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#models" class="md-skip">
+        <a href="#conference-call-models" class="md-skip">
           Skip to content
         </a>
       
@@ -1716,6 +1716,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1732,6 +1750,175 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module-maverick_mcpconcallmodels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module: maverick_mcp.concall.models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Module: maverick_mcp.concall.models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transcript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transcript
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transcriptsummary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TranscriptSummary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sentimentanalysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SentimentAnalysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transcriptembedding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TranscriptEmbedding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transcript-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transcript Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-relationships" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Relationships
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bulk-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bulk Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2351,8 +2538,186 @@
   
 
 
-<h1 id="models">models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h1>
-<p>Documentation coming soon.</p>
+<h1 id="conference-call-models">Conference Call Models<a class="headerlink" href="#conference-call-models" title="Permanent link">&para;</a></h1>
+<p>Data models for conference call analysis.</p>
+<h2 id="module-maverick_mcpconcallmodels">Module: maverick_mcp.concall.models<a class="headerlink" href="#module-maverick_mcpconcallmodels" title="Permanent link">&para;</a></h2>
+<h3 id="transcript">Transcript<a class="headerlink" href="#transcript" title="Permanent link">&para;</a></h3>
+<p>Conference call transcript model.</p>
+<p><strong>Fields</strong>:
+- <code>id</code> (int): Primary key
+- <code>ticker</code> (str): Stock symbol (e.g., "AAPL", "RELIANCE.NS")
+- <code>quarter</code> (str): Quarter ("Q1", "Q2", "Q3", "Q4")
+- <code>fiscal_year</code> (int): Fiscal year (e.g., 2025)
+- <code>transcript_text</code> (Text): Full transcript content
+- <code>source</code> (str): Source ("company_ir", "nse", "screener")
+- <code>source_url</code> (str): Original transcript URL
+- <code>fetched_at</code> (datetime): When transcript was fetched
+- <code>metadata</code> (JSON): Additional data (speakers, duration, etc.)</p>
+<p><strong>Indexes</strong>:
+- Composite unique index on (ticker, quarter, fiscal_year)
+- Ticker index for company queries
+- Fiscal year index for temporal queries</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transcript</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.data.session_management</span><span class="w"> </span><span class="kn">import</span> <span class="n">session_scope</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">with</span> <span class="n">session_scope</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">transcript</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Transcript</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">ticker</span><span class="o">=</span><span class="s2">&quot;RELIANCE.NS&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="n">quarter</span><span class="o">=</span><span class="s2">&quot;Q1&quot;</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="n">fiscal_year</span><span class="o">=</span><span class="mi">2025</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source: </span><span class="si">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">transcript</span><span class="o">.</span><span class="n">transcript_text</span><span class="p">)</span><span class="si">}</span><span class="s2"> characters&quot;</span><span class="p">)</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="transcriptsummary">TranscriptSummary<a class="headerlink" href="#transcriptsummary" title="Permanent link">&para;</a></h3>
+<p>AI-generated transcript summary.</p>
+<p><strong>Fields</strong>:
+- <code>id</code> (int): Primary key
+- <code>transcript_id</code> (int): Foreign key to Transcript
+- <code>summary_mode</code> (str): Mode ("concise", "standard", "detailed")
+- <code>executive_summary</code> (Text): High-level overview
+- <code>key_metrics</code> (JSON): Important financial metrics
+- <code>revenue_analysis</code> (Text): Revenue discussion
+- <code>guidance</code> (Text): Management guidance
+- <code>risks</code> (JSON): Risk factors mentioned
+- <code>growth_drivers</code> (JSON): Growth initiatives
+- <code>generated_at</code> (datetime): Summary generation time
+- <code>model_used</code> (str): AI model name</p>
+<p><strong>Relationships</strong>:
+- <code>transcript</code>: Many-to-one with Transcript</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TranscriptSummary</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">summary</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">TranscriptSummary</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">summary_mode</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">executive_summary</span><span class="p">)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key Metrics: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">key_metrics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="sentimentanalysis">SentimentAnalysis<a class="headerlink" href="#sentimentanalysis" title="Permanent link">&para;</a></h3>
+<p>Sentiment analysis of conference calls.</p>
+<p><strong>Fields</strong>:
+- <code>id</code> (int): Primary key
+- <code>transcript_id</code> (int): Foreign key to Transcript
+- <code>overall_sentiment</code> (float): Score 1-5 (1=Very Bearish, 5=Very Bullish)
+- <code>management_tone</code> (str): Tone assessment ("confident", "cautious", "defensive")
+- <code>outlook_sentiment</code> (float): Forward-looking sentiment (1-5)
+- <code>risk_sentiment</code> (float): Risk discussion sentiment (1-5)
+- <code>confidence_score</code> (float): Analysis confidence (0-1)
+- <code>key_phrases</code> (JSON): Important phrases with sentiment
+- <code>analyzed_at</code> (datetime): Analysis timestamp
+- <code>model_used</code> (str): AI model name</p>
+<p><strong>Sentiment Scale</strong>:
+- <strong>5.0</strong>: Very Bullish - Extremely positive outlook
+- <strong>4.0</strong>: Bullish - Generally positive tone
+- <strong>3.0</strong>: Neutral - Balanced perspective
+- <strong>2.0</strong>: Bearish - Cautious or negative
+- <strong>1.0</strong>: Very Bearish - Significantly negative</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentimentAnalysis</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">sentiment</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SentimentAnalysis</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overall: </span><span class="si">{</span><span class="n">sentiment</span><span class="o">.</span><span class="n">overall_sentiment</span><span class="si">}</span><span class="s2">/5&quot;</span><span class="p">)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tone: </span><span class="si">{</span><span class="n">sentiment</span><span class="o">.</span><span class="n">management_tone</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Confidence: </span><span class="si">{</span><span class="n">sentiment</span><span class="o">.</span><span class="n">confidence_score</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div></p>
+<hr />
+<h3 id="transcriptembedding">TranscriptEmbedding<a class="headerlink" href="#transcriptembedding" title="Permanent link">&para;</a></h3>
+<p>Vector embeddings for RAG (Retrieval-Augmented Generation).</p>
+<p><strong>Fields</strong>:
+- <code>id</code> (int): Primary key
+- <code>transcript_id</code> (int): Foreign key to Transcript
+- <code>chunk_index</code> (int): Chunk sequence number
+- <code>chunk_text</code> (Text): Text segment
+- <code>embedding</code> (Vector): Vector embedding
+- <code>metadata</code> (JSON): Chunk metadata (speaker, topic, timestamp)
+- <code>created_at</code> (datetime): Embedding creation time</p>
+<p><strong>Chunk Size</strong>: ~500-1000 tokens per chunk</p>
+<p><strong>Embedding Model</strong>: OpenAI text-embedding-3-small (1536 dimensions)</p>
+<p><strong>Example</strong>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.concall.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TranscriptEmbedding</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Get all embeddings for a transcript</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">embeddings</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">TranscriptEmbedding</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">TranscriptEmbedding</span><span class="o">.</span><span class="n">chunk_index</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total chunks: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div></p>
+<hr />
+<h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
+<h3 id="transcript-lifecycle">Transcript Lifecycle<a class="headerlink" href="#transcript-lifecycle" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Fetching</strong>: <code>Transcript</code> created with raw text</li>
+<li><strong>Summarization</strong>: <code>TranscriptSummary</code> generated (concise/standard/detailed)</li>
+<li><strong>Sentiment Analysis</strong>: <code>SentimentAnalysis</code> computed</li>
+<li><strong>Embedding</strong>: <code>TranscriptEmbedding</code> chunks created for RAG</li>
+<li><strong>Caching</strong>: All results cached for 7 days</li>
+</ol>
+<h3 id="database-relationships">Database Relationships<a class="headerlink" href="#database-relationships" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Transcript (1) ←→ (Many) TranscriptSummary
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>           (1) ←→ (Many) SentimentAnalysis
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>           (1) ←→ (Many) TranscriptEmbedding
+</span></code></pre></div>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="query-optimization">Query Optimization<a class="headerlink" href="#query-optimization" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">joinedload</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Eager load relationships</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">transcript</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Transcript</span><span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">joinedload</span><span class="p">(</span><span class="n">Transcript</span><span class="o">.</span><span class="n">summaries</span><span class="p">),</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">joinedload</span><span class="p">(</span><span class="n">Transcript</span><span class="o">.</span><span class="n">sentiment_analyses</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">ticker</span><span class="o">=</span><span class="s2">&quot;AAPL&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1"># Avoid N+1 queries</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">for</span> <span class="n">summary</span> <span class="ow">in</span> <span class="n">transcript</span><span class="o">.</span><span class="n">summaries</span><span class="p">:</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">executive_summary</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="caching-strategy">Caching Strategy<a class="headerlink" href="#caching-strategy" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">maverick_mcp.data.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheManager</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">cache</span> <span class="o">=</span> <span class="n">CacheManager</span><span class="p">()</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_cached_transcript</span><span class="p">(</span><span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">cache_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;transcript:</span><span class="si">{</span><span class="n">ticker</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">quarter</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">cached</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="k">if</span> <span class="n">cached</span><span class="p">:</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="k">return</span> <span class="n">cached</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="k">with</span> <span class="n">session_scope</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="n">transcript</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Transcript</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>            <span class="n">ticker</span><span class="o">=</span><span class="n">ticker</span><span class="p">,</span> <span class="n">quarter</span><span class="o">=</span><span class="n">quarter</span><span class="p">,</span> <span class="n">fiscal_year</span><span class="o">=</span><span class="n">year</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    <span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">transcript</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">604800</span><span class="p">)</span>  <span class="c1"># 7 days</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    <span class="k">return</span> <span class="n">transcript</span>
+</span></code></pre></div>
+<h3 id="bulk-operations">Bulk Operations<a class="headerlink" href="#bulk-operations" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Efficient chunk insertion</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">TranscriptEmbedding</span><span class="p">(</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="n">transcript_id</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="n">chunk_index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="n">chunk_text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="n">embedding</span><span class="o">=</span><span class="n">vector</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="p">)</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunks_data</span><span class="p">)</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="p">]</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="k">with</span> <span class="n">session_scope</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="n">session</span><span class="o">.</span><span class="n">bulk_save_objects</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+</span></code></pre></div>
 
 
 
@@ -2375,7 +2740,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 8, 2025 16:45:09 UTC"><span class="timeago" datetime="2025-11-08T16:45:09+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 8, 2025 16:45:09 UTC">2025-11-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 11, 2025 19:39:48 UTC"><span class="timeago" datetime="2025-11-11T19:39:48+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 11, 2025 19:39:48 UTC">2025-11-11</span>
   </span>
 
     
