@@ -169,9 +169,11 @@ nav:
           - Models: api-reference/concall/models.md
           - Providers: api-reference/concall/providers.md
           - Services: api-reference/concall/services.md
+          - Cache: api-reference/concall/cache.md
           - Utils: api-reference/concall/utils.md
       - Core: api-reference/core.md
       - Providers: api-reference/providers.md
+      - Services: api-reference/services.md
       - Data: api-reference/data.md
   - Development:
       - Contributing: development/contributing.md
