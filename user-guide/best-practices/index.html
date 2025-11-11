@@ -149,7 +149,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#uest-practices" class="md-skip">
+        <a href="#best-practices" class="md-skip">
           Skip to content
         </a>
       
@@ -572,6 +572,8 @@
       
         
       
+        
+      
     
     
     
@@ -692,6 +694,29 @@
   
   <span class="md-ellipsis">
     Claude Desktop Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/cursor-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cursor IDE Setup
     
   </span>
   
@@ -1360,6 +1385,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Best Practices
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1371,6 +1409,91 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-use-descriptive-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Use Descriptive Commands
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-combine-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Combine Tools
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cache-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Cache Results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conference-call-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conference Call Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Conference Call Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-fetch-first-analyze-later" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Fetch First, Analyze Later
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1972,8 +2095,53 @@
   
 
 
-<h1 id="uest-practices">uest practices<a class="headerlink" href="#uest-practices" title="Permanent link">&para;</a></h1>
-<p>Documentation coming soon.</p>
+<h1 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h1>
+<p>Tips for optimal use of Maverick MCP.</p>
+<h2 id="general-best-practices">General Best Practices<a class="headerlink" href="#general-best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-use-descriptive-commands">1. Use Descriptive Commands<a class="headerlink" href="#1-use-descriptive-commands" title="Permanent link">&para;</a></h3>
+<p>Be specific about what you want:</p>
+<p>❌ "Get data"
+✅ "Get historical stock data for AAPL from Jan 2024 to Dec 2024"</p>
+<h3 id="2-combine-tools">2. Combine Tools<a class="headerlink" href="#2-combine-tools" title="Permanent link">&para;</a></h3>
+<p>Chain multiple operations:
+```
+Fetch RELIANCE.NS Q1 2025 transcript, summarize it, 
+analyze sentiment, and extract top concerns
+```</p>
+<h3 id="3-cache-results">3. Cache Results<a class="headerlink" href="#3-cache-results" title="Permanent link">&para;</a></h3>
+<p>AI analyses are cached automatically. Don't force refresh unless needed.</p>
+<h2 id="conference-call-analysis">Conference Call Analysis<a class="headerlink" href="#conference-call-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="1-fetch-first-analyze-later">1. Fetch First, Analyze Later<a class="headerlink" href="#1-fetch-first-analyze-later" title="Permanent link">&para;</a></h3>
+<p>```</p>
+<h1 id="step-1-fetch-transcript">Step 1: Fetch transcript<a class="headerlink" href="#step-1-fetch-transcript" title="Permanent link">&para;</a></h1>
+<p>Fetch RELIANCE.NS Q1 2025</p>
+<h1 id="step-2-analyze-uses-cached-transcript">Step 2: Analyze (uses cached transcript)<a class="headerlink" href="#step-2-analyze-uses-cached-transcript" title="Permanent link">&para;</a></h1>
+<p>Summarize RELIANCE.NS Q1 2025
+Analyze sentiment for RELIANCE.NS Q1 2025
+```</p>
+<h3 id="2-use-appropriate-detail-levels">2. Use Appropriate Detail Levels<a class="headerlink" href="#2-use-appropriate-detail-levels" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Concise</strong>: Quick overview</li>
+<li><strong>Standard</strong>: Balanced (default)</li>
+<li><strong>Detailed</strong>: Comprehensive analysis</li>
+</ul>
+<h3 id="3-compare-trends">3. Compare Trends<a class="headerlink" href="#3-compare-trends" title="Permanent link">&para;</a></h3>
+<p>Always compare across quarters for context.</p>
+<h2 id="cost-optimization">Cost Optimization<a class="headerlink" href="#cost-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="1-use-caching">1. Use Caching<a class="headerlink" href="#1-use-caching" title="Permanent link">&para;</a></h3>
+<p>Results are cached by default. Reuse them!</p>
+<h3 id="2-choose-right-detail-level">2. Choose Right Detail Level<a class="headerlink" href="#2-choose-right-detail-level" title="Permanent link">&para;</a></h3>
+<p>Concise mode costs ~50% less than detailed.</p>
+<h3 id="3-batch-operations">3. Batch Operations<a class="headerlink" href="#3-batch-operations" title="Permanent link">&para;</a></h3>
+<p>Analyze multiple stocks in one request when possible.</p>
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<h3 id="1-enable-redis">1. Enable Redis<a class="headerlink" href="#1-enable-redis" title="Permanent link">&para;</a></h3>
+<p>Significantly faster with Redis caching.</p>
+<h3 id="2-use-postgresql">2. Use PostgreSQL<a class="headerlink" href="#2-use-postgresql" title="Permanent link">&para;</a></h3>
+<p>Better for large datasets.</p>
+<h3 id="3-parallel-requests">3. Parallel Requests<a class="headerlink" href="#3-parallel-requests" title="Permanent link">&para;</a></h3>
+<p>Server handles concurrent requests automatically.</p>
+<p><a href="../../getting-started/configuration/">See more in Configuration →</a></p>
 
 
 
@@ -1996,7 +2164,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 8, 2025 16:45:09 UTC"><span class="timeago" datetime="2025-11-08T16:45:09+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 8, 2025 16:45:09 UTC">2025-11-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 11, 2025 12:01:24 UTC"><span class="timeago" datetime="2025-11-11T12:01:24+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 11, 2025 12:01:24 UTC">2025-11-11</span>
   </span>
 
     

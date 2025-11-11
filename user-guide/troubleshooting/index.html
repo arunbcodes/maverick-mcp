@@ -149,7 +149,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#trouuleshooting" class="md-skip">
+        <a href="#troubleshooting" class="md-skip">
           Skip to content
         </a>
       
@@ -572,6 +572,8 @@
       
         
       
+        
+      
     
     
     
@@ -692,6 +694,29 @@
   
   <span class="md-ellipsis">
     Claude Desktop Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/cursor-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cursor IDE Setup
     
   </span>
   
@@ -1337,6 +1362,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1348,6 +1386,157 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#connection-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Connection Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Connection Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tools-not-appearing-in-claude" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools Not Appearing in Claude
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-already-in-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      Port Already in Use
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tiingo-api-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tiingo API Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openrouter-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenRouter Errors
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sp-500-data-missing" class="md-nav__link">
+    <span class="md-ellipsis">
+      S&amp;P 500 Data Missing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Issues
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slow-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slow Responses
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logging
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1972,8 +2161,61 @@
   
 
 
-<h1 id="trouuleshooting">trouuleshooting<a class="headerlink" href="#trouuleshooting" title="Permanent link">&para;</a></h1>
-<p>Documentation coming soon.</p>
+<h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h1>
+<p>Common issues and solutions.</p>
+<h2 id="connection-issues">Connection Issues<a class="headerlink" href="#connection-issues" title="Permanent link">&para;</a></h2>
+<h3 id="tools-not-appearing-in-claude">Tools Not Appearing in Claude<a class="headerlink" href="#tools-not-appearing-in-claude" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Check server is running: <code>lsof -i :8003</code></li>
+<li>Verify config has trailing slash: <code>/sse/</code></li>
+<li>Restart Claude Desktop completely</li>
+<li>Check logs: <code>make tail-log</code></li>
+</ol>
+<h3 id="port-already-in-use">Port Already in Use<a class="headerlink" href="#port-already-in-use" title="Permanent link">&para;</a></h3>
+<p>```bash
+lsof -i :8003
+kill -9 <PID>
+make dev
+```</p>
+<h2 id="api-issues">API Issues<a class="headerlink" href="#api-issues" title="Permanent link">&para;</a></h2>
+<h3 id="tiingo-api-errors">Tiingo API Errors<a class="headerlink" href="#tiingo-api-errors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Check API key in <code>.env</code></li>
+<li>Verify not exceeding rate limit (500/day free)</li>
+<li>Check <a href="https://status.tiingo.com">status page</a></li>
+</ul>
+<h3 id="openrouter-errors">OpenRouter Errors<a class="headerlink" href="#openrouter-errors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Verify API key</li>
+<li>Check account credits</li>
+<li>Try different model with <code>prefer_cheap=True</code></li>
+</ul>
+<h2 id="database-issues">Database Issues<a class="headerlink" href="#database-issues" title="Permanent link">&para;</a></h2>
+<h3 id="migration-errors">Migration Errors<a class="headerlink" href="#migration-errors" title="Permanent link">&para;</a></h3>
+<p>```bash
+make clean
+rm -rf ~/.maverick_mcp/maverick_mcp.db
+make dev  # Re-creates and seeds
+```</p>
+<h3 id="sp-500-data-missing">S&amp;P 500 Data Missing<a class="headerlink" href="#sp-500-data-missing" title="Permanent link">&para;</a></h3>
+<p>```bash
+python scripts/seed_sp500.py
+```</p>
+<h2 id="performance-issues">Performance Issues<a class="headerlink" href="#performance-issues" title="Permanent link">&para;</a></h2>
+<h3 id="slow-responses">Slow Responses<a class="headerlink" href="#slow-responses" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Enable Redis caching</li>
+<li>Use PostgreSQL instead of SQLite</li>
+<li>Check internet connection</li>
+<li>Verify API rate limits not exceeded</li>
+</ol>
+<h2 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h2>
+<p>View logs:
+```bash
+make tail-log  # Real-time
+tail -100 ~/.maverick_mcp/logs/maverick_mcp.log  # Last 100 lines
+```</p>
+<p><a href="../../about/faq/">Need more help? →</a></p>
 
 
 
@@ -1996,7 +2238,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 8, 2025 16:45:09 UTC"><span class="timeago" datetime="2025-11-08T16:45:09+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 8, 2025 16:45:09 UTC">2025-11-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 11, 2025 12:01:24 UTC"><span class="timeago" datetime="2025-11-11T12:01:24+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 11, 2025 12:01:24 UTC">2025-11-11</span>
   </span>
 
     
