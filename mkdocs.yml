@@ -140,6 +140,7 @@ nav:
       - Quick Start: getting-started/quick-start.md
       - Configuration: getting-started/configuration.md
       - Claude Desktop Setup: getting-started/claude-desktop-setup.md
+      - Cursor IDE Setup: getting-started/cursor-setup.md
   - Features:
       - Overview: features/overview.md
       - Stock Analysis: features/stock-analysis.md
