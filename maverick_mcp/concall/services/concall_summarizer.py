@@ -6,6 +6,11 @@ Open/Closed: Extensible via prompt templates, not code changes.
 Liskov Substitution: Compatible with any LLM provider interface.
 Interface Segregation: Simple, focused public API.
 Dependency Inversion: Depends on provider abstraction.
+
+Enhanced with multi-tier caching:
+    - L1: Redis/In-memory cache (milliseconds)
+    - L2: Database cache (seconds)
+    - L3: AI summarization (expensive - minutes)
 """
 
 from __future__ import annotations
@@ -15,6 +20,7 @@ import logging
 import os
 from typing import Any
 
+from maverick_mcp.concall.cache import ConcallCacheService
 from maverick_mcp.concall.models import ConferenceCall
 from maverick_mcp.concall.prompts import (
     SENTIMENT_ANALYSIS_PROMPT,
@@ -59,6 +65,7 @@ class ConcallSummarizer:
         api_key: str | None = None,
         save_to_db: bool = True,
         use_cache: bool = True,
+        cache_service: ConcallCacheService | None = None,
     ):
         """
         Initialize summarizer.
@@ -66,7 +73,8 @@ class ConcallSummarizer:
         Args:
             api_key: OpenRouter API key (defaults to OPENROUTER_API_KEY env var)
             save_to_db: Save summaries to database
-            use_cache: Check database cache before summarizing
+            use_cache: Check caches (Redis/in-memory + database) before summarizing
+            cache_service: Cache service instance (default: auto-created)
         """
         api_key = api_key or os.getenv("OPENROUTER_API_KEY")
         if not api_key:
@@ -77,6 +85,10 @@ class ConcallSummarizer:
         self.openrouter = OpenRouterProvider(api_key)
         self.save_to_db = save_to_db
         self.use_cache = use_cache
+
+        # Initialize L1 cache (Redis/in-memory)
+        self.cache_service = cache_service or ConcallCacheService()
+        logger.info("Initialized ConcallSummarizer with caching enabled")
 
     async def summarize_transcript(
         self,
@@ -114,16 +126,35 @@ class ConcallSummarizer:
         ticker = ticker.upper()
         quarter = quarter.upper()
 
-        # Step 1: Check cache
+        # Step 1: Check L1 cache (Redis/in-memory - fastest)
         if self.use_cache and not force_refresh:
-            cached = self._get_from_cache(ticker, quarter, fiscal_year)
-            if cached:
+            l1_cached = await self.cache_service.get_summary(
+                ticker, quarter, fiscal_year, mode
+            )
+            if l1_cached:
                 logger.info(
-                    f"Retrieved summary for {ticker} {quarter} FY{fiscal_year} from cache"
+                    f"[L1 HIT] Retrieved summary for {ticker} {quarter} FY{fiscal_year} ({mode}) from Redis/memory cache"
                 )
-                return cached
+                return l1_cached.get("summary")
 
-        # Step 2: Generate summary
+        # Step 2: Check L2 cache (database - slower but persistent)
+        if self.use_cache and not force_refresh:
+            l2_cached = self._get_from_cache(ticker, quarter, fiscal_year)
+            if l2_cached:
+                logger.info(
+                    f"[L2 HIT] Retrieved summary for {ticker} {quarter} FY{fiscal_year} from database"
+                )
+                # Populate L1 cache for future requests
+                await self.cache_service.cache_summary(
+                    ticker=ticker,
+                    quarter=quarter,
+                    fiscal_year=fiscal_year,
+                    summary_data=l2_cached,
+                    mode=mode,
+                )
+                return l2_cached
+
+        # Step 3: Generate summary (expensive AI operation)
         try:
             logger.info(
                 f"Generating {mode} summary for {ticker} {quarter} FY{fiscal_year}"
@@ -182,12 +213,22 @@ class ConcallSummarizer:
                 "generated_at": None,  # Will be set by database
             }
 
-            # Step 3: Save to database
+            # Step 4: Save to L2 cache (database)
             if self.save_to_db:
                 self._save_to_db(ticker, quarter, fiscal_year, summary)
 
+            # Step 5: Populate L1 cache (Redis/in-memory)
+            if self.use_cache:
+                await self.cache_service.cache_summary(
+                    ticker=ticker,
+                    quarter=quarter,
+                    fiscal_year=fiscal_year,
+                    summary_data=summary,
+                    mode=mode,
+                )
+
             logger.info(
-                f"Successfully summarized {ticker} {quarter} FY{fiscal_year}"
+                f"[L3 GENERATED] Successfully summarized {ticker} {quarter} FY{fiscal_year} ({mode})"
             )
             return summary
 

@@ -6,6 +6,11 @@ Open/Closed: Extensible via provider list, not code changes.
 Liskov Substitution: All providers implement ConcallProvider interface.
 Interface Segregation: Simple, focused public API.
 Dependency Inversion: Depends on ConcallProvider abstraction.
+
+Enhanced with multi-tier caching:
+    - L1: Redis/In-memory cache (milliseconds)
+    - L2: Database cache (seconds)
+    - L3: External providers (minutes)
 """
 
 from __future__ import annotations
@@ -14,6 +19,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
+from maverick_mcp.concall.cache import ConcallCacheService
 from maverick_mcp.concall.models import ConferenceCall
 from maverick_mcp.concall.providers import CompanyIRProvider, ConcallProvider
 from maverick_mcp.data.models import get_session
@@ -57,6 +63,7 @@ class TranscriptFetcher:
         providers: list[ConcallProvider] | None = None,
         save_to_db: bool = True,
         use_cache: bool = True,
+        cache_service: ConcallCacheService | None = None,
     ):
         """
         Initialize transcript fetcher.
@@ -64,11 +71,16 @@ class TranscriptFetcher:
         Args:
             providers: List of providers to try (default: [CompanyIRProvider])
             save_to_db: Save fetched transcripts to database
-            use_cache: Check database cache before fetching
+            use_cache: Check caches (Redis/in-memory + database) before fetching
+            cache_service: Cache service instance (default: auto-created)
         """
         self.providers = providers or [CompanyIRProvider()]
         self.save_to_db = save_to_db
         self.use_cache = use_cache
+
+        # Initialize L1 cache (Redis/in-memory)
+        self.cache_service = cache_service or ConcallCacheService()
+        logger.info(f"Initialized TranscriptFetcher with {len(self.providers)} providers")
 
     async def fetch_transcript(
         self,
@@ -110,14 +122,31 @@ class TranscriptFetcher:
         ticker = ticker.upper()
         quarter = quarter.upper()
 
-        # Step 1: Check cache
+        # Step 1: Check L1 cache (Redis/in-memory - fastest)
         if self.use_cache and not force_refresh:
-            cached = self._get_from_cache(ticker, quarter, fiscal_year)
-            if cached:
+            l1_cached = await self.cache_service.get_transcript(ticker, quarter, fiscal_year)
+            if l1_cached:
                 logger.info(
-                    f"Retrieved transcript for {ticker} {quarter} FY{fiscal_year} from cache"
+                    f"[L1 HIT] Retrieved transcript for {ticker} {quarter} FY{fiscal_year} from Redis/memory cache"
                 )
-                return cached
+                return l1_cached
+
+        # Step 2: Check L2 cache (database - slower but persistent)
+        if self.use_cache and not force_refresh:
+            l2_cached = self._get_from_cache(ticker, quarter, fiscal_year)
+            if l2_cached:
+                logger.info(
+                    f"[L2 HIT] Retrieved transcript for {ticker} {quarter} FY{fiscal_year} from database"
+                )
+                # Populate L1 cache for future requests
+                await self.cache_service.cache_transcript(
+                    ticker=ticker,
+                    quarter=quarter,
+                    fiscal_year=fiscal_year,
+                    transcript_text=l2_cached["transcript_text"],
+                    metadata=l2_cached.get("metadata", {}),
+                )
+                return l2_cached
 
         # Step 2: Try each provider
         for provider in self.providers:
@@ -140,12 +169,22 @@ class TranscriptFetcher:
                     # Add provider info
                     result["source"] = provider.name
 
-                    # Step 3: Save to database
+                    # Step 3: Save to L2 cache (database)
                     if self.save_to_db:
                         self._save_to_db(ticker, quarter, fiscal_year, result)
 
+                    # Step 4: Populate L1 cache (Redis/in-memory)
+                    if self.use_cache:
+                        await self.cache_service.cache_transcript(
+                            ticker=ticker,
+                            quarter=quarter,
+                            fiscal_year=fiscal_year,
+                            transcript_text=result.get("transcript_text", ""),
+                            metadata=result.get("metadata", {}),
+                        )
+
                     logger.info(
-                        f"Successfully fetched {ticker} {quarter} FY{fiscal_year} from {provider.name}"
+                        f"[L3 FETCH] Successfully fetched {ticker} {quarter} FY{fiscal_year} from {provider.name}"
                     )
                     return result
 
@@ -328,11 +367,11 @@ class TranscriptFetcher:
         finally:
             session.close()
 
-    def clear_cache(
+    async def clear_cache(
         self, ticker: str | None = None, older_than_days: int | None = None
     ) -> int:
         """
-        Clear cached transcripts.
+        Clear cached transcripts from both L1 (Redis/in-memory) and L2 (database) caches.
 
         Args:
             ticker: Clear cache for specific ticker (or all if None)
@@ -344,10 +383,31 @@ class TranscriptFetcher:
         Example:
             >>> fetcher = TranscriptFetcher()
             >>> # Clear all cache for RELIANCE.NS
-            >>> count = fetcher.clear_cache(ticker="RELIANCE.NS")
+            >>> count = await fetcher.clear_cache(ticker="RELIANCE.NS")
             >>> # Clear transcripts not accessed in 90 days
-            >>> count = fetcher.clear_cache(older_than_days=90)
+            >>> count = await fetcher.clear_cache(older_than_days=90)
         """
+        # Clear L1 cache (Redis/in-memory)
+        l1_count = 0
+        if ticker:
+            # For specific ticker, we need to query database to know which calls exist
+            available = self.get_available_transcripts(ticker, limit=100)
+            for call in available:
+                deleted = await self.cache_service.cache_service.backend.delete(
+                    self.cache_service.key_generator.generate_transcript_key(
+                        call["ticker"], call["quarter"], call["fiscal_year"]
+                    )
+                )
+                if deleted:
+                    l1_count += 1
+        else:
+            # Clear all transcripts from L1 cache
+            from maverick_mcp.concall.cache import CacheNamespace
+
+            l1_count = await self.cache_service.invalidate_namespace(
+                CacheNamespace.TRANSCRIPT
+            )
+        # Clear L2 cache (database)
         try:
             session = get_session()
             query = session.query(ConferenceCall)
@@ -366,16 +426,19 @@ class TranscriptFetcher:
                 )
 
             # Delete
-            count = query.delete()
+            l2_count = query.delete()
             session.commit()
 
-            logger.info(f"Cleared {count} cached transcripts")
-            return count
+            total_count = l1_count + l2_count
+            logger.info(
+                f"Cleared {total_count} cached transcripts (L1: {l1_count}, L2: {l2_count})"
+            )
+            return total_count
 
         except Exception as e:
-            logger.error(f"Failed to clear cache: {e}")
+            logger.error(f"Failed to clear L2 cache: {e}")
             session.rollback()
-            return 0
+            return l1_count  # Return at least L1 count
         finally:
             session.close()
 
