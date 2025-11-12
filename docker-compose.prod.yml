@@ -1,0 +1,206 @@
+# Production Docker Compose Configuration
+# Optimized for production deployment with health checks, resource limits, and monitoring
+
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+      args:
+        - TALIB_VERSION=0.6.4
+        - APP_USER=maverick
+        - APP_UID=1000
+        - APP_GID=1000
+    image: maverick-mcp-backend:latest
+    container_name: maverick-mcp-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8003}:8000"
+    environment:
+      # Database
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/maverick_mcp
+      # Cache
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # Required API Keys
+      - TIINGO_API_KEY=${TIINGO_API_KEY:?TIINGO_API_KEY is required}
+      # Optional API Keys
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - EXA_API_KEY=${EXA_API_KEY:-}
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+      - FRED_API_KEY=${FRED_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Server Configuration
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ENVIRONMENT=production
+      # Performance
+      - WORKERS=${WORKERS:-4}
+      - MAX_CONNECTIONS=${MAX_CONNECTIONS:-100}
+    volumes:
+      # Read-only application code (no hot reload in production)
+      - ./maverick_mcp:/app/maverick_mcp:ro
+      - ./alembic:/app/alembic:ro
+      # Writable logs directory
+      - app-logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - maverick-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: maverick-mcp-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=maverick_mcp
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - maverick-network
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=2621kB"
+      - "-c"
+      - "min_wal_size=1GB"
+      - "-c"
+      - "max_wal_size=4GB"
+      - "-c"
+      - "log_destination=stderr"
+      - "-c"
+      - "logging_collector=on"
+      - "-c"
+      - "log_directory=/var/log/postgresql"
+      - "-c"
+      - "log_filename=postgresql-%Y-%m-%d_%H%M%S.log"
+
+  redis:
+    image: redis:7-alpine
+    container_name: maverick-mcp-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --maxmemory 512mb
+      - --maxmemory-policy allkeys-lru
+      - --save 900 1
+      - --save 300 10
+      - --save 60 10000
+      - --appendonly yes
+      - --appendfsync everysec
+      - --loglevel notice
+    volumes:
+      - redis-data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - maverick-network
+
+volumes:
+  postgres-data:
+    driver: local
+    name: maverick-mcp-postgres-data
+  redis-data:
+    driver: local
+    name: maverick-mcp-redis-data
+  app-logs:
+    driver: local
+    name: maverick-mcp-app-logs
+
+networks:
+  maverick-network:
+    driver: bridge
+    name: maverick-mcp-network
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

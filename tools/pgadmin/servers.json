@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Maverick MCP PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "maverick_mcp",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "Comment": "Maverick MCP production database"
+    }
+  }
+}
