@@ -74,3 +74,6 @@ Thumbs.db
 # Docker local overrides
 docker-compose.override.yml
 site/
+
+# Cloudflare tunnel binary
+cloudflared

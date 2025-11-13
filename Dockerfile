@@ -66,9 +66,9 @@ RUN apt-get update && apt-get install -yqq \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Copy TA-Lib from builder
-COPY --from=builder /usr/local/lib/libta_lib.* /usr/local/lib/
-COPY --from=builder /usr/local/include/ta-lib/ /usr/local/include/ta-lib/
+# Copy TA-Lib from builder (both libraries and headers)
+# Copy all files from /usr/local to ensure we get TA-Lib libraries and headers
+COPY --from=builder /usr/local/ /usr/local/
 RUN ldconfig
 
 # Copy Python dependencies from builder
