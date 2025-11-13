@@ -193,6 +193,84 @@ Restart Claude Desktop and test:
 Show me technical analysis for AAPL
 ```
 
+## MCP Transport Configuration
+
+Maverick MCP supports multiple transport protocols for different MCP clients:
+
+### Transport Options
+
+| Transport | MCP Client | Use Case | Endpoint |
+|-----------|-----------|----------|----------|
+| **SSE** (Server-Sent Events) | Claude Desktop, Cursor IDE | Direct SSE connections | `/sse/` |
+| **Streamable-HTTP** | ChatGPT, Claude Code CLI | HTTP-based with SSE support | `/mcp/` |
+| **STDIO** | Local clients | Process-based communication | N/A |
+
+### Default Configuration
+
+The default `docker-compose.yml` uses **Streamable-HTTP transport** for broad compatibility:
+
+```yaml
+services:
+  backend:
+    command: ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+This configuration:
+- ✅ Works with ChatGPT custom connectors
+- ✅ Compatible with Claude Desktop (via mcp-remote bridge)
+- ✅ Supports Claude Code CLI
+- ✅ Enables HTTP-based MCP protocol
+
+### Switching to SSE Transport
+
+For direct SSE connections (Claude Desktop without mcp-remote), override the command in `docker-compose.override.yml`:
+
+```yaml
+services:
+  backend:
+    command: ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+**When to use SSE**:
+- Direct connections from Claude Desktop, Cursor IDE
+- Lower latency for local clients
+- Simpler architecture without HTTP overhead
+
+**When to use Streamable-HTTP**:
+- ChatGPT integration via Cloudflare Tunnel
+- Remote access requirements
+- Need both HTTP and SSE support
+- Multiple client types
+
+### Verifying Transport Configuration
+
+Check which transport is running:
+
+```bash
+docker logs maverick-mcp-backend-1 | grep "Transport"
+```
+
+**SSE Transport**:
+```
+📦 Transport:       SSE
+🔗 Server URL:      http://0.0.0.0:8000/sse
+```
+
+**Streamable-HTTP Transport**:
+```
+📦 Transport:       Streamable-HTTP
+🔗 Server URL:      http://0.0.0.0:8000/mcp/
+```
+
+### ChatGPT Integration Notes
+
+For ChatGPT custom connectors, **Streamable-HTTP is required**. See [ChatGPT Setup Guide](../getting-started/chatgpt-setup.md) for complete configuration instructions including:
+
+- Docker transport configuration
+- Cloudflare Tunnel setup
+- Custom connector configuration
+- Troubleshooting common issues
+
 ## Development Workflow
 
 ### Development Mode with Hot Reload
@@ -207,8 +285,8 @@ cp docker-compose.override.yml.example docker-compose.override.yml
 # docker-compose.override.yml
 services:
   backend:
-    # Enable hot reload
-    command: uv run python -m maverick_mcp.api.server --transport sse --host 0.0.0.0 --port 8000 --reload
+    # Enable hot reload (using streamable-http for compatibility)
+    command: uv run python -m maverick_mcp.api.server --transport streamable-http --host 0.0.0.0 --port 8000 --reload
 
     environment:
       - ENVIRONMENT=development
@@ -219,6 +297,9 @@ services:
     stdin_open: true
     tty: true
 ```
+
+!!! tip "SSE Transport for Development"
+    If you're only using Claude Desktop locally, you can use `--transport sse` for slightly lower latency. However, `streamable-http` is recommended as the default for compatibility with all clients.
 
 **3. Restart with Development Config**
 ```bash
@@ -485,9 +566,12 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start MCP server
+# Start MCP server (default to SSE, can be overridden by docker-compose.yml)
 CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
 ```
+
+!!! note "Transport Configuration"
+    The Dockerfile defaults to `sse` transport for direct connections. However, `docker-compose.yml` overrides this with `streamable-http` for broader compatibility (ChatGPT, Claude Code CLI). See [MCP Transport Configuration](#mcp-transport-configuration) section above for details.
 
 **Key Optimizations:**
 1. **Layer Caching**: Dependencies installed before code copy for faster rebuilds

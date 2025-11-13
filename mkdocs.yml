@@ -140,6 +140,7 @@ nav:
       - Quick Start: getting-started/quick-start.md
       - Configuration: getting-started/configuration.md
       - Claude Desktop Setup: getting-started/claude-desktop-setup.md
+      - ChatGPT Setup: getting-started/chatgpt-setup.md
       - Cursor IDE Setup: getting-started/cursor-setup.md
   - Features:
       - Overview: features/overview.md
