@@ -98,10 +98,10 @@ USER ${APP_USER}
 # Expose port
 EXPOSE 8000
 
-# Health check - verify server is listening on port 8000
-# Note: /health endpoint may not be accessible depending on transport mode
+# Health check - verify server is responding (any response is good)
+# Note: Server returns "Not Found" for root path which indicates it's running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8000/ 2>&1 | grep -q "Not Found\|jsonrpc\|Method Not Allowed" || exit 1
+    CMD curl -s http://localhost:8000/ 2>&1 | grep -q "Not Found\|jsonrpc\|Method Not Allowed" || exit 1
 
 # Start MCP server (can be overridden)
 CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
