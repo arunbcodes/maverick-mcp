@@ -15,6 +15,9 @@ dependencies = [
     "aiofiles>=24.1.0",
     "httpx>=0.28.1",
     "python-dotenv>=1.0.1",
+    # HTTP clients
+    "aiohttp>=3.9.0",
+    "requests>=2.31.0",
     # LangChain and AI dependencies
     "langchain>=0.3.25",
     "langchain-anthropic>=0.3.15",
