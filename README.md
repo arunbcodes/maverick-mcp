@@ -224,32 +224,49 @@ That's it! MaverickMCP tools will now be available in your Claude Desktop interf
 
 #### Cursor IDE - STDIO and SSE
 
-**Option 1: STDIO (via mcp-remote)**:
+**Recommended Configuration (Tested & Working)**:
+
+```json
+{
+  "mcpServers": {
+    "maverick-mcp": {
+      "command": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx",
+      "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"],
+      "env": {
+        "PATH": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin:/usr/local/bin:/usr/bin:/bin"
+      }
+    }
+  }
+}
+```
+
+> **Important Configuration Notes:**
+> - **Node.js 18+** required: Replace `YOUR_USERNAME` and node version path with your actual values
+> - **Use `127.0.0.1`** instead of `localhost` to avoid IPv6 resolution issues with Docker
+> - **No trailing slash** on `/sse` to prevent 307 redirects
+> - **Full path to npx** ensures correct Node version is used (Cursor may use system Node v14)
+
+**To find your Node v20 path:**
+```bash
+nvm use 20
+which npx
+# Example output: /Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx
+```
+
+**Alternative: Simple Configuration (May require Node v18+ in system PATH)**:
 
 ```json
 {
   "mcpServers": {
     "maverick-mcp": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "http://localhost:8003/sse/"]
+      "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"]
     }
   }
 }
 ```
 
-**Option 2: Direct SSE**:
-
-```json
-{
-  "mcpServers": {
-    "maverick-mcp": {
-      "url": "http://localhost:8003/sse/"
-    }
-  }
-}
-```
-
-**Config Location**: Cursor → Settings → MCP Servers
+**Config Location**: `~/.cursor/mcp.json` or Cursor → Settings → MCP Servers
 
 #### Claude Code CLI - All Transports
 
@@ -722,6 +739,75 @@ docker-compose up -d
 - **Solution**: Ensure SSE endpoint has trailing slash: `http://localhost:8003/sse/`
 - The 307 redirect from `/sse` to `/sse/` causes tool registration to fail
 - Always use the exact configuration with trailing slash shown above
+
+**Cursor IDE: "Loading tools..." Forever or Syntax Errors:**
+
+This is the most common issue with Cursor integration. The problem is usually Node.js version compatibility:
+
+**Symptoms:**
+- Status shows "loading tools" indefinitely
+- Error: `SyntaxError: The requested module 'node:fs/promises' does not provide an export named 'constants'`
+- Tools not appearing in Cursor
+
+**Root Cause:** `mcp-remote` requires **Node.js 18+**, but Cursor may use your system's older Node version (often v14).
+
+**Solution 1: Use Full Path to Node v20 (Recommended)**
+
+1. Install Node v20 with nvm:
+   ```bash
+   nvm install 20
+   nvm use 20
+   ```
+
+2. Get the full path:
+   ```bash
+   which npx
+   # Output: /Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx
+   ```
+
+3. Update `~/.cursor/mcp.json` with full path:
+   ```json
+   {
+     "mcpServers": {
+       "maverick-mcp": {
+         "command": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx",
+         "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"],
+         "env": {
+           "PATH": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin:/usr/local/bin:/usr/bin:/bin"
+         }
+       }
+     }
+   }
+   ```
+
+4. Completely restart Cursor (Cmd+Q, not just close window)
+
+**Solution 2: Set Node v20 as System Default**
+
+```bash
+nvm alias default 20
+nvm use default
+```
+
+Then restart your terminal and Cursor.
+
+**Docker + Cursor: Connection Refused on ::1 (IPv6)**
+
+**Symptom:** `connect ECONNREFUSED ::1:8003`
+
+**Cause:** Cursor's `mcp-remote` tries IPv6 first, but Docker may only listen on IPv4.
+
+**Solution:** Use `127.0.0.1` instead of `localhost`:
+
+```json
+{
+  "mcpServers": {
+    "maverick-mcp": {
+      "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"]
+    }
+  }
+}
+```
 
 **Research Tool Timeouts:**
 - Research tools have adaptive timeouts (120s-600s)

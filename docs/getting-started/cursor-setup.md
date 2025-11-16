@@ -26,35 +26,78 @@ graph LR
 
 **Cursor Advantages:**
 
-- Native SSE and STDIO support
-- No mcp-remote bridge needed
-- Direct connection to MCP servers
+- Native STDIO support (via mcp-remote bridge)
 - Better integration with IDE workflow
+- Direct access to all MCP tools
 
-## Method A: Direct SSE Connection (Recommended)
+!!! note "Why mcp-remote?"
+Cursor doesn't support direct SSE connections reliably. The `mcp-remote` package bridges STDIO (which Cursor supports) to SSE (which the server uses).
 
-### Step 1: Open Cursor Settings
+## Method A: STDIO via mcp-remote (Recommended)
 
-1. Open Cursor IDE
-2. Click Settings (gear icon) or `Cmd/Ctrl + ,`
-3. Search for "MCP" or navigate to Extensions → MCP Servers
+Direct SSE connections don't work reliably with Cursor. Use `mcp-remote` as a bridge instead.
+
+### Step 1: Ensure Node.js 18+ is Installed
+
+**Check your Node version:**
+
+```bash
+node --version
+```
+
+If you have Node < 18, install Node 20:
+
+```bash
+# Using nvm (recommended)
+nvm install 20
+nvm use 20
+nvm alias default 20
+```
 
 ### Step 2: Configure MCP Server
 
-Add Maverick MCP configuration:
+**Recommended Configuration (Full Path - Most Reliable):**
+
+Create or edit `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "maverick-mcp": {
-      "url": "http://localhost:8003/sse/"
+      "command": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx",
+      "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"],
+      "env": {
+        "PATH": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin:/usr/local/bin:/usr/bin:/bin"
+      }
     }
   }
 }
 ```
 
-!!! warning "Trailing Slash Required"
-    Always include the trailing slash: `/sse/`
+**To find your Node v20 path:**
+
+```bash
+nvm use 20
+which npx
+# Example output: /Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx
+```
+
+Replace `YOUR_USERNAME` with your actual username.
+
+**Simple Configuration (If Node 20 is in PATH):**
+
+```json
+{
+  "mcpServers": {
+    "maverick-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"]
+    }
+  }
+}
+```
+
+!!! warning "Important Configuration Notes" - **Node.js 18+** required (mcp-remote doesn't work with Node 14) - Use **`127.0.0.1`** not `localhost` (Docker IPv4 vs IPv6 issue) - **No trailing slash** on `/sse` (prevents 307 redirect) - Full path to npx ensures Cursor uses the correct Node version
 
 ### Step 3: Restart Cursor
 
@@ -94,16 +137,18 @@ Fetch RELIANCE.NS Q1 2025 earnings call and summarize key points
 Show me code to calculate moving averages using the MCP tools
 ```
 
-## Method B: STDIO Connection (Alternative)
+## Alternative: Direct STDIO (Development Only)
 
-If SSE doesn't work, use STDIO:
+For local development without Docker, you can run the server directly:
 
 ```json
 {
   "mcpServers": {
     "maverick-mcp": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "maverick_mcp.api.server",
         "--transport",
@@ -117,24 +162,24 @@ If SSE doesn't work, use STDIO:
 
 Replace `/path/to/maverick-mcp` with your actual path.
 
-## Configuration File Locations
+!!! warning "Direct STDIO Limitations"
+This method bypasses Docker and runs the Python server directly. Only use this if you're actively developing the MCP server itself.
+
+## Configuration File Location
 
 Cursor stores MCP configuration in:
 
 === "macOS"
-    ```
-    ~/Library/Application Support/Cursor/User/settings.json
-    ```
+`    ~/.cursor/mcp.json
+   `
 
 === "Windows"
-    ```
-    %APPDATA%\Cursor\User\settings.json
-    ```
+`    %USERPROFILE%\.cursor\mcp.json
+   `
 
 === "Linux"
-    ```
-    ~/.config/Cursor/User/settings.json
-    ```
+`    ~/.cursor/mcp.json
+   `
 
 ## Advanced Configuration
 
@@ -170,6 +215,7 @@ If using a different port:
 ```
 
 Start server on custom port:
+
 ```bash
 python -m maverick_mcp.api.server --port 9000
 ```
@@ -195,7 +241,7 @@ Pass environment variables to STDIO mode:
 ```
 
 !!! warning "Security"
-    Avoid storing API keys in config files. Use `.env` file instead.
+Avoid storing API keys in config files. Use `.env` file instead.
 
 ## Usage in Cursor
 
@@ -239,48 +285,145 @@ Fetch earnings call transcripts for all companies mentioned in this code
 
 ## Troubleshooting
 
+### "Loading tools..." Forever
+
+**Symptom:** Status shows "loading tools" indefinitely or never completes.
+
+**Cause:** Node.js version incompatibility. `mcp-remote` requires Node 18+, but Cursor may use system Node 14.
+
+**Solution:**
+
+1. **Verify your Node version:**
+
+   ```bash
+   node --version
+   ```
+
+2. **If Node < 18, install Node 20:**
+
+   ```bash
+   nvm install 20
+   nvm use 20
+   ```
+
+3. **Use full path in config:**
+
+   ```json
+   {
+     "mcpServers": {
+       "maverick-mcp": {
+         "command": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx",
+         "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"],
+         "env": {
+           "PATH": "/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin:/usr/local/bin:/usr/bin:/bin"
+         }
+       }
+     }
+   }
+   ```
+
+4. **Completely restart Cursor** (Cmd+Q, not just close window)
+
+### Syntax Error: node:fs/promises
+
+**Full Error:**
+
+```
+SyntaxError: The requested module 'node:fs/promises' does not provide an export named 'constants'
+```
+
+**Cause:** This error confirms Node version is too old.
+
+**Solution:** Follow the steps above to use Node 20.
+
+### Connection Refused on ::1 (IPv6)
+
+**Symptom:** `connect ECONNREFUSED ::1:8003`
+
+**Cause:** `mcp-remote` tries IPv6 first, but Docker only listens on IPv4.
+
+**Solution:** Use `127.0.0.1` instead of `localhost`:
+
+```json
+{
+  "args": ["-y", "mcp-remote", "http://127.0.0.1:8003/sse"]
+}
+```
+
 ### Connection Failed
 
 **Check server status**:
+
 ```bash
 lsof -i :8003
+# Or with Docker
+docker ps | grep maverick
 ```
 
 **View logs**:
+
 ```bash
 make tail-log
+# Or with Docker
+docker logs maverick-mcp-backend-1 --tail 50
 ```
 
 **Restart server**:
+
 ```bash
 make stop
 make dev
+# Or with Docker
+docker-compose restart
 ```
 
 ### Tools Not Appearing
 
 1. **Verify config syntax**:
-   - Open Cursor settings
-   - Check MCP Servers section
-   - Ensure valid JSON
 
-2. **Check trailing slash**:
-   - SSE endpoint must be `http://localhost:8003/sse/`
-   - Not `http://localhost:8003/sse`
+   - Open `~/.cursor/mcp.json`
+   - Ensure valid JSON (no trailing commas)
+   - Check quotes are correct
 
-3. **Restart Cursor completely**:
-   - Close all windows
+2. **Verify Node path**:
+
+   ```bash
+   which npx
+   # Should match the path in your config
+   ```
+
+3. **Check server is running**:
+
+   ```bash
+   curl http://127.0.0.1:8003/sse
+   # Should return SSE connection or see streaming
+   ```
+
+4. **Restart Cursor completely**:
+   - Quit (Cmd+Q on Mac)
    - Wait 5 seconds
    - Reopen
+
+### npm Cache Permission Errors
+
+**Symptom:** `EPERM: operation not permitted` errors
+
+**Solution:**
+
+```bash
+sudo chown -R $(whoami) ~/.npm
+```
 
 ### STDIO Mode Issues
 
 **Permission errors**:
+
 ```bash
 chmod +x /path/to/maverick-mcp/maverick_mcp/api/server.py
 ```
 
 **Python not found**:
+
 ```json
 {
   "command": "/full/path/to/python3",
@@ -289,6 +432,7 @@ chmod +x /path/to/maverick-mcp/maverick_mcp/api/server.py
 ```
 
 Find Python path:
+
 ```bash
 which python3
 ```
@@ -296,6 +440,7 @@ which python3
 ### Port Conflicts
 
 **Change port**:
+
 ```json
 {
   "url": "http://localhost:8004/sse/"
@@ -303,6 +448,7 @@ which python3
 ```
 
 Start on new port:
+
 ```bash
 python -m maverick_mcp.api.server --port 8004
 ```
@@ -312,11 +458,13 @@ python -m maverick_mcp.api.server --port 8004
 ### Stock Analysis Workflow
 
 1. **Analyze in Chat**:
+
    ```
    Get full technical analysis for AAPL
    ```
 
 2. **Generate Code**:
+
    ```
    Write code to automate this analysis for multiple stocks
    ```
@@ -329,11 +477,13 @@ python -m maverick_mcp.api.server --port 8004
 ### Conference Call Analysis
 
 1. **Fetch Transcript**:
+
    ```
    Fetch RELIANCE.NS Q1 2025 earnings call
    ```
 
 2. **Analyze**:
+
    ```
    Summarize and analyze sentiment
    ```
@@ -346,11 +496,13 @@ python -m maverick_mcp.api.server --port 8004
 ### Multi-Stock Comparison
 
 1. **Fetch Data**:
+
    ```
    Get stock data for AAPL, MSFT, GOOGL
    ```
 
 2. **Compare**:
+
    ```
    Calculate correlation matrix
    ```
@@ -363,10 +515,12 @@ python -m maverick_mcp.api.server --port 8004
 ## Keyboard Shortcuts
 
 ### Open AI Chat
+
 - **macOS**: `Cmd + K`
 - **Windows/Linux**: `Ctrl + K`
 
 ### MCP Tool Selection
+
 - Type `@maverick-mcp` in chat
 - Press Space to see tool list
 - Arrow keys to navigate
@@ -377,11 +531,13 @@ python -m maverick_mcp.api.server --port 8004
 ### 1. Use Descriptive Commands
 
 ❌ **Bad**:
+
 ```
 Get data
 ```
 
 ✅ **Good**:
+
 ```
 Get historical stock data for AAPL from Jan 2024 to Dec 2024
 ```
@@ -412,12 +568,14 @@ from Maverick MCP
 ### Enable Caching
 
 Add to `.env`:
+
 ```ini
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
 Start Redis:
+
 ```bash
 brew install redis
 brew services start redis
@@ -426,6 +584,7 @@ brew services start redis
 ### Use PostgreSQL
 
 For larger datasets:
+
 ```ini
 DATABASE_URL=postgresql://localhost/maverick_mcp
 ```
@@ -454,6 +613,7 @@ OPENAI_API_KEY=your-key
 ### Gitignore
 
 Ensure `.env` is in `.gitignore`:
+
 ```
 .env
 .env.*
@@ -472,6 +632,7 @@ Cursor can suggest MCP tools automatically:
 ### Inline Suggestions
 
 Type stock symbols and Cursor may suggest:
+
 ```python
 # AAPL
 # Cursor suggests: Fetch AAPL data with MCP?
@@ -491,13 +652,16 @@ Create a stock analysis dashboard that:
 
 ## Comparison: Cursor vs Claude Desktop
 
-| Feature | Cursor IDE | Claude Desktop |
-|---------|-----------|----------------|
-| Native MCP Support | ✅ SSE + STDIO | ⚠️ STDIO only (needs mcp-remote) |
-| Code Integration | ✅ Direct | ❌ Manual copy |
-| Context Awareness | ✅ Full IDE context | ❌ Chat only |
-| Setup Complexity | ⭐⭐ Easy | ⭐⭐⭐ Medium |
-| Best For | Development | General analysis |
+| Feature            | Cursor IDE                     | Claude Desktop            |
+| ------------------ | ------------------------------ | ------------------------- |
+| Native MCP Support | ✅ STDIO (via mcp-remote)      | ✅ STDIO (via mcp-remote) |
+| Code Integration   | ✅ Direct                      | ❌ Manual copy            |
+| Context Awareness  | ✅ Full IDE context            | ❌ Chat only              |
+| Setup Complexity   | ⭐⭐ Medium (Node 20 required) | ⭐⭐ Medium               |
+| Best For           | Development                    | General analysis          |
+
+!!! note "Both Need mcp-remote"
+Both Cursor and Claude Desktop require the `mcp-remote` bridge when connecting to SSE servers. The key difference is Cursor's IDE integration.
 
 ## Next Steps
 
