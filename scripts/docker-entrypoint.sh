@@ -7,7 +7,7 @@ echo "=================================================="
 
 # Function to check if database is seeded
 check_database_seeded() {
-    echo "Checking if database is seeded..."
+    echo "Checking if database is seeded..." >&2
 
     # Try to count stocks in database
     stock_count=$(python -c "
@@ -21,7 +21,7 @@ except Exception:
     print('0')
 " 2>/dev/null || echo "0")
 
-    echo "Found $stock_count stocks in database"
+    echo "Found $stock_count stocks in database" >&2
     echo "$stock_count"
 }
 
