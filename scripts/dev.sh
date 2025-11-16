@@ -13,6 +13,61 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Starting Maverick-MCP Development Environment${NC}"
 
+# Function to check and seed database if needed
+check_and_seed_database() {
+    echo -e "${YELLOW}Checking database status...${NC}"
+    
+    # Count stocks in database
+    STOCK_COUNT=$(uv run python -c "
+from maverick_mcp.data.models import engine, Stock
+from sqlalchemy.orm import Session
+try:
+    with Session(engine) as session:
+        count = session.query(Stock).count()
+        print(count)
+except Exception:
+    print('0')
+" 2>/dev/null || echo "0")
+    
+    echo -e "${GREEN}Found $STOCK_COUNT stocks in database${NC}"
+    
+    if [ "$STOCK_COUNT" -lt 10 ]; then
+        echo -e "${YELLOW}Database needs seeding (fewer than 10 stocks)${NC}"
+        echo -e "${YELLOW}This will seed:${NC}"
+        echo -e "  • S&P 500 stocks (~520 US stocks)"
+        echo -e "  • Nifty 50 stocks (~50 Indian stocks)"
+        echo -e "${YELLOW}Estimated time: 3-12 minutes${NC}"
+        echo ""
+        
+        # Seed S&P 500
+        echo -e "${YELLOW}1/2: Seeding S&P 500 stocks...${NC}"
+        if uv run python scripts/seed_sp500.py; then
+            echo -e "${GREEN}✅ S&P 500 seeding completed!${NC}"
+        else
+            echo -e "${YELLOW}⚠️  S&P 500 seeding failed (continuing anyway)${NC}"
+        fi
+        
+        echo ""
+        
+        # Seed Indian stocks
+        echo -e "${YELLOW}2/2: Seeding Indian stocks...${NC}"
+        if uv run python scripts/seed_indian_stocks.py; then
+            echo -e "${GREEN}✅ Indian stocks seeding completed!${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Indian stocks seeding failed (continuing anyway)${NC}"
+        fi
+        
+        echo ""
+        echo -e "${GREEN}✅ Database seeding completed!${NC}"
+        echo ""
+    else
+        echo -e "${GREEN}✅ Database already seeded ($STOCK_COUNT stocks)${NC}"
+    fi
+}
+
+# Check and seed database before starting server
+check_and_seed_database
+
 # Kill any existing processes on port 8003 to avoid conflicts
 echo -e "${YELLOW}Checking for existing processes on port 8003...${NC}"
 EXISTING_PID=$(lsof -ti:8003 2>/dev/null || true)
