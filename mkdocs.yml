@@ -154,6 +154,8 @@ nav:
   - Conference Call System:
       - Overview: concall/overview.md
       - Fetching Transcripts: concall/fetching-transcripts.md
+      - IR Mappings Guide: concall/ir-mappings-guide.md
+      - Finding XPath/CSS Selectors: concall/finding-xpath-css-selectors.md
       - AI Summarization: concall/summarization.md
       - Sentiment Analysis: concall/sentiment-analysis.md
       - RAG Q&A: concall/rag-qa.md
