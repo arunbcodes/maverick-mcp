@@ -80,7 +80,11 @@ RUN pip install --no-cache-dir uv
 # Copy application code
 COPY maverick_mcp ./maverick_mcp
 COPY alembic ./alembic
+COPY scripts ./scripts
 COPY alembic.ini setup.py pyproject.toml uv.lock README.md ./
+
+# Make entrypoint executable
+RUN chmod +x /app/scripts/docker-entrypoint.sh
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -100,8 +104,12 @@ EXPOSE 8000
 
 # Health check - verify server is responding (any response is good)
 # Note: Server returns "Not Found" for root path which indicates it's running
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+# Increased start-period to allow time for database seeding on first run
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD curl -s http://localhost:8000/ 2>&1 | grep -q "Not Found\|jsonrpc\|Method Not Allowed" || exit 1
 
-# Start MCP server (can be overridden)
+# Set entrypoint to handle auto-seeding
+ENTRYPOINT ["/app/scripts/docker-entrypoint.sh"]
+
+# Start MCP server (passed to entrypoint)
 CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
