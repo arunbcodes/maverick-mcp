@@ -154,18 +154,69 @@ def fetch_sp500_list() -> pd.DataFrame:
         return fallback_df
 
 
+def normalize_country_code(country_name: str) -> str:
+    """
+    Convert country name to ISO 3166-1 alpha-2 code.
+
+    Args:
+        country_name: Full country name from yfinance
+
+    Returns:
+        Two-letter ISO country code
+    """
+    # Common country name to ISO code mapping
+    country_mapping = {
+        "United States": "US",
+        "United States of America": "US",
+        "USA": "US",
+        "Canada": "CA",
+        "United Kingdom": "GB",
+        "UK": "GB",
+        "China": "CN",
+        "Japan": "JP",
+        "Germany": "DE",
+        "France": "FR",
+        "India": "IN",
+        "Brazil": "BR",
+        "Australia": "AU",
+        "South Korea": "KR",
+        "Netherlands": "NL",
+        "Switzerland": "CH",
+        "Sweden": "SE",
+        "Belgium": "BE",
+        "Ireland": "IE",
+        "Israel": "IL",
+        "Taiwan": "TW",
+        "Spain": "ES",
+        "Italy": "IT",
+        "Denmark": "DK",
+        "Finland": "FI",
+        "Norway": "NO",
+        "Singapore": "SG",
+        "Hong Kong": "HK",
+        "Mexico": "MX",
+    }
+
+    # Return mapped code or default to US
+    return country_mapping.get(country_name, "US")
+
+
 def enrich_stock_data(symbol: str) -> dict:
     """Enrich stock data with additional information from yfinance."""
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.info
 
+        # Get country and normalize to 2-letter code
+        raw_country = info.get("country", "United States")
+        country_code = normalize_country_code(raw_country)
+
         # Extract relevant information
         enriched_data = {
             "market_cap": info.get("marketCap"),
             "shares_outstanding": info.get("sharesOutstanding"),
             "description": info.get("longBusinessSummary", ""),
-            "country": info.get("country", "US"),
+            "country": country_code,  # Use normalized country code
             "currency": info.get("currency", "USD"),
             "exchange": info.get("exchange", "NASDAQ"),
             "industry": info.get("industry", ""),
@@ -408,6 +459,13 @@ def main():
     logger.info(f"Using database: {database_url}")
 
     engine = create_engine(database_url, echo=False)
+
+    # Ensure database schema exists before seeding
+    logger.info("Ensuring database schema is up to date...")
+    from maverick_mcp.database.base import Base
+    Base.metadata.create_all(bind=engine)
+    logger.info("✓ Database schema verified")
+
     SessionLocal = sessionmaker(bind=engine)
 
     with SessionLocal() as session:
