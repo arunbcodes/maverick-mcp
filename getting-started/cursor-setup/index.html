@@ -895,22 +895,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#method-a-direct-sse-connection-recommended" class="md-nav__link">
+  <a href="#method-a-stdio-via-mcp-remote-recommended" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Method A: Direct SSE Connection (Recommended)
+        Method A: STDIO via mcp-remote (Recommended)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Method A: Direct SSE Connection (Recommended)">
+    <nav class="md-nav" aria-label="Method A: STDIO via mcp-remote (Recommended)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step-1-open-cursor-settings" class="md-nav__link">
+  <a href="#step-1-ensure-nodejs-18-is-installed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: Open Cursor Settings
+        Step 1: Ensure Node.js 18+ is Installed
       
     </span>
   </a>
@@ -967,10 +967,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#method-b-stdio-connection-alternative" class="md-nav__link">
+  <a href="#alternative-direct-stdio-development-only" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Method B: STDIO Connection (Alternative)
+        Alternative: Direct STDIO (Development Only)
       
     </span>
   </a>
@@ -978,10 +978,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration-file-locations" class="md-nav__link">
+  <a href="#configuration-file-location" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuration File Locations
+        Configuration File Location
       
     </span>
   </a>
@@ -1101,6 +1101,39 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#loading-tools-forever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Loading tools..." Forever
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syntax-error-nodefspromises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax Error: node:fs/promises
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connection-refused-on-1-ipv6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection Refused on ::1 (IPv6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#connection-failed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1116,6 +1149,17 @@
     <span class="md-ellipsis">
       
         Tools Not Appearing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#npm-cache-permission-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        npm Cache Permission Errors
       
     </span>
   </a>
@@ -3232,32 +3276,58 @@
     B --&gt;|AI| E[OpenRouter/OpenAI]</code></pre>
 <p><strong>Cursor Advantages:</strong></p>
 <ul>
-<li>Native SSE and STDIO support</li>
-<li>No mcp-remote bridge needed</li>
-<li>Direct connection to MCP servers</li>
+<li>Native STDIO support (via mcp-remote bridge)</li>
 <li>Better integration with IDE workflow</li>
+<li>Direct access to all MCP tools</li>
 </ul>
-<h2 id="method-a-direct-sse-connection-recommended">Method A: Direct SSE Connection (Recommended)<a class="headerlink" href="#method-a-direct-sse-connection-recommended" title="Permanent link">&para;</a></h2>
-<h3 id="step-1-open-cursor-settings">Step 1: Open Cursor Settings<a class="headerlink" href="#step-1-open-cursor-settings" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Open Cursor IDE</li>
-<li>Click Settings (gear icon) or <code>Cmd/Ctrl + ,</code></li>
-<li>Search for "MCP" or navigate to Extensions → MCP Servers</li>
-</ol>
-<h3 id="step-2-configure-mcp-server">Step 2: Configure MCP Server<a class="headerlink" href="#step-2-configure-mcp-server" title="Permanent link">&para;</a></h3>
-<p>Add Maverick MCP configuration:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8003/sse/&quot;</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
-</span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Trailing Slash Required</p>
-<p>Always include the trailing slash: <code>/sse/</code></p>
+<div class="admonition note">
+<p class="admonition-title">Why mcp-remote?</p>
 </div>
+<p>Cursor doesn't support direct SSE connections reliably. The <code>mcp-remote</code> package bridges STDIO (which Cursor supports) to SSE (which the server uses).</p>
+<h2 id="method-a-stdio-via-mcp-remote-recommended">Method A: STDIO via mcp-remote (Recommended)<a class="headerlink" href="#method-a-stdio-via-mcp-remote-recommended" title="Permanent link">&para;</a></h2>
+<p>Direct SSE connections don't work reliably with Cursor. Use <code>mcp-remote</code> as a bridge instead.</p>
+<h3 id="step-1-ensure-nodejs-18-is-installed">Step 1: Ensure Node.js 18+ is Installed<a class="headerlink" href="#step-1-ensure-nodejs-18-is-installed" title="Permanent link">&para;</a></h3>
+<p><strong>Check your Node version:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>node<span class="w"> </span>--version
+</span></code></pre></div>
+<p>If you have Node &lt; 18, install Node 20:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Using nvm (recommended)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>nvm<span class="w"> </span>install<span class="w"> </span><span class="m">20</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>nvm<span class="w"> </span>use<span class="w"> </span><span class="m">20</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>nvm<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>default<span class="w"> </span><span class="m">20</span>
+</span></code></pre></div>
+<h3 id="step-2-configure-mcp-server">Step 2: Configure MCP Server<a class="headerlink" href="#step-2-configure-mcp-server" title="Permanent link">&para;</a></h3>
+<p><strong>Recommended Configuration (Full Path - Most Reliable):</strong></p>
+<p>Create or edit <code>~/.cursor/mcp.json</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx&quot;</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mcp-remote&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8003/sse&quot;</span><span class="p">],</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">        </span><span class="nt">&quot;PATH&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin:/usr/local/bin:/usr/bin:/bin&quot;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>To find your Node v20 path:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nvm<span class="w"> </span>use<span class="w"> </span><span class="m">20</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>which<span class="w"> </span>npx
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># Example output: /Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx</span>
+</span></code></pre></div>
+<p>Replace <code>YOUR_USERNAME</code> with your actual username.</p>
+<p><strong>Simple Configuration (If Node 20 is in PATH):</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npx&quot;</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mcp-remote&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8003/sse&quot;</span><span class="p">]</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>!!! warning "Important Configuration Notes" - <strong>Node.js 18+</strong> required (mcp-remote doesn't work with Node 14) - Use <strong><code>127.0.0.1</code></strong> not <code>localhost</code> (Docker IPv4 vs IPv6 issue) - <strong>No trailing slash</strong> on <code>/sse</code> (prevents 307 redirect) - Full path to npx ensures Cursor uses the correct Node version</p>
 <h3 id="step-3-restart-cursor">Step 3: Restart Cursor<a class="headerlink" href="#step-3-restart-cursor" title="Permanent link">&para;</a></h3>
 <ol>
 <li>Close Cursor completely</li>
@@ -3266,7 +3336,7 @@
 </ol>
 <h3 id="step-4-verify-connection">Step 4: Verify Connection<a class="headerlink" href="#step-4-verify-connection" title="Permanent link">&para;</a></h3>
 <p>Open Cursor's AI chat and test:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>List available MCP tools
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>List available MCP tools
 </span></code></pre></div>
 <p>You should see 40+ tools including:</p>
 <ul>
@@ -3278,226 +3348,295 @@
 </ul>
 <h3 id="step-5-test-with-commands">Step 5: Test with Commands<a class="headerlink" href="#step-5-test-with-commands" title="Permanent link">&para;</a></h3>
 <p>Try these in Cursor's AI chat:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Get technical analysis for AAPL and explain the RSI indicator
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Get technical analysis for AAPL and explain the RSI indicator
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Fetch RELIANCE.NS Q1 2025 earnings call and summarize key points
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Fetch RELIANCE.NS Q1 2025 earnings call and summarize key points
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Show me code to calculate moving averages using the MCP tools
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Show me code to calculate moving averages using the MCP tools
 </span></code></pre></div>
-<h2 id="method-b-stdio-connection-alternative">Method B: STDIO Connection (Alternative)<a class="headerlink" href="#method-b-stdio-connection-alternative" title="Permanent link">&para;</a></h2>
-<p>If SSE doesn't work, use STDIO:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">        </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">        </span><span class="s2">&quot;maverick_mcp.api.server&quot;</span><span class="p">,</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">        </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="s2">&quot;stdio&quot;</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">      </span><span class="p">],</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">      </span><span class="nt">&quot;cwd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/maverick-mcp&quot;</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="p">}</span>
-</span></code></pre></div>
-<p>Replace <code>/path/to/maverick-mcp</code> with your actual path.</p>
-<h2 id="configuration-file-locations">Configuration File Locations<a class="headerlink" href="#configuration-file-locations" title="Permanent link">&para;</a></h2>
-<p>Cursor stores MCP configuration in:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">macOS</label><label for="__tabbed_1_2">Windows</label><label for="__tabbed_1_3">Linux</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>~/Library/Application Support/Cursor/User/settings.json
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>%APPDATA%\Cursor\User\settings.json
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>~/.config/Cursor/User/settings.json
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<h2 id="advanced-configuration">Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Permanent link">&para;</a></h2>
-<h3 id="multiple-servers">Multiple Servers<a class="headerlink" href="#multiple-servers" title="Permanent link">&para;</a></h3>
-<p>Configure multiple MCP servers:</p>
+<h2 id="alternative-direct-stdio-development-only">Alternative: Direct STDIO (Development Only)<a class="headerlink" href="#alternative-direct-stdio-development-only" title="Permanent link">&para;</a></h2>
+<p>For local development without Docker, you can run the server directly:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8003/sse/&quot;</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="p">},</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">&quot;other-mcp-server&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8004/sse/&quot;</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="p">}</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uv&quot;</span><span class="p">,</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">        </span><span class="s2">&quot;run&quot;</span><span class="p">,</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">        </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">        </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">        </span><span class="s2">&quot;maverick_mcp.api.server&quot;</span><span class="p">,</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">        </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">        </span><span class="s2">&quot;stdio&quot;</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">      </span><span class="p">],</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">      </span><span class="nt">&quot;cwd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/maverick-mcp&quot;</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="custom-port">Custom Port<a class="headerlink" href="#custom-port" title="Permanent link">&para;</a></h3>
-<p>If using a different port:</p>
+<p>Replace <code>/path/to/maverick-mcp</code> with your actual path.</p>
+<div class="admonition warning">
+<p class="admonition-title">Direct STDIO Limitations</p>
+</div>
+<p>This method bypasses Docker and runs the Python server directly. Only use this if you're actively developing the MCP server itself.</p>
+<h2 id="configuration-file-location">Configuration File Location<a class="headerlink" href="#configuration-file-location" title="Permanent link">&para;</a></h2>
+<p>Cursor stores MCP configuration in:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:1"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">macOS</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block"></div>
+</div>
+</div>
+<p><code>~/.cursor/mcp.json</code></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:1"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Windows</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block"></div>
+</div>
+</div>
+<p><code>%USERPROFILE%\.cursor\mcp.json</code></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:1"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Linux</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block"></div>
+</div>
+</div>
+<p><code>~/.cursor/mcp.json</code></p>
+<h2 id="advanced-configuration">Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="multiple-servers">Multiple Servers<a class="headerlink" href="#multiple-servers" title="Permanent link">&para;</a></h3>
+<p>Configure multiple MCP servers:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/sse/&quot;</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="p">}</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8003/sse/&quot;</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nt">&quot;other-mcp-server&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8004/sse/&quot;</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>Start server on custom port:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python<span class="w"> </span>-m<span class="w"> </span>maverick_mcp.api.server<span class="w"> </span>--port<span class="w"> </span><span class="m">9000</span>
-</span></code></pre></div></p>
+<h3 id="custom-port">Custom Port<a class="headerlink" href="#custom-port" title="Permanent link">&para;</a></h3>
+<p>If using a different port:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:9000/sse/&quot;</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Start server on custom port:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>python<span class="w"> </span>-m<span class="w"> </span>maverick_mcp.api.server<span class="w"> </span>--port<span class="w"> </span><span class="m">9000</span>
+</span></code></pre></div>
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <p>Pass environment variables to STDIO mode:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;maverick_mcp.api.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">],</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">      </span><span class="nt">&quot;cwd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/maverick-mcp&quot;</span><span class="p">,</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">        </span><span class="nt">&quot;TIINGO_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">        </span><span class="nt">&quot;OPENROUTER_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-key&quot;</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">{</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;maverick_mcp.api.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">],</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">      </span><span class="nt">&quot;cwd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/maverick-mcp&quot;</span><span class="p">,</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">        </span><span class="nt">&quot;TIINGO_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-key&quot;</span><span class="p">,</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">        </span><span class="nt">&quot;OPENROUTER_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-key&quot;</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Security</p>
-<p>Avoid storing API keys in config files. Use <code>.env</code> file instead.</p>
 </div>
+<p>Avoid storing API keys in config files. Use <code>.env</code> file instead.</p>
 <h2 id="usage-in-cursor">Usage in Cursor<a class="headerlink" href="#usage-in-cursor" title="Permanent link">&para;</a></h2>
 <h3 id="ai-chat">AI Chat<a class="headerlink" href="#ai-chat" title="Permanent link">&para;</a></h3>
 <p>Access MCP tools through Cursor's AI chat:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>@maverick-mcp Get stock data for AAPL
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>@maverick-mcp Get stock data for AAPL
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>@maverick-mcp Analyze sentiment for TCS Q1 2025
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>@maverick-mcp Analyze sentiment for TCS Q1 2025
 </span></code></pre></div>
 <h3 id="code-generation">Code Generation<a class="headerlink" href="#code-generation" title="Permanent link">&para;</a></h3>
 <p>Use MCP tools to generate code:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Generate Python code to fetch and plot AAPL stock data
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>using the Maverick MCP tools
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Generate Python code to fetch and plot AAPL stock data
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>using the Maverick MCP tools
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Write a function that uses MCP to analyze multiple stocks
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>and returns a comparison table
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Write a function that uses MCP to analyze multiple stocks
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>and returns a comparison table
 </span></code></pre></div>
 <h3 id="context-aware-analysis">Context-Aware Analysis<a class="headerlink" href="#context-aware-analysis" title="Permanent link">&para;</a></h3>
 <p>Cursor can use MCP tools with your code:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Analyze the stock symbols in this file using technical analysis
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Analyze the stock symbols in this file using technical analysis
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Fetch earnings call transcripts for all companies mentioned in this code
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Fetch earnings call transcripts for all companies mentioned in this code
 </span></code></pre></div>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="loading-tools-forever">"Loading tools..." Forever<a class="headerlink" href="#loading-tools-forever" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> Status shows "loading tools" indefinitely or never completes.</p>
+<p><strong>Cause:</strong> Node.js version incompatibility. <code>mcp-remote</code> requires Node 18+, but Cursor may use system Node 14.</p>
+<p><strong>Solution:</strong></p>
+<ol>
+<li><strong>Verify your Node version:</strong></li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>node<span class="w"> </span>--version
+</span></code></pre></div>
+<ol>
+<li><strong>If Node &lt; 18, install Node 20:</strong></li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>nvm<span class="w"> </span>install<span class="w"> </span><span class="m">20</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>nvm<span class="w"> </span>use<span class="w"> </span><span class="m">20</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Use full path in config:</strong></li>
+</ol>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="p">{</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="nt">&quot;maverick-mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin/npx&quot;</span><span class="p">,</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mcp-remote&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8003/sse&quot;</span><span class="p">],</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="w">        </span><span class="nt">&quot;PATH&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Users/YOUR_USERNAME/.nvm/versions/node/v20.19.5/bin:/usr/local/bin:/usr/bin:/bin&quot;</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Completely restart Cursor</strong> (Cmd+Q, not just close window)</li>
+</ol>
+<h3 id="syntax-error-nodefspromises">Syntax Error: node:fs/promises<a class="headerlink" href="#syntax-error-nodefspromises" title="Permanent link">&para;</a></h3>
+<p><strong>Full Error:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>SyntaxError: The requested module &#39;node:fs/promises&#39; does not provide an export named &#39;constants&#39;
+</span></code></pre></div>
+<p><strong>Cause:</strong> This error confirms Node version is too old.</p>
+<p><strong>Solution:</strong> Follow the steps above to use Node 20.</p>
+<h3 id="connection-refused-on-1-ipv6">Connection Refused on ::1 (IPv6)<a class="headerlink" href="#connection-refused-on-1-ipv6" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> <code>connect ECONNREFUSED ::1:8003</code></p>
+<p><strong>Cause:</strong> <code>mcp-remote</code> tries IPv6 first, but Docker only listens on IPv4.</p>
+<p><strong>Solution:</strong> Use <code>127.0.0.1</code> instead of <code>localhost</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="p">{</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">  </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mcp-remote&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8003/sse&quot;</span><span class="p">]</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="p">}</span>
+</span></code></pre></div>
 <h3 id="connection-failed">Connection Failed<a class="headerlink" href="#connection-failed" title="Permanent link">&para;</a></h3>
-<p><strong>Check server status</strong>:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:8003
-</span></code></pre></div></p>
-<p><strong>View logs</strong>:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>make<span class="w"> </span>tail-log
-</span></code></pre></div></p>
-<p><strong>Restart server</strong>:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>make<span class="w"> </span>stop
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>make<span class="w"> </span>dev
-</span></code></pre></div></p>
+<p><strong>Check server status</strong>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:8003
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="c1"># Or with Docker</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>docker<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>maverick
+</span></code></pre></div>
+<p><strong>View logs</strong>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>make<span class="w"> </span>tail-log
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="c1"># Or with Docker</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>docker<span class="w"> </span>logs<span class="w"> </span>maverick-mcp-backend-1<span class="w"> </span>--tail<span class="w"> </span><span class="m">50</span>
+</span></code></pre></div>
+<p><strong>Restart server</strong>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>make<span class="w"> </span>stop
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>make<span class="w"> </span>dev
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="c1"># Or with Docker</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>docker-compose<span class="w"> </span>restart
+</span></code></pre></div>
 <h3 id="tools-not-appearing">Tools Not Appearing<a class="headerlink" href="#tools-not-appearing" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Verify config syntax</strong>:</li>
-<li>Open Cursor settings</li>
-<li>Check MCP Servers section</li>
 <li>
-<p>Ensure valid JSON</p>
+<p><strong>Verify config syntax</strong>:</p>
 </li>
 <li>
-<p><strong>Check trailing slash</strong>:</p>
+<p>Open <code>~/.cursor/mcp.json</code></p>
 </li>
-<li>SSE endpoint must be <code>http://localhost:8003/sse/</code></li>
+<li>Ensure valid JSON (no trailing commas)</li>
 <li>
-<p>Not <code>http://localhost:8003/sse</code></p>
+<p>Check quotes are correct</p>
 </li>
 <li>
-<p><strong>Restart Cursor completely</strong>:</p>
+<p><strong>Verify Node path</strong>:</p>
 </li>
-<li>Close all windows</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>which<span class="w"> </span>npx
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="c1"># Should match the path in your config</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Check server is running</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>curl<span class="w"> </span>http://127.0.0.1:8003/sse
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="c1"># Should return SSE connection or see streaming</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Restart Cursor completely</strong>:</li>
+<li>Quit (Cmd+Q on Mac)</li>
 <li>Wait 5 seconds</li>
 <li>Reopen</li>
 </ol>
+<h3 id="npm-cache-permission-errors">npm Cache Permission Errors<a class="headerlink" href="#npm-cache-permission-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> <code>EPERM: operation not permitted</code> errors</p>
+<p><strong>Solution:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span><span class="k">$(</span>whoami<span class="k">)</span><span class="w"> </span>~/.npm
+</span></code></pre></div>
 <h3 id="stdio-mode-issues">STDIO Mode Issues<a class="headerlink" href="#stdio-mode-issues" title="Permanent link">&para;</a></h3>
-<p><strong>Permission errors</strong>:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>chmod<span class="w"> </span>+x<span class="w"> </span>/path/to/maverick-mcp/maverick_mcp/api/server.py
-</span></code></pre></div></p>
-<p><strong>Python not found</strong>:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="p">{</span>
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/full/path/to/python3&quot;</span><span class="p">,</span>
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">  </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;maverick_mcp.api.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">]</span>
-</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="p">}</span>
-</span></code></pre></div></p>
-<p>Find Python path:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>which<span class="w"> </span>python3
-</span></code></pre></div></p>
+<p><strong>Permission errors</strong>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>chmod<span class="w"> </span>+x<span class="w"> </span>/path/to/maverick-mcp/maverick_mcp/api/server.py
+</span></code></pre></div>
+<p><strong>Python not found</strong>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="p">{</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/full/path/to/python3&quot;</span><span class="p">,</span>
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">  </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;maverick_mcp.api.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">]</span>
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Find Python path:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>which<span class="w"> </span>python3
+</span></code></pre></div>
 <h3 id="port-conflicts">Port Conflicts<a class="headerlink" href="#port-conflicts" title="Permanent link">&para;</a></h3>
-<p><strong>Change port</strong>:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="p">{</span>
-</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">  </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8004/sse/&quot;</span>
-</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="p">}</span>
-</span></code></pre></div></p>
-<p>Start on new port:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>python<span class="w"> </span>-m<span class="w"> </span>maverick_mcp.api.server<span class="w"> </span>--port<span class="w"> </span><span class="m">8004</span>
-</span></code></pre></div></p>
+<p><strong>Change port</strong>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="p">{</span>
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="w">  </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8004/sse/&quot;</span>
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Start on new port:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>python<span class="w"> </span>-m<span class="w"> </span>maverick_mcp.api.server<span class="w"> </span>--port<span class="w"> </span><span class="m">8004</span>
+</span></code></pre></div>
 <h2 id="integration-patterns">Integration Patterns<a class="headerlink" href="#integration-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="stock-analysis-workflow">Stock Analysis Workflow<a class="headerlink" href="#stock-analysis-workflow" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Analyze in Chat</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>Get full technical analysis for AAPL
-</span></code></pre></div></p>
-</li>
-<li>
-<p><strong>Generate Code</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>Write code to automate this analysis for multiple stocks
-</span></code></pre></div></p>
-</li>
-<li>
-<p><strong>Iterate</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>Add error handling and export to CSV
-</span></code></pre></div></p>
-</li>
+<li><strong>Analyze in Chat</strong>:</li>
+</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>Get full technical analysis for AAPL
+</span></code></pre></div>
+<ol>
+<li><strong>Generate Code</strong>:</li>
+</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>Write code to automate this analysis for multiple stocks
+</span></code></pre></div>
+<ol>
+<li><strong>Iterate</strong>:
+   <div class="language-text highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>Add error handling and export to CSV
+</span></code></pre></div></li>
 </ol>
 <h3 id="conference-call-analysis">Conference Call Analysis<a class="headerlink" href="#conference-call-analysis" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Fetch Transcript</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>Fetch RELIANCE.NS Q1 2025 earnings call
-</span></code></pre></div></p>
-</li>
-<li>
-<p><strong>Analyze</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>Summarize and analyze sentiment
-</span></code></pre></div></p>
-</li>
-<li>
-<p><strong>Generate Report</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>Create a markdown report with the analysis
-</span></code></pre></div></p>
-</li>
+<li><strong>Fetch Transcript</strong>:</li>
+</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>Fetch RELIANCE.NS Q1 2025 earnings call
+</span></code></pre></div>
+<ol>
+<li><strong>Analyze</strong>:</li>
+</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>Summarize and analyze sentiment
+</span></code></pre></div>
+<ol>
+<li><strong>Generate Report</strong>:
+   <div class="language-text highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>Create a markdown report with the analysis
+</span></code></pre></div></li>
 </ol>
 <h3 id="multi-stock-comparison">Multi-Stock Comparison<a class="headerlink" href="#multi-stock-comparison" title="Permanent link">&para;</a></h3>
 <ol>
-<li>
-<p><strong>Fetch Data</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>Get stock data for AAPL, MSFT, GOOGL
-</span></code></pre></div></p>
-</li>
-<li>
-<p><strong>Compare</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>Calculate correlation matrix
-</span></code></pre></div></p>
-</li>
-<li>
-<p><strong>Visualize</strong>:
-   <div class="language-text highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>Generate plotly chart comparing performance
-</span></code></pre></div></p>
-</li>
+<li><strong>Fetch Data</strong>:</li>
+</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>Get stock data for AAPL, MSFT, GOOGL
+</span></code></pre></div>
+<ol>
+<li><strong>Compare</strong>:</li>
+</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>Calculate correlation matrix
+</span></code></pre></div>
+<ol>
+<li><strong>Visualize</strong>:
+   <div class="language-text highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>Generate plotly chart comparing performance
+</span></code></pre></div></li>
 </ol>
 <h2 id="keyboard-shortcuts">Keyboard Shortcuts<a class="headerlink" href="#keyboard-shortcuts" title="Permanent link">&para;</a></h2>
 <h3 id="open-ai-chat">Open AI Chat<a class="headerlink" href="#open-ai-chat" title="Permanent link">&para;</a></h3>
@@ -3514,38 +3653,38 @@
 </ul>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <h3 id="1-use-descriptive-commands">1. Use Descriptive Commands<a class="headerlink" href="#1-use-descriptive-commands" title="Permanent link">&para;</a></h3>
-<p>❌ <strong>Bad</strong>:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>Get data
-</span></code></pre></div></p>
-<p>✅ <strong>Good</strong>:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>Get historical stock data for AAPL from Jan 2024 to Dec 2024
-</span></code></pre></div></p>
+<p>❌ <strong>Bad</strong>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>Get data
+</span></code></pre></div>
+<p>✅ <strong>Good</strong>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>Get historical stock data for AAPL from Jan 2024 to Dec 2024
+</span></code></pre></div>
 <h3 id="2-combine-tools">2. Combine Tools<a class="headerlink" href="#2-combine-tools" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>Fetch RELIANCE.NS Q1 2025 transcript, summarize it,
-</span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>analyze sentiment, and tell me the top 3 concerns
+<div class="language-text highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>Fetch RELIANCE.NS Q1 2025 transcript, summarize it,
+</span><span id="__span-48-2"><a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>analyze sentiment, and tell me the top 3 concerns
 </span></code></pre></div>
 <h3 id="3-generate-reusable-code">3. Generate Reusable Code<a class="headerlink" href="#3-generate-reusable-code" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>Create a Python class that wraps the Maverick MCP tools
-</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>for easier stock analysis
+<div class="language-text highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>Create a Python class that wraps the Maverick MCP tools
+</span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>for easier stock analysis
 </span></code></pre></div>
 <h3 id="4-use-with-existing-code">4. Use with Existing Code<a class="headerlink" href="#4-use-with-existing-code" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>Analyze the stocks in stocks.csv using technical indicators
-</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>from Maverick MCP
+<div class="language-text highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>Analyze the stocks in stocks.csv using technical indicators
+</span><span id="__span-50-2"><a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>from Maverick MCP
 </span></code></pre></div>
 <h2 id="performance-tips">Performance Tips<a class="headerlink" href="#performance-tips" title="Permanent link">&para;</a></h2>
 <h3 id="enable-caching">Enable Caching<a class="headerlink" href="#enable-caching" title="Permanent link">&para;</a></h3>
-<p>Add to <code>.env</code>:
-<div class="language-ini highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="na">REDIS_HOST</span><span class="o">=</span><span class="s">localhost</span>
-</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="na">REDIS_PORT</span><span class="o">=</span><span class="s">6379</span>
-</span></code></pre></div></p>
-<p>Start Redis:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>brew<span class="w"> </span>install<span class="w"> </span>redis
-</span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>brew<span class="w"> </span>services<span class="w"> </span>start<span class="w"> </span>redis
-</span></code></pre></div></p>
+<p>Add to <code>.env</code>:</p>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="na">REDIS_HOST</span><span class="o">=</span><span class="s">localhost</span>
+</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a><span class="na">REDIS_PORT</span><span class="o">=</span><span class="s">6379</span>
+</span></code></pre></div>
+<p>Start Redis:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>brew<span class="w"> </span>install<span class="w"> </span>redis
+</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>brew<span class="w"> </span>services<span class="w"> </span>start<span class="w"> </span>redis
+</span></code></pre></div>
 <h3 id="use-postgresql">Use PostgreSQL<a class="headerlink" href="#use-postgresql" title="Permanent link">&para;</a></h3>
-<p>For larger datasets:
-<div class="language-ini highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="na">DATABASE_URL</span><span class="o">=</span><span class="s">postgresql://localhost/maverick_mcp</span>
-</span></code></pre></div></p>
+<p>For larger datasets:</p>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="na">DATABASE_URL</span><span class="o">=</span><span class="s">postgresql://localhost/maverick_mcp</span>
+</span></code></pre></div>
 <h3 id="parallel-requests">Parallel Requests<a class="headerlink" href="#parallel-requests" title="Permanent link">&para;</a></h3>
 <p>MCP server handles concurrent requests automatically.</p>
 <h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
@@ -3553,16 +3692,16 @@
 <p>By default, server binds to localhost only.</p>
 <h3 id="api-keys-in-env">API Keys in .env<a class="headerlink" href="#api-keys-in-env" title="Permanent link">&para;</a></h3>
 <p>Never hardcode API keys:</p>
-<div class="language-ini highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="c1"># .env file</span>
-</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="na">TIINGO_API_KEY</span><span class="o">=</span><span class="s">your-key</span>
-</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="na">OPENROUTER_API_KEY</span><span class="o">=</span><span class="s">your-key</span>
-</span><span id="__span-45-4"><a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="na">OPENAI_API_KEY</span><span class="o">=</span><span class="s">your-key</span>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="c1"># .env file</span>
+</span><span id="__span-54-2"><a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="na">TIINGO_API_KEY</span><span class="o">=</span><span class="s">your-key</span>
+</span><span id="__span-54-3"><a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a><span class="na">OPENROUTER_API_KEY</span><span class="o">=</span><span class="s">your-key</span>
+</span><span id="__span-54-4"><a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a><span class="na">OPENAI_API_KEY</span><span class="o">=</span><span class="s">your-key</span>
 </span></code></pre></div>
 <h3 id="gitignore">Gitignore<a class="headerlink" href="#gitignore" title="Permanent link">&para;</a></h3>
-<p>Ensure <code>.env</code> is in <code>.gitignore</code>:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>.env
-</span><span id="__span-46-2"><a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>.env.*
-</span></code></pre></div></p>
+<p>Ensure <code>.env</code> is in <code>.gitignore</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-55-1"><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>.env
+</span><span id="__span-55-2"><a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>.env.*
+</span></code></pre></div>
 <h2 id="cursor-specific-features">Cursor-Specific Features<a class="headerlink" href="#cursor-specific-features" title="Permanent link">&para;</a></h2>
 <h3 id="code-actions">Code Actions<a class="headerlink" href="#code-actions" title="Permanent link">&para;</a></h3>
 <p>Cursor can suggest MCP tools automatically:</p>
@@ -3572,17 +3711,17 @@
 <li>Cursor suggests relevant tools</li>
 </ol>
 <h3 id="inline-suggestions">Inline Suggestions<a class="headerlink" href="#inline-suggestions" title="Permanent link">&para;</a></h3>
-<p>Type stock symbols and Cursor may suggest:
-<div class="language-python highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="c1"># AAPL</span>
-</span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="c1"># Cursor suggests: Fetch AAPL data with MCP?</span>
-</span></code></pre></div></p>
+<p>Type stock symbols and Cursor may suggest:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-56-1"><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="c1"># AAPL</span>
+</span><span id="__span-56-2"><a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a><span class="c1"># Cursor suggests: Fetch AAPL data with MCP?</span>
+</span></code></pre></div>
 <h3 id="composer-mode">Composer Mode<a class="headerlink" href="#composer-mode" title="Permanent link">&para;</a></h3>
 <p>Use MCP tools in Composer for complex tasks:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>Create a stock analysis dashboard that:
-</span><span id="__span-48-2"><a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>1. Fetches data for multiple stocks
-</span><span id="__span-48-3"><a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>2. Calculates technical indicators
-</span><span id="__span-48-4"><a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>3. Generates comparison charts
-</span><span id="__span-48-5"><a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>4. Exports to HTML report
+<div class="language-text highlight"><pre><span></span><code><span id="__span-57-1"><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>Create a stock analysis dashboard that:
+</span><span id="__span-57-2"><a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a>1. Fetches data for multiple stocks
+</span><span id="__span-57-3"><a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a>2. Calculates technical indicators
+</span><span id="__span-57-4"><a id="__codelineno-57-4" name="__codelineno-57-4" href="#__codelineno-57-4"></a>3. Generates comparison charts
+</span><span id="__span-57-5"><a id="__codelineno-57-5" name="__codelineno-57-5" href="#__codelineno-57-5"></a>4. Exports to HTML report
 </span></code></pre></div>
 <h2 id="comparison-cursor-vs-claude-desktop">Comparison: Cursor vs Claude Desktop<a class="headerlink" href="#comparison-cursor-vs-claude-desktop" title="Permanent link">&para;</a></h2>
 <table>
@@ -3596,8 +3735,8 @@
 <tbody>
 <tr>
 <td>Native MCP Support</td>
-<td>✅ SSE + STDIO</td>
-<td>⚠️ STDIO only (needs mcp-remote)</td>
+<td>✅ STDIO (via mcp-remote)</td>
+<td>✅ STDIO (via mcp-remote)</td>
 </tr>
 <tr>
 <td>Code Integration</td>
@@ -3611,8 +3750,8 @@
 </tr>
 <tr>
 <td>Setup Complexity</td>
-<td>⭐⭐ Easy</td>
-<td>⭐⭐⭐ Medium</td>
+<td>⭐⭐ Medium (Node 20 required)</td>
+<td>⭐⭐ Medium</td>
 </tr>
 <tr>
 <td>Best For</td>
@@ -3621,6 +3760,10 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Both Need mcp-remote</p>
+</div>
+<p>Both Cursor and Claude Desktop require the <code>mcp-remote</code> bridge when connecting to SSE servers. The key difference is Cursor's IDE integration.</p>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <p>Now that Cursor is connected:</p>
 <ul>
@@ -3658,7 +3801,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 11, 2025 12:01:24 UTC"><span class="timeago" datetime="2025-11-11T12:01:24+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 11, 2025 12:01:24 UTC">2025-11-11</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 16, 2025 10:35:13 UTC"><span class="timeago" datetime="2025-11-16T10:35:13+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 16, 2025 10:35:13 UTC">2025-11-16</span>
   </span>
 
     
