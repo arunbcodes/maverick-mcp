@@ -283,10 +283,13 @@ def analyze_rsi(df: pd.DataFrame) -> dict[str, Any]:
         else:
             signal = "bearish"
 
+        # Convert numpy types to Python native types for proper JSON serialization
+        rsi_value = float(round(rsi, 2))
+
         return {
-            "current": round(rsi, 2),
+            "current": rsi_value,
             "signal": signal,
-            "description": f"RSI is currently at {round(rsi, 2)}, indicating {signal} conditions.",
+            "description": f"RSI is currently at {rsi_value}, indicating {signal} conditions.",
         }
     except Exception as e:
         logger.error(f"Error analyzing RSI: {e}")
