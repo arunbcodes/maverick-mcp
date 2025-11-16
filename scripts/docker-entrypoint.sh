@@ -29,40 +29,40 @@ except Exception:
 seed_database() {
     echo ""
     echo "=================================================="
-    echo "Database is empty - Running S&P 500 seeding"
+    echo "Database is empty - Running stock market seeding"
     echo "=================================================="
     echo ""
-    echo "This will:"
-    echo "  - Fetch S&P 500 company list from Wikipedia"
-    echo "  - Enrich with data from yfinance API"
-    echo "  - Create ~520 stock records"
-    echo "  - Generate screening recommendations"
+    echo "This will seed:"
+    echo "  • S&P 500 stocks (~520 US stocks)"
+    echo "  • Nifty 50 stocks (~50 Indian stocks)"
     echo ""
-    echo "Estimated time: 2-10 minutes"
+    echo "Estimated time: 3-12 minutes"
     echo ""
 
-    # Run the seed script
+    # Run S&P 500 seed script
+    echo "1/2: Seeding S&P 500 stocks..."
     if python /app/scripts/seed_sp500.py; then
-        echo ""
-        echo "=================================================="
-        echo "✅ Database seeding completed successfully!"
-        echo "=================================================="
-        echo ""
-        return 0
+        echo "✅ S&P 500 seeding completed!"
     else
-        echo ""
-        echo "=================================================="
-        echo "⚠️  Database seeding failed"
-        echo "=================================================="
-        echo ""
-        echo "The server will start anyway, but screening tools"
-        echo "may return empty results."
-        echo ""
-        echo "You can manually seed later with:"
-        echo "  docker exec <container> python /app/scripts/seed_sp500.py"
-        echo ""
-        return 1
+        echo "⚠️  S&P 500 seeding failed (continuing anyway)"
     fi
+
+    echo ""
+    
+    # Run Indian stocks seed script
+    echo "2/2: Seeding Indian stocks..."
+    if python /app/scripts/seed_indian_stocks.py; then
+        echo "✅ Indian stocks seeding completed!"
+    else
+        echo "⚠️  Indian stocks seeding failed (continuing anyway)"
+    fi
+
+    echo ""
+    echo "=================================================="
+    echo "✅ Database seeding completed!"
+    echo "=================================================="
+    echo ""
+    return 0
 }
 
 # Main entrypoint logic
