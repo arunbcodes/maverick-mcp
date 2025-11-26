@@ -5,6 +5,13 @@ description = "Personal-use MCP server for Claude Desktop providing professional
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    # Workspace packages (will be resolved from local paths)
+    "maverick-core",
+    "maverick-data",
+    "maverick-agents",
+    "maverick-backtest",
+    "maverick-india",
+    "maverick-server",
     # Core MCP and server dependencies
     "fastmcp>=2.7.0",
     "mcp>=1.9.3",
@@ -175,4 +182,17 @@ line-ending = "auto"
 dev = [
     "testcontainers[postgres]>=4.10.0",
 ]
+
+# UV Workspace configuration
+[tool.uv.workspace]
+members = ["packages/*"]
+
+# Local workspace package sources
+[tool.uv.sources]
+maverick-core = { workspace = true }
+maverick-data = { workspace = true }
+maverick-agents = { workspace = true }
+maverick-backtest = { workspace = true }
+maverick-india = { workspace = true }
+maverick-server = { workspace = true }
 
