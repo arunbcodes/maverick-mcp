@@ -8,6 +8,17 @@ resolution-markers = [
     "python_full_version < '3.12.4' and platform_python_implementation == 'PyPy'",
 ]
 
+[manifest]
+members = [
+    "maverick-agents",
+    "maverick-backtest",
+    "maverick-core",
+    "maverick-data",
+    "maverick-india",
+    "maverick-mcp",
+    "maverick-server",
+]
+
 [[package]]
 name = "aiofiles"
 version = "24.1.0"
@@ -1762,11 +1773,165 @@ wheels = [
 ]
 
 [[package]]
+name = "maverick-agents"
+version = "0.1.0"
+source = { editable = "packages/agents" }
+dependencies = [
+    { name = "anthropic" },
+    { name = "exa-py" },
+    { name = "langchain" },
+    { name = "langchain-anthropic" },
+    { name = "langchain-openai" },
+    { name = "langgraph" },
+    { name = "langgraph-supervisor" },
+    { name = "maverick-core" },
+    { name = "openai" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anthropic", specifier = ">=0.52.2" },
+    { name = "exa-py", specifier = ">=1.0.19" },
+    { name = "langchain", specifier = ">=0.3.25" },
+    { name = "langchain-anthropic", specifier = ">=0.3.15" },
+    { name = "langchain-openai", specifier = ">=0.3.19" },
+    { name = "langgraph", specifier = ">=0.4.8" },
+    { name = "langgraph-supervisor", specifier = ">=0.0.18" },
+    { name = "maverick-core", editable = "packages/core" },
+    { name = "openai", specifier = ">=1.84.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+]
+
+[[package]]
+name = "maverick-backtest"
+version = "0.1.0"
+source = { editable = "packages/backtest" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "maverick-core" },
+    { name = "maverick-data" },
+    { name = "numba" },
+    { name = "plotly" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "vectorbt" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "matplotlib", specifier = ">=3.10.3" },
+    { name = "maverick-core", editable = "packages/core" },
+    { name = "maverick-data", editable = "packages/data" },
+    { name = "numba", specifier = ">=0.60.0" },
+    { name = "plotly", specifier = ">=5.0.0" },
+    { name = "scikit-learn", specifier = ">=1.6.1" },
+    { name = "scipy", specifier = ">=1.15.3" },
+    { name = "vectorbt", specifier = ">=0.26.0" },
+]
+
+[[package]]
+name = "maverick-core"
+version = "0.1.0"
+source = { editable = "packages/core" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "pandas-ta" },
+    { name = "pydantic" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "numpy", specifier = ">=1.26.4" },
+    { name = "pandas", specifier = ">=2.2.3" },
+    { name = "pandas-ta", specifier = ">=0.3.14b0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4.0" },
+]
+provides-extras = ["dev"]
+
+[[package]]
+name = "maverick-data"
+version = "0.1.0"
+source = { editable = "packages/data" }
+dependencies = [
+    { name = "aiosqlite" },
+    { name = "alembic" },
+    { name = "asyncpg" },
+    { name = "maverick-core" },
+    { name = "msgpack" },
+    { name = "pandas" },
+    { name = "pandas-market-calendars" },
+    { name = "redis" },
+    { name = "sqlalchemy" },
+    { name = "tiingo" },
+    { name = "yfinance" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiosqlite", specifier = ">=0.20.0" },
+    { name = "alembic", specifier = ">=1.16.1" },
+    { name = "asyncpg", specifier = ">=0.30.0" },
+    { name = "maverick-core", editable = "packages/core" },
+    { name = "msgpack", specifier = ">=1.0.7" },
+    { name = "pandas", specifier = ">=2.2.3" },
+    { name = "pandas-market-calendars", specifier = ">=5.1.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24.0" },
+    { name = "redis", specifier = ">=6.2.0" },
+    { name = "sqlalchemy", specifier = ">=2.0.40" },
+    { name = "tiingo", specifier = ">=0.16.1" },
+    { name = "yfinance", specifier = ">=0.2.63" },
+]
+provides-extras = ["dev"]
+
+[[package]]
+name = "maverick-india"
+version = "0.1.0"
+source = { editable = "packages/india" }
+dependencies = [
+    { name = "beautifulsoup4" },
+    { name = "feedparser" },
+    { name = "langchain-chroma" },
+    { name = "maverick-core" },
+    { name = "maverick-data" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "beautifulsoup4", specifier = ">=4.12.3" },
+    { name = "feedparser", specifier = ">=6.0.11" },
+    { name = "langchain-chroma", specifier = ">=0.1.0" },
+    { name = "maverick-core", editable = "packages/core" },
+    { name = "maverick-data", editable = "packages/data" },
+]
+
+[[package]]
 name = "maverick-mcp"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
+    { name = "aiohttp" },
     { name = "aiosqlite" },
     { name = "alembic" },
     { name = "anthropic" },
@@ -1795,6 +1960,12 @@ dependencies = [
     { name = "langgraph" },
     { name = "langgraph-supervisor" },
     { name = "matplotlib" },
+    { name = "maverick-agents" },
+    { name = "maverick-backtest" },
+    { name = "maverick-core" },
+    { name = "maverick-data" },
+    { name = "maverick-india" },
+    { name = "maverick-server" },
     { name = "mcp" },
     { name = "msgpack" },
     { name = "numba" },
@@ -1816,6 +1987,7 @@ dependencies = [
     { name = "pytz" },
     { name = "ratelimit" },
     { name = "redis" },
+    { name = "requests" },
     { name = "scikit-learn" },
     { name = "scipy" },
     { name = "seaborn" },
@@ -1860,6 +2032,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiofiles", specifier = ">=24.1.0" },
+    { name = "aiohttp", specifier = ">=3.9.0" },
     { name = "aiosqlite", specifier = ">=0.20.0" },
     { name = "aiosqlite", marker = "extra == 'dev'", specifier = ">=0.20.0" },
     { name = "alembic", specifier = ">=1.16.1" },
@@ -1892,6 +2065,12 @@ requires-dist = [
     { name = "langgraph", specifier = ">=0.4.8" },
     { name = "langgraph-supervisor", specifier = ">=0.0.18" },
     { name = "matplotlib", specifier = ">=3.10.3" },
+    { name = "maverick-agents", editable = "packages/agents" },
+    { name = "maverick-backtest", editable = "packages/backtest" },
+    { name = "maverick-core", editable = "packages/core" },
+    { name = "maverick-data", editable = "packages/data" },
+    { name = "maverick-india", editable = "packages/india" },
+    { name = "maverick-server", editable = "packages/server" },
     { name = "mcp", specifier = ">=1.9.3" },
     { name = "msgpack", specifier = ">=1.0.7" },
     { name = "numba", specifier = ">=0.60.0" },
@@ -1917,6 +2096,7 @@ requires-dist = [
     { name = "pytz", specifier = ">=2024.1" },
     { name = "ratelimit", specifier = ">=2.2.1" },
     { name = "redis", specifier = ">=6.2.0" },
+    { name = "requests", specifier = ">=2.31.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.10" },
     { name = "safety", marker = "extra == 'dev'", specifier = ">=3.0.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
@@ -1944,6 +2124,50 @@ provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "testcontainers", extras = ["postgres"], specifier = ">=4.10.0" }]
+
+[[package]]
+name = "maverick-server"
+version = "0.1.0"
+source = { editable = "packages/server" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "fastmcp" },
+    { name = "maverick-core" },
+    { name = "maverick-data" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+agents = [
+    { name = "maverick-agents" },
+]
+backtest = [
+    { name = "maverick-backtest" },
+]
+full = [
+    { name = "maverick-agents" },
+    { name = "maverick-backtest" },
+    { name = "maverick-india" },
+]
+india = [
+    { name = "maverick-india" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.115.12" },
+    { name = "fastmcp", specifier = ">=2.7.0" },
+    { name = "maverick-agents", marker = "extra == 'agents'", editable = "packages/agents" },
+    { name = "maverick-agents", marker = "extra == 'full'", editable = "packages/agents" },
+    { name = "maverick-backtest", marker = "extra == 'backtest'", editable = "packages/backtest" },
+    { name = "maverick-backtest", marker = "extra == 'full'", editable = "packages/backtest" },
+    { name = "maverick-core", editable = "packages/core" },
+    { name = "maverick-data", editable = "packages/data" },
+    { name = "maverick-india", marker = "extra == 'full'", editable = "packages/india" },
+    { name = "maverick-india", marker = "extra == 'india'", editable = "packages/india" },
+    { name = "uvicorn", specifier = ">=0.35.0" },
+]
+provides-extras = ["agents", "backtest", "india", "full"]
 
 [[package]]
 name = "mcp"
