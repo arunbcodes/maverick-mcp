@@ -1512,3 +1512,315 @@ class TestSentimentTools:
         assert NewsSentimentTool is not None
         assert MarketBreadthTool is not None
         assert SectorSentimentTool is not None
+
+
+class TestRiskManagementTools:
+    """Test risk management tools import and functionality."""
+
+    def test_import_position_size_tool(self):
+        """Test importing PositionSizeTool."""
+        from maverick_agents.tools import PositionSizeTool
+
+        assert PositionSizeTool is not None
+
+    def test_import_technical_stops_tool(self):
+        """Test importing TechnicalStopsTool."""
+        from maverick_agents.tools import TechnicalStopsTool
+
+        assert TechnicalStopsTool is not None
+
+    def test_import_risk_metrics_tool(self):
+        """Test importing RiskMetricsTool."""
+        from maverick_agents.tools import RiskMetricsTool
+
+        assert RiskMetricsTool is not None
+
+    def test_import_input_models(self):
+        """Test importing input models."""
+        from maverick_agents.tools import (
+            PositionSizeInput,
+            RiskMetricsInput,
+            TechnicalStopsInput,
+        )
+
+        assert PositionSizeInput is not None
+        assert TechnicalStopsInput is not None
+        assert RiskMetricsInput is not None
+
+    def test_import_protocols(self):
+        """Test importing protocol classes."""
+        from maverick_agents.tools import (
+            StockDataProviderProtocol,
+            TechnicalAnalysisProtocol,
+        )
+
+        assert StockDataProviderProtocol is not None
+        assert TechnicalAnalysisProtocol is not None
+
+    def test_position_size_input_creation(self):
+        """Test creating PositionSizeInput."""
+        from maverick_agents.tools import PositionSizeInput
+
+        input_obj = PositionSizeInput(
+            account_size=100000,
+            entry_price=150.00,
+            stop_loss_price=145.00,
+            risk_percentage=2.0,
+        )
+
+        assert input_obj.account_size == 100000
+        assert input_obj.entry_price == 150.00
+        assert input_obj.stop_loss_price == 145.00
+        assert input_obj.risk_percentage == 2.0
+
+    def test_technical_stops_input_creation(self):
+        """Test creating TechnicalStopsInput."""
+        from maverick_agents.tools import TechnicalStopsInput
+
+        input_obj = TechnicalStopsInput(
+            symbol="AAPL",
+            lookback_days=20,
+            atr_multiplier=2.0,
+        )
+
+        assert input_obj.symbol == "AAPL"
+        assert input_obj.lookback_days == 20
+        assert input_obj.atr_multiplier == 2.0
+
+    def test_risk_metrics_input_creation(self):
+        """Test creating RiskMetricsInput."""
+        from maverick_agents.tools import RiskMetricsInput
+
+        input_obj = RiskMetricsInput(
+            symbols=["AAPL", "GOOGL", "MSFT"],
+            weights=[0.4, 0.3, 0.3],
+            lookback_days=252,
+        )
+
+        assert input_obj.symbols == ["AAPL", "GOOGL", "MSFT"]
+        assert input_obj.weights == [0.4, 0.3, 0.3]
+        assert input_obj.lookback_days == 252
+
+    def test_position_size_tool_inherits_from_persona_aware(self):
+        """Test PositionSizeTool inherits from PersonaAwareTool."""
+        from maverick_agents import PersonaAwareTool
+        from maverick_agents.tools import PositionSizeTool
+
+        assert issubclass(PositionSizeTool, PersonaAwareTool)
+
+    def test_technical_stops_tool_inherits_from_persona_aware(self):
+        """Test TechnicalStopsTool inherits from PersonaAwareTool."""
+        from maverick_agents import PersonaAwareTool
+        from maverick_agents.tools import TechnicalStopsTool
+
+        assert issubclass(TechnicalStopsTool, PersonaAwareTool)
+
+    def test_risk_metrics_tool_inherits_from_persona_aware(self):
+        """Test RiskMetricsTool inherits from PersonaAwareTool."""
+        from maverick_agents import PersonaAwareTool
+        from maverick_agents.tools import RiskMetricsTool
+
+        assert issubclass(RiskMetricsTool, PersonaAwareTool)
+
+    def test_position_size_tool_has_run_method(self):
+        """Test PositionSizeTool has _run method."""
+        from maverick_agents.tools import PositionSizeTool
+
+        assert hasattr(PositionSizeTool, "_run")
+
+    def test_technical_stops_tool_has_run_method(self):
+        """Test TechnicalStopsTool has _run method."""
+        from maverick_agents.tools import TechnicalStopsTool
+
+        assert hasattr(TechnicalStopsTool, "_run")
+
+    def test_risk_metrics_tool_has_run_method(self):
+        """Test RiskMetricsTool has _run method."""
+        from maverick_agents.tools import RiskMetricsTool
+
+        assert hasattr(RiskMetricsTool, "_run")
+
+    def test_position_size_tool_creation(self):
+        """Test creating PositionSizeTool instance."""
+        from maverick_agents.tools import PositionSizeTool
+
+        tool = PositionSizeTool()
+
+        assert tool.name == "calculate_position_size"
+        assert "position" in tool.description.lower()
+
+    def test_technical_stops_tool_creation(self):
+        """Test creating TechnicalStopsTool instance."""
+        from maverick_agents.tools import TechnicalStopsTool
+
+        tool = TechnicalStopsTool()
+
+        assert tool.name == "calculate_technical_stops"
+        assert "stop" in tool.description.lower()
+
+    def test_risk_metrics_tool_creation(self):
+        """Test creating RiskMetricsTool instance."""
+        from maverick_agents.tools import RiskMetricsTool
+
+        tool = RiskMetricsTool()
+
+        assert tool.name == "calculate_risk_metrics"
+        assert "risk" in tool.description.lower()
+
+    def test_technical_stops_tool_has_provider_setter(self):
+        """Test TechnicalStopsTool has provider setter."""
+        from maverick_agents.tools import TechnicalStopsTool
+
+        tool = TechnicalStopsTool()
+        assert hasattr(tool, "set_stock_provider")
+        assert hasattr(tool, "set_atr_calculator")
+
+    def test_risk_metrics_tool_has_provider_setter(self):
+        """Test RiskMetricsTool has provider setter."""
+        from maverick_agents.tools import RiskMetricsTool
+
+        tool = RiskMetricsTool()
+        assert hasattr(tool, "set_stock_provider")
+
+    def test_position_size_calculation_basic(self):
+        """Test basic position size calculation."""
+        from maverick_agents.tools import PositionSizeTool
+
+        tool = PositionSizeTool()
+
+        # Calculate position size
+        result = tool._run(
+            account_size=100000,
+            entry_price=100.00,
+            stop_loss_price=95.00,
+            risk_percentage=2.0,
+        )
+
+        # Should return a string with position sizing info
+        assert "success" in result.lower() or "position" in result.lower()
+
+    def test_import_from_main_package(self):
+        """Test importing risk tools from main package."""
+        from maverick_agents import (
+            PositionSizeTool,
+            RiskMetricsTool,
+            TechnicalStopsTool,
+        )
+
+        assert PositionSizeTool is not None
+        assert TechnicalStopsTool is not None
+        assert RiskMetricsTool is not None
+
+
+class TestOrchestrationLogging:
+    """Test orchestration logging utilities."""
+
+    def test_import_orchestration_logger(self):
+        """Test importing OrchestrationLogger."""
+        from maverick_agents.utils import OrchestrationLogger
+
+        assert OrchestrationLogger is not None
+
+    def test_import_get_orchestration_logger(self):
+        """Test importing get_orchestration_logger."""
+        from maverick_agents.utils import get_orchestration_logger
+
+        assert callable(get_orchestration_logger)
+
+    def test_import_log_method_call(self):
+        """Test importing log_method_call decorator."""
+        from maverick_agents.utils import log_method_call
+
+        assert callable(log_method_call)
+
+    def test_import_log_parallel_execution(self):
+        """Test importing log_parallel_execution."""
+        from maverick_agents.utils import log_parallel_execution
+
+        assert log_parallel_execution is not None
+
+    def test_import_log_agent_execution(self):
+        """Test importing log_agent_execution."""
+        from maverick_agents.utils import log_agent_execution
+
+        assert log_agent_execution is not None
+
+    def test_import_log_colors(self):
+        """Test importing LogColors."""
+        from maverick_agents.utils.logging import LogColors
+
+        assert LogColors is not None
+        assert LogColors.OKGREEN == "\033[92m"
+        assert LogColors.FAIL == "\033[91m"
+        assert LogColors.ENDC == "\033[0m"
+
+    def test_orchestration_logger_creation(self):
+        """Test creating OrchestrationLogger."""
+        from maverick_agents.utils import OrchestrationLogger
+
+        logger = OrchestrationLogger("TestComponent")
+
+        assert logger.component_name == "TestComponent"
+        assert logger.request_id is None
+
+    def test_orchestration_logger_set_context(self):
+        """Test setting request context."""
+        from maverick_agents.utils import OrchestrationLogger
+
+        logger = OrchestrationLogger("TestComponent")
+        logger.set_request_context(request_id="test-123", session_id="session-456")
+
+        assert logger.request_id == "test-123"
+        assert logger.session_context["session_id"] == "session-456"
+
+    def test_get_orchestration_logger_caching(self):
+        """Test get_orchestration_logger returns same instance."""
+        from maverick_agents.utils import get_orchestration_logger
+
+        logger1 = get_orchestration_logger("CachedComponent")
+        logger2 = get_orchestration_logger("CachedComponent")
+
+        assert logger1 is logger2
+
+    def test_orchestration_logger_methods(self):
+        """Test OrchestrationLogger has logging methods."""
+        from maverick_agents.utils import OrchestrationLogger
+
+        logger = OrchestrationLogger("TestComponent")
+
+        assert hasattr(logger, "debug")
+        assert hasattr(logger, "info")
+        assert hasattr(logger, "warning")
+        assert hasattr(logger, "error")
+
+    def test_import_additional_log_functions(self):
+        """Test importing additional logging functions."""
+        from maverick_agents.utils.logging import (
+            log_fallback_trigger,
+            log_performance_metrics,
+            log_resource_usage,
+            log_synthesis_operation,
+            log_tool_invocation,
+        )
+
+        assert callable(log_tool_invocation)
+        assert callable(log_synthesis_operation)
+        assert callable(log_fallback_trigger)
+        assert callable(log_performance_metrics)
+        assert callable(log_resource_usage)
+
+    def test_import_from_main_package(self):
+        """Test importing logging utilities from main package."""
+        from maverick_agents import (
+            OrchestrationLogger,
+            get_orchestration_logger,
+            log_agent_execution,
+            log_method_call,
+            log_parallel_execution,
+        )
+
+        assert OrchestrationLogger is not None
+        assert callable(get_orchestration_logger)
+        assert callable(log_method_call)
+        assert log_parallel_execution is not None
+        assert log_agent_execution is not None
