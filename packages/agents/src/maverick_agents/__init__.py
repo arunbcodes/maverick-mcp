@@ -57,7 +57,17 @@ from maverick_agents.supervisor import (
 from maverick_agents.tools import (
     MarketBreadthTool,
     NewsSentimentTool,
+    PositionSizeTool,
+    RiskMetricsTool,
     SectorSentimentTool,
+    TechnicalStopsTool,
+)
+from maverick_agents.utils import (
+    OrchestrationLogger,
+    get_orchestration_logger,
+    log_agent_execution,
+    log_method_call,
+    log_parallel_execution,
 )
 
 __all__ = [
@@ -70,12 +80,17 @@ __all__ = [
     "DEFAULT_PERSONA_PARAMS",
     "create_default_personas",
     "get_persona",
-    # Tools
+    # Tools - Base
     "PersonaAwareTool",
     "DEFAULT_CACHE_TTL_SECONDS",
+    # Tools - Sentiment
     "NewsSentimentTool",
     "MarketBreadthTool",
     "SectorSentimentTool",
+    # Tools - Risk Management
+    "PositionSizeTool",
+    "TechnicalStopsTool",
+    "RiskMetricsTool",
     # Circuit breaker
     "CircuitBreaker",
     "CircuitBreakerManager",
@@ -116,4 +131,10 @@ __all__ = [
     "MemoryStore",
     "ConversationStore",
     "UserMemoryStore",
+    # Utils - Logging
+    "OrchestrationLogger",
+    "get_orchestration_logger",
+    "log_method_call",
+    "log_parallel_execution",
+    "log_agent_execution",
 ]
