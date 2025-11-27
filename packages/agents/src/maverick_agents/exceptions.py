@@ -2,13 +2,18 @@
 Custom exceptions for maverick-agents package.
 
 Provides domain-specific exceptions for agent operations.
+All exceptions inherit from maverick_core.MaverickError for
+consistent exception handling across the ecosystem.
 """
 
+from maverick_core import MaverickError
 
-class AgentError(Exception):
+
+class AgentError(MaverickError):
     """Base exception for agent-related errors."""
 
-    pass
+    def __init__(self, message: str, details: dict | None = None):
+        super().__init__(message, details)
 
 
 class AgentInitializationError(AgentError):
@@ -17,7 +22,10 @@ class AgentInitializationError(AgentError):
     def __init__(self, agent_type: str, reason: str):
         self.agent_type = agent_type
         self.reason = reason
-        super().__init__(f"Failed to initialize {agent_type}: {reason}")
+        super().__init__(
+            f"Failed to initialize {agent_type}: {reason}",
+            {"agent_type": agent_type, "reason": reason},
+        )
 
 
 class AgentExecutionError(AgentError):
@@ -27,7 +35,10 @@ class AgentExecutionError(AgentError):
         self.agent_type = agent_type
         self.operation = operation
         self.reason = reason
-        super().__init__(f"{agent_type} failed during {operation}: {reason}")
+        super().__init__(
+            f"{agent_type} failed during {operation}: {reason}",
+            {"agent_type": agent_type, "operation": operation, "reason": reason},
+        )
 
 
 class QueryClassificationError(AgentError):
@@ -36,7 +47,10 @@ class QueryClassificationError(AgentError):
     def __init__(self, query: str, reason: str):
         self.query = query
         self.reason = reason
-        super().__init__(f"Failed to classify query '{query[:50]}...': {reason}")
+        super().__init__(
+            f"Failed to classify query '{query[:50]}...': {reason}",
+            {"query": query, "reason": reason},
+        )
 
 
 class AgentTimeoutError(AgentError):
@@ -45,7 +59,10 @@ class AgentTimeoutError(AgentError):
     def __init__(self, agent_type: str, timeout_seconds: float):
         self.agent_type = agent_type
         self.timeout_seconds = timeout_seconds
-        super().__init__(f"{agent_type} timed out after {timeout_seconds}s")
+        super().__init__(
+            f"{agent_type} timed out after {timeout_seconds}s",
+            {"agent_type": agent_type, "timeout_seconds": timeout_seconds},
+        )
 
 
 class SynthesisError(AgentError):
@@ -53,4 +70,7 @@ class SynthesisError(AgentError):
 
     def __init__(self, reason: str):
         self.reason = reason
-        super().__init__(f"Failed to synthesize results: {reason}")
+        super().__init__(
+            f"Failed to synthesize results: {reason}",
+            {"reason": reason},
+        )

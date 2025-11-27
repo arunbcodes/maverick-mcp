@@ -630,6 +630,22 @@ class TestAgentExceptions:
         assert issubclass(AgentTimeoutError, AgentError)
         assert issubclass(SynthesisError, AgentError)
 
+    def test_agent_error_inherits_from_maverick_error(self):
+        """Test AgentError inherits from maverick_core.MaverickError."""
+        from maverick_agents import AgentError
+        from maverick_core import MaverickError
+
+        assert issubclass(AgentError, MaverickError)
+
+    def test_exception_details_attribute(self):
+        """Test exceptions have details attribute from MaverickError."""
+        from maverick_agents import AgentInitializationError
+
+        error = AgentInitializationError("TestAgent", "Test reason")
+        assert hasattr(error, "details")
+        assert error.details["agent_type"] == "TestAgent"
+        assert error.details["reason"] == "Test reason"
+
 
 class TestTechnicalAnalysisAgent:
     """Test TechnicalAnalysisAgent import and basic functionality."""
