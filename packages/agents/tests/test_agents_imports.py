@@ -1097,3 +1097,418 @@ class TestDeepResearchAgent:
 
         # Verify it's runtime checkable
         assert isinstance(config, ParallelConfigProtocol)
+
+
+class TestLLMProviders:
+    """Test LLM providers import and functionality."""
+
+    def test_import_task_type(self):
+        """Test importing TaskType enum."""
+        from maverick_agents.llm import TaskType
+
+        assert TaskType is not None
+        assert TaskType.DEEP_RESEARCH.value == "deep_research"
+        assert TaskType.MARKET_ANALYSIS.value == "market_analysis"
+        assert TaskType.GENERAL.value == "general"
+
+    def test_import_model_profile(self):
+        """Test importing ModelProfile."""
+        from maverick_agents.llm import ModelProfile
+
+        assert ModelProfile is not None
+
+    def test_import_model_profiles(self):
+        """Test importing MODEL_PROFILES."""
+        from maverick_agents.llm import MODEL_PROFILES
+
+        assert MODEL_PROFILES is not None
+        assert len(MODEL_PROFILES) > 0
+        assert "anthropic/claude-sonnet-4" in MODEL_PROFILES
+        assert "openai/gpt-4o-mini" in MODEL_PROFILES
+
+    def test_import_openrouter_provider(self):
+        """Test importing OpenRouterProvider."""
+        from maverick_agents.llm import OpenRouterProvider
+
+        assert OpenRouterProvider is not None
+
+    def test_import_get_openrouter_llm(self):
+        """Test importing get_openrouter_llm function."""
+        from maverick_agents.llm import get_openrouter_llm
+
+        assert callable(get_openrouter_llm)
+
+    def test_import_ollama_functions(self):
+        """Test importing Ollama functions."""
+        from maverick_agents.llm import (
+            check_ollama_available,
+            get_ollama_llm,
+            list_ollama_models,
+        )
+
+        assert callable(get_ollama_llm)
+        assert callable(check_ollama_available)
+        assert callable(list_ollama_models)
+
+    def test_import_get_llm_factory(self):
+        """Test importing get_llm factory function."""
+        from maverick_agents.llm import get_llm
+
+        assert callable(get_llm)
+
+    def test_model_profile_structure(self):
+        """Test ModelProfile has required fields."""
+        from maverick_agents.llm import MODEL_PROFILES, TaskType
+
+        profile = MODEL_PROFILES["anthropic/claude-sonnet-4"]
+
+        assert profile.model_id == "anthropic/claude-sonnet-4"
+        assert profile.name == "Claude Sonnet 4"
+        assert profile.provider == "anthropic"
+        assert profile.context_length > 0
+        assert profile.cost_per_million_input > 0
+        assert profile.speed_rating >= 1 and profile.speed_rating <= 10
+        assert profile.quality_rating >= 1 and profile.quality_rating <= 10
+        assert isinstance(profile.best_for, list)
+        assert TaskType.DEEP_RESEARCH in profile.best_for
+
+    def test_openrouter_provider_methods(self):
+        """Test OpenRouterProvider has required methods."""
+        from maverick_agents.llm import OpenRouterProvider
+
+        assert hasattr(OpenRouterProvider, "get_llm")
+        assert hasattr(OpenRouterProvider, "get_usage_stats")
+        assert hasattr(OpenRouterProvider, "recommend_models_for_workload")
+        assert hasattr(OpenRouterProvider, "_select_model")
+        assert hasattr(OpenRouterProvider, "_select_emergency_model")
+
+    def test_task_type_all_values(self):
+        """Test all TaskType values exist."""
+        from maverick_agents.llm import TaskType
+
+        expected_types = [
+            "deep_research",
+            "market_analysis",
+            "technical_analysis",
+            "sentiment_analysis",
+            "risk_assessment",
+            "result_synthesis",
+            "portfolio_optimization",
+            "query_classification",
+            "quick_answer",
+            "complex_reasoning",
+            "multi_agent_orchestration",
+            "general",
+        ]
+
+        for type_value in expected_types:
+            assert type_value in [t.value for t in TaskType]
+
+    def test_import_from_main_package(self):
+        """Test importing LLM components from main package."""
+        from maverick_agents import (
+            MODEL_PROFILES,
+            ModelProfile,
+            OpenRouterProvider,
+            TaskType,
+            get_llm,
+            get_openrouter_llm,
+        )
+
+        assert TaskType is not None
+        assert ModelProfile is not None
+        assert MODEL_PROFILES is not None
+        assert OpenRouterProvider is not None
+        assert callable(get_openrouter_llm)
+        assert callable(get_llm)
+
+
+class TestMemoryStores:
+    """Test memory stores import and functionality."""
+
+    def test_import_memory_store(self):
+        """Test importing MemoryStore."""
+        from maverick_agents.memory import MemoryStore
+
+        assert MemoryStore is not None
+
+    def test_import_conversation_store(self):
+        """Test importing ConversationStore."""
+        from maverick_agents.memory import ConversationStore
+
+        assert ConversationStore is not None
+
+    def test_import_user_memory_store(self):
+        """Test importing UserMemoryStore."""
+        from maverick_agents.memory import UserMemoryStore
+
+        assert UserMemoryStore is not None
+
+    def test_memory_store_creation(self):
+        """Test creating MemoryStore instance."""
+        from maverick_agents.memory import MemoryStore
+
+        store = MemoryStore(ttl_hours=24.0)
+
+        assert store.ttl_hours == 24.0
+        assert store.store == {}
+
+    def test_memory_store_set_get(self):
+        """Test MemoryStore set and get."""
+        from maverick_agents.memory import MemoryStore
+
+        store = MemoryStore()
+
+        store.set("key1", "value1")
+        assert store.get("key1") == "value1"
+
+        store.set("key2", {"data": 123})
+        assert store.get("key2") == {"data": 123}
+
+    def test_memory_store_delete(self):
+        """Test MemoryStore delete."""
+        from maverick_agents.memory import MemoryStore
+
+        store = MemoryStore()
+
+        store.set("key1", "value1")
+        store.delete("key1")
+        assert store.get("key1") is None
+
+    def test_memory_store_keys(self):
+        """Test MemoryStore keys method."""
+        from maverick_agents.memory import MemoryStore
+
+        store = MemoryStore()
+
+        store.set("key1", "value1")
+        store.set("key2", "value2")
+
+        keys = store.keys()
+        assert "key1" in keys
+        assert "key2" in keys
+
+    def test_conversation_store_save_analysis(self):
+        """Test ConversationStore save_analysis."""
+        from maverick_agents.memory import ConversationStore
+
+        store = ConversationStore()
+
+        store.save_analysis("session1", "AAPL", "technical", {"rsi": 65})
+        result = store.get_analysis("session1", "AAPL", "technical")
+
+        assert result is not None
+        assert result["symbol"] == "AAPL"
+        assert result["type"] == "technical"
+        assert result["data"]["rsi"] == 65
+
+    def test_conversation_store_save_context(self):
+        """Test ConversationStore save_context."""
+        from maverick_agents.memory import ConversationStore
+
+        store = ConversationStore()
+
+        store.save_context("session1", "current_stock", "AAPL")
+        assert store.get_context("session1", "current_stock") == "AAPL"
+
+    def test_conversation_store_list_analyses(self):
+        """Test ConversationStore list_analyses."""
+        from maverick_agents.memory import ConversationStore
+
+        store = ConversationStore()
+
+        store.save_analysis("session1", "AAPL", "technical", {"rsi": 65})
+        store.save_analysis("session1", "AAPL", "fundamental", {"pe": 25})
+
+        analyses = store.list_analyses("session1")
+        assert len(analyses) == 2
+
+    def test_user_memory_store_preferences(self):
+        """Test UserMemoryStore preferences."""
+        from maverick_agents.memory import UserMemoryStore
+
+        store = UserMemoryStore()
+
+        store.save_preference("user1", "risk_tolerance", "moderate")
+        assert store.get_preference("user1", "risk_tolerance") == "moderate"
+
+    def test_user_memory_store_watchlist(self):
+        """Test UserMemoryStore watchlist."""
+        from maverick_agents.memory import UserMemoryStore
+
+        store = UserMemoryStore()
+
+        store.save_watchlist("user1", ["AAPL", "GOOGL", "MSFT"])
+        watchlist = store.get_watchlist("user1")
+
+        assert "AAPL" in watchlist
+        assert "GOOGL" in watchlist
+        assert len(watchlist) == 3
+
+    def test_user_memory_store_add_to_watchlist(self):
+        """Test UserMemoryStore add_to_watchlist."""
+        from maverick_agents.memory import UserMemoryStore
+
+        store = UserMemoryStore()
+
+        store.save_watchlist("user1", ["AAPL"])
+        store.add_to_watchlist("user1", "GOOGL")
+
+        watchlist = store.get_watchlist("user1")
+        assert "GOOGL" in watchlist
+
+    def test_user_memory_store_risk_profile(self):
+        """Test UserMemoryStore risk_profile."""
+        from maverick_agents.memory import UserMemoryStore
+
+        store = UserMemoryStore()
+
+        profile = {"risk_tolerance": "aggressive", "time_horizon": "short"}
+        store.update_risk_profile("user1", profile)
+
+        result = store.get_risk_profile("user1")
+        assert result["risk_tolerance"] == "aggressive"
+
+    def test_import_from_main_package(self):
+        """Test importing memory stores from main package."""
+        from maverick_agents import ConversationStore, MemoryStore, UserMemoryStore
+
+        assert MemoryStore is not None
+        assert ConversationStore is not None
+        assert UserMemoryStore is not None
+
+
+class TestSentimentTools:
+    """Test sentiment analysis tools import and functionality."""
+
+    def test_import_news_sentiment_tool(self):
+        """Test importing NewsSentimentTool."""
+        from maverick_agents.tools import NewsSentimentTool
+
+        assert NewsSentimentTool is not None
+
+    def test_import_market_breadth_tool(self):
+        """Test importing MarketBreadthTool."""
+        from maverick_agents.tools import MarketBreadthTool
+
+        assert MarketBreadthTool is not None
+
+    def test_import_sector_sentiment_tool(self):
+        """Test importing SectorSentimentTool."""
+        from maverick_agents.tools import SectorSentimentTool
+
+        assert SectorSentimentTool is not None
+
+    def test_import_sentiment_input(self):
+        """Test importing SentimentInput."""
+        from maverick_agents.tools import SentimentInput
+
+        assert SentimentInput is not None
+
+    def test_import_market_breadth_input(self):
+        """Test importing MarketBreadthInput."""
+        from maverick_agents.tools import MarketBreadthInput
+
+        assert MarketBreadthInput is not None
+
+    def test_sentiment_input_creation(self):
+        """Test creating SentimentInput."""
+        from maverick_agents.tools import SentimentInput
+
+        input_obj = SentimentInput(symbol="AAPL", days_back=7)
+
+        assert input_obj.symbol == "AAPL"
+        assert input_obj.days_back == 7
+
+    def test_market_breadth_input_defaults(self):
+        """Test MarketBreadthInput defaults."""
+        from maverick_agents.tools import MarketBreadthInput
+
+        input_obj = MarketBreadthInput()
+
+        assert input_obj.index == "SPY"
+
+    def test_news_sentiment_tool_inherits_from_persona_aware(self):
+        """Test NewsSentimentTool inherits from PersonaAwareTool."""
+        from maverick_agents import PersonaAwareTool
+        from maverick_agents.tools import NewsSentimentTool
+
+        assert issubclass(NewsSentimentTool, PersonaAwareTool)
+
+    def test_market_breadth_tool_inherits_from_persona_aware(self):
+        """Test MarketBreadthTool inherits from PersonaAwareTool."""
+        from maverick_agents import PersonaAwareTool
+        from maverick_agents.tools import MarketBreadthTool
+
+        assert issubclass(MarketBreadthTool, PersonaAwareTool)
+
+    def test_sector_sentiment_tool_inherits_from_persona_aware(self):
+        """Test SectorSentimentTool inherits from PersonaAwareTool."""
+        from maverick_agents import PersonaAwareTool
+        from maverick_agents.tools import SectorSentimentTool
+
+        assert issubclass(SectorSentimentTool, PersonaAwareTool)
+
+    def test_news_sentiment_tool_has_run_method(self):
+        """Test NewsSentimentTool has _run method."""
+        from maverick_agents.tools import NewsSentimentTool
+
+        assert hasattr(NewsSentimentTool, "_run")
+
+    def test_market_breadth_tool_has_run_method(self):
+        """Test MarketBreadthTool has _run method."""
+        from maverick_agents.tools import MarketBreadthTool
+
+        assert hasattr(MarketBreadthTool, "_run")
+
+    def test_sector_sentiment_tool_has_run_method(self):
+        """Test SectorSentimentTool has _run method."""
+        from maverick_agents.tools import SectorSentimentTool
+
+        assert hasattr(SectorSentimentTool, "_run")
+
+    def test_import_protocols(self):
+        """Test importing protocol classes."""
+        from maverick_agents.tools import MarketDataProviderProtocol, SettingsProtocol
+
+        assert MarketDataProviderProtocol is not None
+        assert SettingsProtocol is not None
+
+    def test_news_sentiment_tool_creation(self):
+        """Test creating NewsSentimentTool instance."""
+        from maverick_agents.tools import NewsSentimentTool
+
+        tool = NewsSentimentTool()
+
+        assert tool.name == "analyze_news_sentiment"
+        assert "sentiment" in tool.description.lower()
+
+    def test_market_breadth_tool_creation(self):
+        """Test creating MarketBreadthTool instance."""
+        from maverick_agents.tools import MarketBreadthTool
+
+        tool = MarketBreadthTool()
+
+        assert tool.name == "analyze_market_breadth"
+        assert "breadth" in tool.description.lower()
+
+    def test_sector_sentiment_tool_creation(self):
+        """Test creating SectorSentimentTool instance."""
+        from maverick_agents.tools import SectorSentimentTool
+
+        tool = SectorSentimentTool()
+
+        assert tool.name == "analyze_sector_sentiment"
+        assert "sector" in tool.description.lower()
+
+    def test_import_from_main_package(self):
+        """Test importing sentiment tools from main package."""
+        from maverick_agents import (
+            MarketBreadthTool,
+            NewsSentimentTool,
+            SectorSentimentTool,
+        )
+
+        assert NewsSentimentTool is not None
+        assert MarketBreadthTool is not None
+        assert SectorSentimentTool is not None

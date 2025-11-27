@@ -5,6 +5,7 @@ AI/LLM agent orchestration for Maverick stock analysis.
 Provides research agents, market analysis agents, and multi-agent coordination.
 """
 
+from maverick_agents.analyzers import MarketAnalysisAgent, TechnicalAnalysisAgent
 from maverick_agents.base import BaseAgentState, PersonaAwareAgent
 from maverick_agents.circuit_breaker import (
     CircuitBreaker,
@@ -21,10 +22,24 @@ from maverick_agents.exceptions import (
     QueryClassificationError,
     SynthesisError,
 )
+from maverick_agents.llm import (
+    MODEL_PROFILES,
+    ModelProfile,
+    OpenRouterProvider,
+    TaskType,
+    check_ollama_available,
+    get_llm,
+    get_ollama_llm,
+    get_openrouter_llm,
+    list_ollama_models,
+)
+from maverick_agents.memory import ConversationStore, MemoryStore, UserMemoryStore
 from maverick_agents.personas import (
+    DEFAULT_CACHE_TTL_SECONDS,
     DEFAULT_PERSONA_PARAMS,
     INVESTOR_PERSONAS,
     InvestorPersona,
+    PersonaAwareTool,
     create_default_personas,
     get_persona,
 )
@@ -39,8 +54,11 @@ from maverick_agents.supervisor import (
     get_agent_weights,
     get_routing_config,
 )
-from maverick_agents.analyzers import MarketAnalysisAgent, TechnicalAnalysisAgent
-from maverick_agents.tools import DEFAULT_CACHE_TTL_SECONDS, PersonaAwareTool
+from maverick_agents.tools import (
+    MarketBreadthTool,
+    NewsSentimentTool,
+    SectorSentimentTool,
+)
 
 __all__ = [
     # Base classes
@@ -55,6 +73,9 @@ __all__ = [
     # Tools
     "PersonaAwareTool",
     "DEFAULT_CACHE_TTL_SECONDS",
+    "NewsSentimentTool",
+    "MarketBreadthTool",
+    "SectorSentimentTool",
     # Circuit breaker
     "CircuitBreaker",
     "CircuitBreakerManager",
@@ -81,4 +102,18 @@ __all__ = [
     # Analyzers
     "TechnicalAnalysisAgent",
     "MarketAnalysisAgent",
+    # LLM providers
+    "TaskType",
+    "ModelProfile",
+    "MODEL_PROFILES",
+    "OpenRouterProvider",
+    "get_openrouter_llm",
+    "get_ollama_llm",
+    "check_ollama_available",
+    "list_ollama_models",
+    "get_llm",
+    # Memory stores
+    "MemoryStore",
+    "ConversationStore",
+    "UserMemoryStore",
 ]
