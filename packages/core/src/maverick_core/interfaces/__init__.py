@@ -18,9 +18,10 @@ from maverick_core.interfaces.cache import (
     ICacheKeyGenerator,
 )
 from maverick_core.interfaces.persistence import (
-    IRepository,
-    IStockRepository,
     IPortfolioRepository,
+    IRepository,
+    IScreeningRepository,
+    IStockRepository,
 )
 from maverick_core.interfaces.technical import (
     ITechnicalAnalyzer,
@@ -52,6 +53,7 @@ __all__ = [
     "IRepository",
     "IStockRepository",
     "IPortfolioRepository",
+    "IScreeningRepository",
     # Technical Analysis
     "ITechnicalAnalyzer",
     # Market Calendar
