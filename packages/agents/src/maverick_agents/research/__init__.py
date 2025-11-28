@@ -45,6 +45,26 @@ from maverick_agents.research.subagents import (
     TechnicalResearchAgent,
 )
 
+# Optimization utilities
+from maverick_agents.research.optimization import (
+    AdaptiveModelSelector,
+    ConfidenceTracker,
+    IntelligentContentFilter,
+    ModelConfiguration,
+    OptimizedPromptEngine,
+    ParallelLLMProcessor,
+    ProgressiveTokenBudgeter,
+    ResearchPhase,
+    TokenAllocation,
+)
+
+# Optimized agents
+from maverick_agents.research.optimized import (
+    OptimizedContentAnalyzer,
+    OptimizedDeepResearchAgent,
+    create_optimized_research_agent,
+)
+
 __all__ = [
     # Config
     "RESEARCH_DEPTH_LEVELS",
@@ -82,4 +102,18 @@ __all__ = [
     "TechnicalResearchAgent",
     "SentimentResearchAgent",
     "CompetitiveResearchAgent",
+    # Optimization utilities
+    "AdaptiveModelSelector",
+    "ModelConfiguration",
+    "ProgressiveTokenBudgeter",
+    "ResearchPhase",
+    "TokenAllocation",
+    "ConfidenceTracker",
+    "IntelligentContentFilter",
+    "OptimizedPromptEngine",
+    "ParallelLLMProcessor",
+    # Optimized agents
+    "OptimizedContentAnalyzer",
+    "OptimizedDeepResearchAgent",
+    "create_optimized_research_agent",
 ]
