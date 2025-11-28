@@ -13,6 +13,23 @@ Zero external dependencies on frameworks like SQLAlchemy, Redis, or LangChain.
 # Domain entities
 from maverick_core.domain import Portfolio, Position
 
+# Technical analysis functions
+from maverick_core.technical import (
+    calculate_atr,
+    calculate_bollinger_bands,
+    calculate_ema,
+    calculate_macd,
+    calculate_momentum,
+    calculate_obv,
+    calculate_rate_of_change,
+    calculate_rsi,
+    calculate_sma,
+    calculate_stochastic,
+    calculate_support_resistance,
+    calculate_trend_strength,
+    calculate_williams_r,
+)
+
 # Exceptions
 from maverick_core.exceptions import (
     AgentError,
@@ -60,6 +77,20 @@ __all__ = [
     # Domain entities
     "Portfolio",
     "Position",
+    # Technical Analysis Functions
+    "calculate_sma",
+    "calculate_ema",
+    "calculate_rsi",
+    "calculate_stochastic",
+    "calculate_williams_r",
+    "calculate_macd",
+    "calculate_trend_strength",
+    "calculate_bollinger_bands",
+    "calculate_atr",
+    "calculate_momentum",
+    "calculate_rate_of_change",
+    "calculate_obv",
+    "calculate_support_resistance",
     # Interfaces - Stock Data
     "IStockDataFetcher",
     "IStockScreener",
