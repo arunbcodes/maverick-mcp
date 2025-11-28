@@ -3,45 +3,69 @@ Conference Call Analysis.
 
 Earnings call transcript fetching, summarization, and sentiment analysis.
 
-This module provides the core interfaces and protocols for conference call
-analysis. The interfaces are designed to be implemented by providers that
-can fetch and analyze earnings call transcripts.
+This module provides:
+- ConcallProvider: Abstract interface for transcript providers
+- CompanyIRProvider: Fetch transcripts from company IR websites
+- NSEProvider: Fetch transcripts from NSE exchange filings
+- TranscriptLoader utilities: Parse PDF, HTML, and text transcripts
 
-Note: Full implementations with database integration and AI analysis services
-are available in the main maverick_mcp.concall package. This module provides
-the independent, portable interface layer.
+Models (from maverick-data):
+- ConferenceCall: Main model for storing transcripts and analysis
+- CompanyIRMapping: Model for company IR website URL mappings
 
-Components:
-    - ConcallProvider: Abstract interface for transcript providers
-
-Future Integration:
-    When maverick-data and maverick-agents packages are complete, additional
-    components will be migrated:
-    - ConferenceCall model (from maverick-data)
-    - CompanyIRMapping model (from maverick-data)
-    - TranscriptFetcher service
-    - ConcallSummarizer service (requires maverick-agents)
-    - SentimentAnalyzer service (requires maverick-agents)
-    - ConcallRAGEngine (requires maverick-agents)
+Services (require LLM integration):
+- TranscriptFetcher: Orchestrates transcript fetching with fallback
+- ConcallSummarizer: AI-powered summarization (requires maverick-agents)
+- SentimentAnalyzer: Sentiment analysis (requires maverick-agents)
+- ConcallRAGEngine: RAG-based Q&A (requires maverick-agents)
 
 Example:
-    >>> from maverick_india.concall import ConcallProvider
+    >>> from maverick_india.concall import CompanyIRProvider, NSEProvider
     >>>
-    >>> class MyProvider(ConcallProvider):
-    ...     async def fetch_transcript(self, ticker, quarter, fiscal_year):
-    ...         # Implementation
-    ...         pass
-    ...
-    ...     def is_available(self, ticker):
-    ...         return True
-    ...
-    ...     @property
-    ...     def name(self):
-    ...         return "my_provider"
+    >>> # Fetch from company IR website
+    >>> ir_provider = CompanyIRProvider()
+    >>> transcript = await ir_provider.fetch_transcript("RELIANCE.NS", "Q1", 2025)
+    >>>
+    >>> # Fallback to NSE filings
+    >>> nse_provider = NSEProvider()
+    >>> transcript = await nse_provider.fetch_transcript("RELIANCE.NS", "Q1", 2025)
 """
 
-from maverick_india.concall.providers import ConcallProvider
+from maverick_india.concall.providers import (
+    CompanyIRProvider,
+    ConcallProvider,
+    NSEProvider,
+)
+from maverick_india.concall.services import (
+    SENTIMENT_ANALYSIS_PROMPT,
+    SUMMARIZATION_PROMPT,
+    ConcallSummarizer,
+    SentimentAnalyzer,
+    TranscriptFetcher,
+)
+from maverick_india.concall.utils import (
+    HTMLTranscriptLoader,
+    PDFTranscriptLoader,
+    TextTranscriptLoader,
+    TranscriptLoader,
+    TranscriptLoaderFactory,
+)
 
 __all__ = [
+    # Providers
     "ConcallProvider",
+    "CompanyIRProvider",
+    "NSEProvider",
+    # Services
+    "TranscriptFetcher",
+    "ConcallSummarizer",
+    "SentimentAnalyzer",
+    "SUMMARIZATION_PROMPT",
+    "SENTIMENT_ANALYSIS_PROMPT",
+    # Transcript Loaders
+    "TranscriptLoader",
+    "PDFTranscriptLoader",
+    "HTMLTranscriptLoader",
+    "TextTranscriptLoader",
+    "TranscriptLoaderFactory",
 ]
