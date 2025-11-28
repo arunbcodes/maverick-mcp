@@ -7,39 +7,14 @@ with automatic model selection based on task requirements.
 from __future__ import annotations
 
 import logging
-from enum import Enum
 from typing import Any
 
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
+from maverick_core import TaskType
+
 logger = logging.getLogger(__name__)
-
-
-class TaskType(str, Enum):
-    """Task types for model selection."""
-
-    # Analysis tasks
-    DEEP_RESEARCH = "deep_research"
-    MARKET_ANALYSIS = "market_analysis"
-    TECHNICAL_ANALYSIS = "technical_analysis"
-    SENTIMENT_ANALYSIS = "sentiment_analysis"
-    RISK_ASSESSMENT = "risk_assessment"
-
-    # Synthesis tasks
-    RESULT_SYNTHESIS = "result_synthesis"
-    PORTFOLIO_OPTIMIZATION = "portfolio_optimization"
-
-    # Query processing
-    QUERY_CLASSIFICATION = "query_classification"
-    QUICK_ANSWER = "quick_answer"
-
-    # Complex reasoning
-    COMPLEX_REASONING = "complex_reasoning"
-    MULTI_AGENT_ORCHESTRATION = "multi_agent_orchestration"
-
-    # Default
-    GENERAL = "general"
 
 
 class ModelProfile(BaseModel):
