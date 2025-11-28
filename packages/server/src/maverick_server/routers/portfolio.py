@@ -5,21 +5,17 @@ All portfolio logic and persistence lives in maverick-data.
 This router only defines MCP tool signatures and delegates.
 """
 
-from __future__ import annotations
-
 import logging
 from datetime import date
-from typing import TYPE_CHECKING, Any
+from typing import Any, Dict, Optional
 
+from fastmcp import FastMCP
 from maverick_core import Portfolio, Position
 from maverick_data import (
     PortfolioRepository,
     YFinanceProvider,
     get_db,
 )
-
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +28,11 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
         ticker: str,
         shares: float,
         purchase_price: float,
-        purchase_date: str | None = None,
-        notes: str | None = None,
+        purchase_date: Optional[str] = None,
+        notes: Optional[str] = None,
         user_id: str = "default",
         portfolio_name: str = "My Portfolio",
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Add a stock position to your portfolio.
 
         If the ticker already exists, it will average the cost basis.
@@ -100,7 +96,7 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
         user_id: str = "default",
         portfolio_name: str = "My Portfolio",
         include_current_prices: bool = True,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get your complete portfolio with all positions and performance.
 
         Args:
@@ -185,10 +181,10 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
     @mcp.tool()
     async def portfolio_remove_position(
         ticker: str,
-        shares: float | None = None,
+        shares: Optional[float] = None,
         user_id: str = "default",
         portfolio_name: str = "My Portfolio",
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Remove shares from a position in your portfolio.
 
         Args:
@@ -244,7 +240,7 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
         user_id: str = "default",
         portfolio_name: str = "My Portfolio",
         confirm: bool = False,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Clear all positions from your portfolio.
 
         CAUTION: This removes all positions. Cannot be undone.

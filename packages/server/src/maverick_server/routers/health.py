@@ -4,18 +4,15 @@ Health check router for system monitoring.
 Provides system health, performance metrics, and diagnostics.
 """
 
-from __future__ import annotations
-
 import logging
 import platform
 import sys
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any, Dict
+
+from fastmcp import FastMCP
 
 from maverick_server.config import get_settings
-
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +21,7 @@ def register_health_tools(mcp: FastMCP) -> None:
     """Register health check tools with MCP server."""
 
     @mcp.tool()
-    async def health_get_system_status() -> dict[str, Any]:
+    async def health_get_system_status() -> Dict[str, Any]:
         """Get comprehensive system health status.
 
         Returns system information, component status, and configuration.
@@ -79,7 +76,7 @@ def register_health_tools(mcp: FastMCP) -> None:
         }
 
     @mcp.tool()
-    async def health_get_configuration() -> dict[str, Any]:
+    async def health_get_configuration() -> Dict[str, Any]:
         """Get current server configuration (non-sensitive).
 
         Returns:
@@ -117,7 +114,7 @@ def register_health_tools(mcp: FastMCP) -> None:
         }
 
     @mcp.tool()
-    async def health_validate_configuration() -> dict[str, Any]:
+    async def health_validate_configuration() -> Dict[str, Any]:
         """Validate configuration and return warnings.
 
         Returns:
@@ -134,7 +131,7 @@ def register_health_tools(mcp: FastMCP) -> None:
         }
 
     @mcp.tool()
-    async def health_get_version_info() -> dict[str, Any]:
+    async def health_get_version_info() -> Dict[str, Any]:
         """Get version information for all components.
 
         Returns:

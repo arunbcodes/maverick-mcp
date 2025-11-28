@@ -5,11 +5,10 @@ All data fetching and caching lives in maverick-data.
 This router only defines MCP tool signatures and delegates.
 """
 
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any, Dict, List, Optional
 
+from fastmcp import FastMCP
 from maverick_data import (
     YFinanceProvider,
     CacheManager,
@@ -17,9 +16,6 @@ from maverick_data import (
     Stock,
     get_db,
 )
-
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 
@@ -30,9 +26,9 @@ def register_data_tools(mcp: FastMCP) -> None:
     @mcp.tool()
     async def data_fetch_stock_data(
         ticker: str,
-        start_date: str | None = None,
-        end_date: str | None = None,
-    ) -> dict[str, Any]:
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Fetch historical stock data for a given ticker.
 
         Uses intelligent caching to minimize API calls.
@@ -79,10 +75,10 @@ def register_data_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     async def data_fetch_stock_data_batch(
-        tickers: list[str],
-        start_date: str | None = None,
-        end_date: str | None = None,
-    ) -> dict[str, Any]:
+        tickers: List[str],
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Fetch historical data for multiple tickers.
 
         More efficient than calling fetch_stock_data multiple times.
@@ -128,7 +124,7 @@ def register_data_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
-    async def data_get_stock_info(ticker: str) -> dict[str, Any]:
+    async def data_get_stock_info(ticker: str) -> Dict[str, Any]:
         """Get detailed fundamental information about a stock.
 
         Args:
@@ -161,7 +157,7 @@ def register_data_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
-    async def data_get_chart_links(ticker: str) -> dict[str, Any]:
+    async def data_get_chart_links(ticker: str) -> Dict[str, Any]:
         """Provide links to various financial charting websites.
 
         Args:
@@ -184,7 +180,7 @@ def register_data_tools(mcp: FastMCP) -> None:
         }
 
     @mcp.tool()
-    async def data_clear_cache(ticker: str | None = None) -> dict[str, Any]:
+    async def data_clear_cache(ticker: Optional[str] = None) -> Dict[str, Any]:
         """Clear cached data for a specific ticker or all tickers.
 
         Args:

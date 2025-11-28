@@ -7,13 +7,10 @@ This router only defines MCP tool signatures and delegates.
 Note: Requires maverick-agents optional dependency.
 """
 
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any, Dict, List, Optional
 
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
+from fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +46,7 @@ def register_research_tools(mcp: FastMCP) -> None:
         research_scope: str = "standard",
         max_sources: int = 10,
         timeframe: str = "1m",
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Perform comprehensive research on any financial topic.
 
         Uses AI agents with web search for deep analysis.
@@ -100,7 +97,7 @@ def register_research_tools(mcp: FastMCP) -> None:
         symbol: str,
         include_competitive_analysis: bool = False,
         persona: str = "moderate",
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Perform comprehensive research on a specific company.
 
         Args:
@@ -142,7 +139,7 @@ def register_research_tools(mcp: FastMCP) -> None:
         topic: str,
         timeframe: str = "1w",
         persona: str = "moderate",
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Analyze market sentiment for a specific topic or sector.
 
         Args:

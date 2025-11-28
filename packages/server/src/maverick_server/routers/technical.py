@@ -7,11 +7,10 @@ All business logic lives in maverick-core. This router only:
 3. Delegates analysis to maverick-core functions
 """
 
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any, Dict
 
+from fastmcp import FastMCP
 from maverick_core import (
     calculate_bollinger_bands,
     calculate_macd,
@@ -19,9 +18,6 @@ from maverick_core import (
     calculate_support_resistance,
 )
 from maverick_data import YFinanceProvider
-
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +30,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
         ticker: str,
         period: int = 14,
         days: int = 365,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get RSI analysis for a given ticker.
 
         Args:
@@ -81,7 +77,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
         slow_period: int = 26,
         signal_period: int = 9,
         days: int = 365,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get MACD analysis for a given ticker.
 
         Args:
@@ -138,7 +134,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
     async def technical_get_support_resistance(
         ticker: str,
         days: int = 365,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get support and resistance levels for a given ticker.
 
         Args:
@@ -177,7 +173,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
         period: int = 20,
         std_dev: float = 2.0,
         days: int = 365,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get Bollinger Bands analysis for a given ticker.
 
         Args:

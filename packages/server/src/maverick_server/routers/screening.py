@@ -5,11 +5,10 @@ All screening logic and database access lives in maverick-data.
 This router only defines MCP tool signatures and delegates.
 """
 
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any, Dict
 
+from fastmcp import FastMCP
 from maverick_data import (
     MaverickStocks,
     MaverickBearStocks,
@@ -18,9 +17,6 @@ from maverick_data import (
     get_db,
 )
 
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
-
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +24,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
     """Register stock screening tools with MCP server."""
 
     @mcp.tool()
-    async def screening_get_maverick_stocks(limit: int = 20) -> dict[str, Any]:
+    async def screening_get_maverick_stocks(limit: int = 20) -> Dict[str, Any]:
         """Get top Maverick stocks from the screening results.
 
         The Maverick screening strategy identifies stocks with:
@@ -70,7 +66,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
-    async def screening_get_maverick_bear_stocks(limit: int = 20) -> dict[str, Any]:
+    async def screening_get_maverick_bear_stocks(limit: int = 20) -> Dict[str, Any]:
         """Get top Maverick Bear stocks from the screening results.
 
         The Maverick Bear screening identifies stocks with:
@@ -114,7 +110,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
     async def screening_get_supply_demand_breakouts(
         limit: int = 20,
         filter_moving_averages: bool = False,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get stocks showing supply/demand breakout patterns.
 
         This screening identifies stocks in the demand expansion phase with:
@@ -163,7 +159,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
-    async def screening_get_all_recommendations() -> dict[str, Any]:
+    async def screening_get_all_recommendations() -> Dict[str, Any]:
         """Get comprehensive screening results from all strategies.
 
         Returns the top stocks from each screening strategy:
