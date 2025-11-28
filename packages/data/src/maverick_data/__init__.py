@@ -75,6 +75,12 @@ from maverick_data.services import (
     MarketCalendarService,
 )
 
+# Market configuration
+from maverick_data.services.market_calendar import (
+    MARKET_CONFIGS,
+    get_market_from_symbol,
+)
+
 __all__ = [
     # Session management
     "get_db",
@@ -128,4 +134,7 @@ __all__ = [
     "YFinanceProvider",
     # Services
     "MarketCalendarService",
+    # Market configuration
+    "MARKET_CONFIGS",
+    "get_market_from_symbol",
 ]
