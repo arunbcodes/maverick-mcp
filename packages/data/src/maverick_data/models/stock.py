@@ -86,6 +86,28 @@ class Stock(Base, TimestampMixin):
     def __repr__(self):
         return f"<Stock(ticker={self.ticker_symbol}, name={self.company_name}, market={self.market})>"
 
+    def to_dict(self) -> dict:
+        """Convert stock model to dictionary for JSON serialization."""
+        return {
+            "stock_id": str(self.stock_id) if self.stock_id else None,
+            "ticker_symbol": self.ticker_symbol,
+            "company_name": self.company_name,
+            "description": self.description,
+            "market": self.market,
+            "exchange": self.exchange,
+            "country": self.country,
+            "currency": self.currency,
+            "sector": self.sector,
+            "industry": self.industry,
+            "isin": self.isin,
+            "market_cap": self.market_cap,
+            "shares_outstanding": self.shares_outstanding,
+            "is_etf": self.is_etf,
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
     @classmethod
     def get_or_create(
         cls,
