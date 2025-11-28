@@ -7,13 +7,10 @@ This router only defines MCP tool signatures and delegates.
 Note: Requires maverick-backtest optional dependency.
 """
 
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any, Dict, List, Optional
 
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
+from fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +40,13 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
     async def backtest_run(
         symbol: str,
         strategy: str = "sma_cross",
-        start_date: str | None = None,
-        end_date: str | None = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
         initial_capital: float = 10000,
-        fast_period: int | None = None,
-        slow_period: int | None = None,
-        period: int | None = None,
-    ) -> dict[str, Any]:
+        fast_period: Optional[int] = None,
+        slow_period: Optional[int] = None,
+        period: Optional[int] = None,
+    ) -> Dict[str, Any]:
         """Run a VectorBT backtest with specified strategy.
 
         Args:
@@ -110,10 +107,10 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
     @mcp.tool()
     async def backtest_compare_strategies(
         symbol: str,
-        strategies: list[str] | None = None,
-        start_date: str | None = None,
-        end_date: str | None = None,
-    ) -> dict[str, Any]:
+        strategies: Optional[List[str]] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Compare multiple strategies on the same symbol.
 
         Args:
@@ -169,7 +166,7 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
-    async def backtest_list_strategies() -> dict[str, Any]:
+    async def backtest_list_strategies() -> Dict[str, Any]:
         """List all available VectorBT strategies.
 
         Returns:
@@ -195,7 +192,7 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
-    async def backtest_parse_strategy(description: str) -> dict[str, Any]:
+    async def backtest_parse_strategy(description: str) -> Dict[str, Any]:
         """Parse natural language strategy description into parameters.
 
         Args:
