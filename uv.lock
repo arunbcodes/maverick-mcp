@@ -1910,19 +1910,33 @@ version = "0.1.0"
 source = { editable = "packages/india" }
 dependencies = [
     { name = "beautifulsoup4" },
+    { name = "cachetools" },
     { name = "feedparser" },
+    { name = "httpx" },
     { name = "langchain-chroma" },
     { name = "maverick-core" },
     { name = "maverick-data" },
+    { name = "pandas" },
+    { name = "ratelimit" },
+    { name = "requests" },
+    { name = "tenacity" },
+    { name = "yfinance" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12.3" },
+    { name = "cachetools", specifier = ">=5.3.0" },
     { name = "feedparser", specifier = ">=6.0.11" },
+    { name = "httpx", specifier = ">=0.27.0" },
     { name = "langchain-chroma", specifier = ">=0.1.0" },
     { name = "maverick-core", editable = "packages/core" },
     { name = "maverick-data", editable = "packages/data" },
+    { name = "pandas", specifier = ">=2.2.0" },
+    { name = "ratelimit", specifier = ">=2.2.1" },
+    { name = "requests", specifier = ">=2.31.0" },
+    { name = "tenacity", specifier = ">=8.2.3" },
+    { name = "yfinance", specifier = ">=0.2.38" },
 ]
 
 [[package]]
