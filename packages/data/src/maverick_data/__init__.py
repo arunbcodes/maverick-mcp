@@ -2,7 +2,7 @@
 Maverick Data Package.
 
 This package provides data access, caching, and persistence for Maverick stock analysis.
-It includes database models, repositories, cache providers, and data fetchers.
+It includes database models, repositories, cache providers, data providers, and services.
 """
 
 # Session management
@@ -57,6 +57,24 @@ from maverick_data.models import (
     PortfolioPosition,
 )
 
+# Repositories
+from maverick_data.repositories import (
+    StockRepository,
+    PortfolioRepository,
+    ScreeningRepository,
+)
+
+# Providers
+from maverick_data.providers import (
+    BaseStockProvider,
+    YFinanceProvider,
+)
+
+# Services
+from maverick_data.services import (
+    MarketCalendarService,
+)
+
 __all__ = [
     # Session management
     "get_db",
@@ -101,4 +119,13 @@ __all__ = [
     # Portfolio models
     "UserPortfolio",
     "PortfolioPosition",
+    # Repositories
+    "StockRepository",
+    "PortfolioRepository",
+    "ScreeningRepository",
+    # Providers
+    "BaseStockProvider",
+    "YFinanceProvider",
+    # Services
+    "MarketCalendarService",
 ]
