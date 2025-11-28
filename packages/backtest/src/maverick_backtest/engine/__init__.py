@@ -8,4 +8,9 @@ VectorBT-powered backtesting engine with support for:
 - Monte Carlo simulation
 """
 
-__all__: list[str] = []
+from maverick_backtest.engine.vectorbt_engine import IDataProvider, VectorBTEngine
+
+__all__ = [
+    "VectorBTEngine",
+    "IDataProvider",
+]

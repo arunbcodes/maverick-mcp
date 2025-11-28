@@ -1,11 +1,10 @@
-"""
-Backtest Analysis.
+"""Backtest result analysis utilities."""
 
-Performance analytics and reporting:
-- Sharpe, Sortino, Calmar ratios
-- Maximum drawdown analysis
-- Win rate and profit factor
-- Chart generation
-"""
+from maverick_backtest.analysis.analyzer import BacktestAnalyzer, convert_to_native
+from maverick_backtest.analysis.optimizer import StrategyOptimizer
 
-__all__: list[str] = []
+__all__ = [
+    "BacktestAnalyzer",
+    "StrategyOptimizer",
+    "convert_to_native",
+]
