@@ -1812,9 +1812,11 @@ dependencies = [
     { name = "maverick-core" },
     { name = "maverick-data" },
     { name = "numba" },
+    { name = "pandas" },
     { name = "plotly" },
     { name = "scikit-learn" },
     { name = "scipy" },
+    { name = "seaborn" },
     { name = "vectorbt" },
 ]
 
@@ -1824,9 +1826,11 @@ requires-dist = [
     { name = "maverick-core", editable = "packages/core" },
     { name = "maverick-data", editable = "packages/data" },
     { name = "numba", specifier = ">=0.60.0" },
+    { name = "pandas", specifier = ">=2.2.0" },
     { name = "plotly", specifier = ">=5.0.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.15.3" },
+    { name = "seaborn", specifier = ">=0.13.0" },
     { name = "vectorbt", specifier = ">=0.26.0" },
 ]
 
