@@ -23,6 +23,21 @@ dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.24.0",
 ]
+# Market data provider (finviz screener)
+market = [
+    "finvizfinance>=0.14.0",
+]
+# Macroeconomic data provider (FRED API)
+macro = [
+    "fredapi>=0.5.0",
+    "scikit-learn>=1.6.0",
+]
+# All optional providers
+all = [
+    "finvizfinance>=0.14.0",
+    "fredapi>=0.5.0",
+    "scikit-learn>=1.6.0",
+]
 
 [build-system]
 requires = ["hatchling"]

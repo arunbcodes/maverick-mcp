@@ -68,6 +68,10 @@ from maverick_data.repositories import (
 from maverick_data.providers import (
     BaseStockProvider,
     YFinanceProvider,
+    MarketDataProvider,
+    MacroDataProvider,
+    MARKET_INDICES,
+    SECTOR_ETFS,
 )
 
 # Services
@@ -132,6 +136,10 @@ __all__ = [
     # Providers
     "BaseStockProvider",
     "YFinanceProvider",
+    "MarketDataProvider",
+    "MacroDataProvider",
+    "MARKET_INDICES",
+    "SECTOR_ETFS",
     # Services
     "MarketCalendarService",
     # Market configuration
