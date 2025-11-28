@@ -12,6 +12,7 @@ from maverick_data.models.backtest import (
     WalkForwardTest,
 )
 from maverick_data.models.base import Base, TimestampMixin
+from maverick_data.models.concall import CompanyIRMapping, ConferenceCall
 from maverick_data.models.exchange_rate import ExchangeRate
 from maverick_data.models.news import NewsArticle
 from maverick_data.models.portfolio import PortfolioPosition, UserPortfolio
@@ -47,4 +48,7 @@ __all__ = [
     # Portfolio models
     "UserPortfolio",
     "PortfolioPosition",
+    # Conference call models
+    "ConferenceCall",
+    "CompanyIRMapping",
 ]
