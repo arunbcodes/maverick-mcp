@@ -15,7 +15,13 @@ import pytest
 from unittest.mock import Mock, patch
 from sqlalchemy.orm import Session
 
-from maverick_mcp.services.screening_service import ScreeningService
+# Try new package structure first, fall back to legacy
+try:
+    from maverick_data.services.screening import ScreeningService
+    MODULE_PATH = 'maverick_data.services.screening'
+except ImportError:
+    from maverick_mcp.services.screening_service import ScreeningService
+    MODULE_PATH = 'maverick_mcp.services.screening_service'
 
 
 class TestScreeningServiceInitialization:
@@ -51,7 +57,7 @@ class TestSessionManagement:
         assert session == mock_session
         assert should_close is False
     
-    @patch('maverick_mcp.services.screening_service.SessionLocal')
+    @patch(f'{MODULE_PATH}.SessionLocal')
     def test_creates_new_session_when_none_provided(self, mock_session_local):
         """Test that new session is created when none provided."""
         mock_new_session = Mock(spec=Session)
@@ -64,7 +70,7 @@ class TestSessionManagement:
         assert should_close is True
         mock_session_local.assert_called_once()
     
-    @patch('maverick_mcp.services.screening_service.SessionLocal')
+    @patch(f'{MODULE_PATH}.SessionLocal')
     def test_handles_session_creation_failure(self, mock_session_local):
         """Test error handling when session creation fails."""
         mock_session_local.side_effect = Exception("Database connection failed")
@@ -152,7 +158,7 @@ class TestGetMaverickRecommendations:
         
         assert result == []
     
-    @patch('maverick_mcp.services.screening_service.SessionLocal')
+    @patch(f'{MODULE_PATH}.SessionLocal')
     def test_closes_session_when_created_locally(self, mock_session_local):
         """Test that locally created sessions are closed."""
         mock_query = Mock()
@@ -293,7 +299,7 @@ class TestGetSupplyDemandBreakoutRecommendations:
 class TestGetAllScreeningRecommendations:
     """Test all-in-one screening."""
     
-    @patch('maverick_mcp.services.screening_service.get_latest_maverick_screening')
+    @patch(f'{MODULE_PATH}.get_latest_maverick_screening')
     def test_returns_all_recommendations_successfully(self, mock_get_latest):
         """Test successful retrieval of all recommendations."""
         mock_get_latest.return_value = {
@@ -322,7 +328,7 @@ class TestGetAllScreeningRecommendations:
         assert result["maverick_stocks"][0]["recommendation_type"] == "maverick_bullish"
         assert "reason" in result["maverick_stocks"][0]
     
-    @patch('maverick_mcp.services.screening_service.get_latest_maverick_screening')
+    @patch(f'{MODULE_PATH}.get_latest_maverick_screening')
     def test_handles_errors_gracefully(self, mock_get_latest):
         """Test error handling in all screening."""
         mock_get_latest.side_effect = Exception("Database error")
@@ -540,7 +546,7 @@ class TestEdgeCases:
         # Should not crash and return fallback
         assert isinstance(reason, str)
     
-    @patch('maverick_mcp.services.screening_service.get_latest_maverick_screening')
+    @patch(f'{MODULE_PATH}.get_latest_maverick_screening')
     def test_handles_missing_keys_in_all_screening(self, mock_get_latest):
         """Test handling of missing keys in all screening results."""
         mock_get_latest.return_value = {}  # Missing all keys

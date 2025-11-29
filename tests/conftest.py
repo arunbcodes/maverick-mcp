@@ -27,13 +27,24 @@ if not RUNNING_IN_DOCKER:
     from testcontainers.redis import RedisContainer
 
 # Add the parent directory to the path to enable imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.join(project_root, "packages/core/src"))
+sys.path.insert(0, os.path.join(project_root, "packages/data/src"))
+sys.path.insert(0, os.path.join(project_root, "packages/server/src"))
+sys.path.insert(0, os.path.join(project_root, "packages/backtest/src"))
+sys.path.insert(0, os.path.join(project_root, "packages/india/src"))
+sys.path.insert(0, os.path.join(project_root, "packages/agents/src"))
 
-from maverick_mcp.api.api_server import create_api_app
-
-# Import all models to ensure they're registered with Base
-from maverick_mcp.data.models import get_db
-from maverick_mcp.database.base import Base
+# Try new package structure first, fall back to legacy
+try:
+    from maverick_server.app import create_api_app
+    from maverick_data import get_db
+    from maverick_data.models import Base
+except ImportError:
+    from maverick_mcp.api.api_server import create_api_app
+    from maverick_mcp.data.models import get_db
+    from maverick_mcp.database.base import Base
 
 
 # Container fixtures (session scope for efficiency)

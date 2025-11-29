@@ -16,7 +16,13 @@ from datetime import datetime
 from unittest.mock import Mock, patch, MagicMock
 from sqlalchemy.orm import Session
 
-from maverick_mcp.services.stock_cache_manager import StockCacheManager
+# Try new package structure first, fall back to legacy
+try:
+    from maverick_data.services.stock_cache import StockCacheManager
+    MODULE_PATH = 'maverick_data.services.stock_cache'
+except ImportError:
+    from maverick_mcp.services.stock_cache_manager import StockCacheManager
+    MODULE_PATH = 'maverick_mcp.services.stock_cache_manager'
 
 
 class TestStockCacheManagerInitialization:
@@ -52,7 +58,7 @@ class TestSessionManagement:
         assert session == mock_session
         assert should_close is False
     
-    @patch('maverick_mcp.services.stock_cache_manager.SessionLocal')
+    @patch(f'{MODULE_PATH}.SessionLocal')
     def test_creates_new_session_when_none_provided(self, mock_session_local):
         """Test that new session is created when none provided."""
         mock_new_session = Mock(spec=Session)
@@ -65,7 +71,7 @@ class TestSessionManagement:
         assert should_close is True
         mock_session_local.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_cache_manager.SessionLocal')
+    @patch(f'{MODULE_PATH}.SessionLocal')
     def test_handles_session_creation_failure(self, mock_session_local):
         """Test error handling when session creation fails."""
         mock_session_local.side_effect = Exception("Database connection failed")
@@ -79,7 +85,7 @@ class TestSessionManagement:
 class TestGetCachedData:
     """Test cache retrieval operations."""
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_retrieves_cached_data_successfully(self, mock_price_cache):
         """Test successful cache retrieval."""
         # Setup mock data
@@ -106,7 +112,7 @@ class TestGetCachedData:
         assert "Close" in result.columns
         assert "Volume" in result.columns
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_returns_none_for_cache_miss(self, mock_price_cache):
         """Test that None is returned when no cached data exists."""
         mock_price_cache.get_price_data.return_value = pd.DataFrame()
@@ -118,7 +124,7 @@ class TestGetCachedData:
         
         assert result is None
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_uppercases_symbol(self, mock_price_cache):
         """Test that symbol is uppercased before query."""
         mock_df = pd.DataFrame({
@@ -141,7 +147,7 @@ class TestGetCachedData:
             mock_session, "AAPL", "2024-01-01", "2024-01-31"
         )
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_adds_dividend_and_splits_columns(self, mock_price_cache):
         """Test that Dividends and Stock Splits columns are added."""
         mock_df = pd.DataFrame({
@@ -164,7 +170,7 @@ class TestGetCachedData:
         assert result["Dividends"].iloc[0] == 0.0
         assert result["Stock Splits"].iloc[0] == 0.0
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_handles_errors_gracefully(self, mock_price_cache):
         """Test error handling during cache retrieval."""
         mock_price_cache.get_price_data.side_effect = Exception("Database error")
@@ -176,8 +182,8 @@ class TestGetCachedData:
         
         assert result is None
     
-    @patch('maverick_mcp.services.stock_cache_manager.SessionLocal')
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.SessionLocal')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_closes_session_when_created_locally(self, mock_price_cache, mock_session_local):
         """Test that locally created sessions are closed."""
         mock_session = Mock(spec=Session)
@@ -193,7 +199,7 @@ class TestGetCachedData:
 class TestCacheData:
     """Test cache storage operations."""
     
-    @patch('maverick_mcp.services.stock_cache_manager.bulk_insert_price_data')
+    @patch(f'{MODULE_PATH}.bulk_insert_price_data')
     def test_caches_data_successfully(self, mock_bulk_insert):
         """Test successful data caching."""
         mock_bulk_insert.return_value = 10
@@ -228,7 +234,7 @@ class TestCacheData:
         # Should not attempt to cache
         manager._ensure_stock_exists.assert_not_called()
     
-    @patch('maverick_mcp.services.stock_cache_manager.bulk_insert_price_data')
+    @patch(f'{MODULE_PATH}.bulk_insert_price_data')
     def test_uppercases_symbol(self, mock_bulk_insert):
         """Test that symbol is uppercased before caching."""
         mock_bulk_insert.return_value = 1
@@ -250,7 +256,7 @@ class TestCacheData:
         # Verify stock existence check used uppercase
         manager._ensure_stock_exists.assert_called_with(mock_session, "AAPL")
     
-    @patch('maverick_mcp.services.stock_cache_manager.bulk_insert_price_data')
+    @patch(f'{MODULE_PATH}.bulk_insert_price_data')
     def test_renames_columns_to_lowercase(self, mock_bulk_insert):
         """Test that column names are converted to lowercase."""
         captured_df = None
@@ -282,7 +288,7 @@ class TestCacheData:
         assert 'close' in captured_df.columns
         assert 'volume' in captured_df.columns
     
-    @patch('maverick_mcp.services.stock_cache_manager.bulk_insert_price_data')
+    @patch(f'{MODULE_PATH}.bulk_insert_price_data')
     def test_handles_errors_with_rollback(self, mock_bulk_insert):
         """Test error handling with session rollback."""
         mock_bulk_insert.side_effect = Exception("Insert failed")
@@ -303,8 +309,8 @@ class TestCacheData:
         
         mock_session.rollback.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_cache_manager.SessionLocal')
-    @patch('maverick_mcp.services.stock_cache_manager.bulk_insert_price_data')
+    @patch(f'{MODULE_PATH}.SessionLocal')
+    @patch(f'{MODULE_PATH}.bulk_insert_price_data')
     def test_closes_session_when_created_locally(self, mock_bulk_insert, mock_session_local):
         """Test that locally created sessions are closed."""
         mock_bulk_insert.return_value = 1
@@ -330,7 +336,7 @@ class TestCacheData:
 class TestInvalidateCache:
     """Test cache invalidation operations."""
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_invalidates_specific_symbol(self, mock_price_cache):
         """Test invalidation of cache for a specific symbol."""
         mock_query = Mock()
@@ -348,7 +354,7 @@ class TestInvalidateCache:
         mock_session.query.assert_called_once_with(mock_price_cache)
         mock_session.commit.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_invalidates_all_symbols(self, mock_price_cache):
         """Test invalidation of all cache."""
         mock_query = Mock()
@@ -364,7 +370,7 @@ class TestInvalidateCache:
         mock_session.query.assert_called_once_with(mock_price_cache)
         mock_session.commit.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_uppercases_symbol_for_invalidation(self, mock_price_cache):
         """Test that symbol is uppercased before invalidation."""
         mock_query = Mock()
@@ -382,7 +388,7 @@ class TestInvalidateCache:
         # Should have been called with uppercase in the filter
         mock_query.filter.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_handles_errors_with_rollback(self, mock_price_cache):
         """Test error handling during invalidation."""
         mock_query = Mock()
@@ -399,8 +405,8 @@ class TestInvalidateCache:
         
         mock_session.rollback.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
-    @patch('maverick_mcp.services.stock_cache_manager.SessionLocal')
+    @patch(f'{MODULE_PATH}.PriceCache')
+    @patch(f'{MODULE_PATH}.SessionLocal')
     def test_closes_session_when_created_locally(self, mock_session_local, mock_price_cache):
         """Test that locally created sessions are closed."""
         mock_query = Mock()
@@ -420,7 +426,7 @@ class TestInvalidateCache:
 class TestEnsureStockExists:
     """Test stock existence checking."""
     
-    @patch('maverick_mcp.services.stock_cache_manager.Stock')
+    @patch(f'{MODULE_PATH}.Stock')
     def test_calls_get_or_create(self, mock_stock):
         """Test that Stock.get_or_create is called."""
         mock_session = Mock(spec=Session)
@@ -437,7 +443,7 @@ class TestEnsureStockExists:
 class TestDataTypeHandling:
     """Test data type conversions and column mapping."""
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_converts_price_columns_to_float64(self, mock_price_cache):
         """Test that price columns are converted to float64."""
         from decimal import Decimal
@@ -462,7 +468,7 @@ class TestDataTypeHandling:
         assert result["Low"].dtype == 'float64'
         assert result["Close"].dtype == 'float64'
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_converts_volume_to_int64(self, mock_price_cache):
         """Test that Volume column is converted to int64."""
         mock_df = pd.DataFrame({
@@ -482,7 +488,7 @@ class TestDataTypeHandling:
         
         assert result["Volume"].dtype == 'int64'
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_ensures_timezone_naive_index(self, mock_price_cache):
         """Test that index is timezone-naive."""
         # Create timezone-aware index
@@ -509,7 +515,7 @@ class TestDataTypeHandling:
 class TestEdgeCases:
     """Test edge cases and boundary conditions."""
     
-    @patch('maverick_mcp.services.stock_cache_manager.PriceCache')
+    @patch(f'{MODULE_PATH}.PriceCache')
     def test_handles_missing_columns_gracefully(self, mock_price_cache):
         """Test handling of DataFrames with missing expected columns."""
         # DataFrame with only required columns
@@ -529,13 +535,13 @@ class TestEdgeCases:
         assert "Open" in result.columns
         assert "Close" in result.columns
     
-    @patch('maverick_mcp.services.stock_cache_manager.bulk_insert_price_data')
+    @patch(f'{MODULE_PATH}.bulk_insert_price_data')
     def test_logs_when_no_records_cached(self, mock_bulk_insert, caplog):
         """Test logging when no new records are inserted."""
         import logging
         
         # Set log level to DEBUG to capture debug messages
-        caplog.set_level(logging.DEBUG, logger='maverick_mcp.services.stock_cache_manager')
+        caplog.set_level(logging.DEBUG, logger=MODULE_PATH)
         
         mock_bulk_insert.return_value = 0  # No records inserted
         

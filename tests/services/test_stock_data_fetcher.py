@@ -17,13 +17,19 @@ import pandas as pd
 from datetime import datetime
 from unittest.mock import Mock, patch, MagicMock
 
-from maverick_mcp.services.stock_data_fetcher import StockDataFetcher
+# Try new package structure first, fall back to legacy
+try:
+    from maverick_data.services.stock_fetcher import StockDataFetcher
+    MODULE_PATH = 'maverick_data.services.stock_fetcher'
+except ImportError:
+    from maverick_mcp.services.stock_data_fetcher import StockDataFetcher
+    MODULE_PATH = 'maverick_mcp.services.stock_data_fetcher'
 
 
 class TestStockDataFetcherInitialization:
     """Test initialization and setup."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_initializes_with_yfinance_pool(self, mock_get_pool):
         """Test that fetcher initializes with yfinance pool."""
         mock_pool = Mock()
@@ -34,7 +40,7 @@ class TestStockDataFetcherInitialization:
         assert fetcher._yf_pool == mock_pool
         mock_get_pool.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_logs_initialization(self, mock_get_pool, caplog):
         """Test that initialization is logged."""
         mock_get_pool.return_value = Mock()
@@ -47,7 +53,7 @@ class TestStockDataFetcherInitialization:
 class TestFetchStockData:
     """Test historical stock data fetching."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_fetches_historical_data_successfully(self, mock_get_pool):
         """Test successful historical data fetch."""
         mock_df = pd.DataFrame({
@@ -71,7 +77,7 @@ class TestFetchStockData:
         assert result.index.name == "Date"
         mock_pool.get_history.assert_called_once()
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_handles_empty_dataframe(self, mock_get_pool):
         """Test handling of empty DataFrame response."""
         mock_pool = Mock()
@@ -84,7 +90,7 @@ class TestFetchStockData:
         assert result.empty
         assert list(result.columns) == ["Open", "High", "Low", "Close", "Volume"]
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_adds_missing_columns(self, mock_get_pool):
         """Test that missing columns are added with default values."""
         # DataFrame missing some columns
@@ -106,7 +112,7 @@ class TestFetchStockData:
         assert result["High"].iloc[0] == 0.0
         assert result["Volume"].iloc[0] == 0
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_supports_period_parameter(self, mock_get_pool):
         """Test data fetching with period parameter."""
         mock_df = pd.DataFrame({
@@ -128,7 +134,7 @@ class TestFetchStockData:
         call_kwargs = mock_pool.get_history.call_args.kwargs
         assert call_kwargs.get("period") == "1mo"
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_supports_interval_parameter(self, mock_get_pool):
         """Test data fetching with different intervals."""
         mock_df = pd.DataFrame({
@@ -154,7 +160,7 @@ class TestFetchStockData:
 class TestFetchStockInfo:
     """Test stock information fetching."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_fetches_stock_info_successfully(self, mock_get_pool):
         """Test successful stock info fetch."""
         mock_info = {
@@ -182,7 +188,7 @@ class TestFetchStockInfo:
 class TestFetchRealtimeData:
     """Test real-time data fetching."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_fetches_realtime_data_successfully(self, mock_get_pool):
         """Test successful real-time data fetch."""
         mock_df = pd.DataFrame({
@@ -211,7 +217,7 @@ class TestFetchRealtimeData:
         assert result["volume"] == 1000000
         assert "timestamp" in result
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_handles_missing_previous_close(self, mock_get_pool):
         """Test handling when previousClose is not available."""
         mock_df_2d = pd.DataFrame({
@@ -238,7 +244,7 @@ class TestFetchRealtimeData:
         assert result["price"] == 102.0
         assert result["change"] == 2.0  # 102 - 100
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_returns_none_for_empty_data(self, mock_get_pool):
         """Test that None is returned for empty real-time data."""
         mock_pool = Mock()
@@ -250,7 +256,7 @@ class TestFetchRealtimeData:
         
         assert result is None
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_handles_errors_gracefully(self, mock_get_pool):
         """Test error handling in real-time data fetch."""
         mock_pool = Mock()
@@ -266,7 +272,7 @@ class TestFetchRealtimeData:
 class TestFetchMultipleRealtime:
     """Test batch real-time data fetching."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_fetches_multiple_symbols(self, mock_get_pool):
         """Test fetching real-time data for multiple symbols."""
         mock_df1 = pd.DataFrame({
@@ -291,7 +297,7 @@ class TestFetchMultipleRealtime:
         assert "AAPL" in result
         assert "GOOGL" in result
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
     def test_skips_failed_symbols(self, mock_get_pool):
         """Test that failed symbols are skipped."""
         mock_df = pd.DataFrame({
@@ -316,8 +322,8 @@ class TestFetchMultipleRealtime:
 class TestFetchNews:
     """Test news fetching."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_fetches_news_successfully(self, mock_ticker_class, mock_get_pool):
         """Test successful news fetch."""
         mock_news = [
@@ -351,8 +357,8 @@ class TestFetchNews:
         assert "publisher" in result.columns
         assert result.iloc[0]["title"] == "Apple releases new product"
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_handles_no_news_available(self, mock_ticker_class, mock_get_pool):
         """Test handling when no news is available."""
         mock_ticker = Mock()
@@ -367,8 +373,8 @@ class TestFetchNews:
         assert result.empty
         assert "title" in result.columns
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_respects_limit_parameter(self, mock_ticker_class, mock_get_pool):
         """Test that limit parameter is respected."""
         mock_news = [
@@ -387,8 +393,8 @@ class TestFetchNews:
         
         assert len(result) == 5
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_handles_errors_gracefully(self, mock_ticker_class, mock_get_pool):
         """Test error handling in news fetch."""
         mock_ticker_class.side_effect = Exception("API error")
@@ -404,8 +410,8 @@ class TestFetchNews:
 class TestFetchEarnings:
     """Test earnings data fetching."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_fetches_earnings_successfully(self, mock_ticker_class, mock_get_pool):
         """Test successful earnings fetch."""
         mock_earnings = pd.DataFrame({"Earnings": [1.5, 1.7]})
@@ -426,8 +432,8 @@ class TestFetchEarnings:
         assert "earnings_trend" in result
         assert result["earnings_trend"] == {"trend": "positive"}
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_handles_missing_earnings_data(self, mock_ticker_class, mock_get_pool):
         """Test handling when earnings data is missing."""
         mock_ticker = Mock()
@@ -444,8 +450,8 @@ class TestFetchEarnings:
         assert result["earnings_dates"] == {}
         assert result["earnings_trend"] == {}
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_handles_errors_gracefully(self, mock_ticker_class, mock_get_pool):
         """Test error handling in earnings fetch."""
         mock_ticker_class.side_effect = Exception("API error")
@@ -460,8 +466,8 @@ class TestFetchEarnings:
 class TestFetchRecommendations:
     """Test analyst recommendations fetching."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_fetches_recommendations_successfully(self, mock_ticker_class, mock_get_pool):
         """Test successful recommendations fetch."""
         mock_recommendations = pd.DataFrame({
@@ -484,8 +490,8 @@ class TestFetchRecommendations:
         assert "firm" in result.columns
         assert result.iloc[0]["firm"] == "Goldman Sachs"
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_handles_no_recommendations(self, mock_ticker_class, mock_get_pool):
         """Test handling when no recommendations are available."""
         mock_ticker = Mock()
@@ -499,8 +505,8 @@ class TestFetchRecommendations:
         assert isinstance(result, pd.DataFrame)
         assert result.empty
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_handles_errors_gracefully(self, mock_ticker_class, mock_get_pool):
         """Test error handling in recommendations fetch."""
         mock_ticker_class.side_effect = Exception("API error")
@@ -516,8 +522,8 @@ class TestFetchRecommendations:
 class TestIsETF:
     """Test ETF detection."""
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_detects_etf_from_quote_type(self, mock_ticker_class, mock_get_pool):
         """Test ETF detection from quoteType field."""
         mock_ticker = Mock()
@@ -530,8 +536,8 @@ class TestIsETF:
         
         assert result is True
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_detects_common_etf_symbols(self, mock_ticker_class, mock_get_pool):
         """Test ETF detection for common ETF symbols."""
         mock_ticker = Mock()
@@ -546,8 +552,8 @@ class TestIsETF:
         assert fetcher.is_etf("QQQ") is True
         assert fetcher.is_etf("XLF") is True
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_detects_etf_from_name(self, mock_ticker_class, mock_get_pool):
         """Test ETF detection from long name."""
         mock_ticker = Mock()
@@ -560,8 +566,8 @@ class TestIsETF:
         
         assert result is True
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_returns_false_for_regular_stock(self, mock_ticker_class, mock_get_pool):
         """Test that regular stocks are not detected as ETFs."""
         mock_ticker = Mock()
@@ -574,8 +580,8 @@ class TestIsETF:
         
         assert result is False
     
-    @patch('maverick_mcp.services.stock_data_fetcher.get_yfinance_pool')
-    @patch('maverick_mcp.services.stock_data_fetcher.yf.Ticker')
+    @patch(f'{MODULE_PATH}.get_yfinance_pool')
+    @patch(f'{MODULE_PATH}.yf.Ticker')
     def test_handles_errors_gracefully(self, mock_ticker_class, mock_get_pool):
         """Test error handling in ETF detection."""
         mock_ticker_class.side_effect = Exception("API error")
