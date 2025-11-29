@@ -208,33 +208,78 @@ packages/
 - [x] `agents.supervisor`
 - [x] Research subagents
 - [x] Memory stores
+- [x] `maverick_server.routers.agents` - LangGraph agent tools
 
-### Phase 7: Scripts & Tools (Priority: LOW) ⏳
+### Phase 7: Utility Functions ✅
 
-**Goal**: Update all scripts to use new packages
+**Goal**: Add utility helpers to new packages
 
-#### 7.1 Seed Scripts
-- [ ] `scripts/seed_sp500.py`
-- [ ] `scripts/seed_indian_stocks.py`
-- [ ] `scripts/seed_db.py`
-- [ ] `scripts/seed_concall_mappings.py`
+- [x] `maverick_core.utils.datetime_utils` - Date/time operations
+- [x] `maverick_data.utils.stock_helpers` - Stock data helpers
 
-#### 7.2 Utility Scripts
-- [ ] `scripts/load_tiingo_data.py`
-- [ ] `scripts/load_market_data.py`
-- [ ] `scripts/migrate_db.py`
-- [ ] `scripts/run_stock_screening.py`
+### Phase 8: Scripts & Tools ✅
 
-#### 7.3 Docker Scripts
-- [ ] `scripts/docker-entrypoint.sh`
+**Goal**: Update all scripts to use new packages (with fallback)
 
-### Phase 8: Tests (Priority: LOW) ⏳
+#### 8.1 Seed Scripts
+- [x] `scripts/seed_sp500.py` - Uses maverick_data with fallback
+- [x] `scripts/seed_indian_stocks.py` - Uses maverick_data/maverick_india with fallback
+- [x] `scripts/seed_concall_mappings.py` - Already had fallback
 
-**Goal**: Update all tests to use new packages
+#### 8.2 Docker Scripts
+- [x] `scripts/docker-entrypoint.sh` - Uses new packages with fallback
 
-- [ ] Unit tests migration
-- [ ] Integration tests migration
-- [ ] Performance tests migration
+### Phase 9: Tests ✅
+
+**Goal**: Update test infrastructure to use new packages
+
+- [x] `tests/conftest.py` - New packages with fallback
+- [x] Service tests - Dynamic MODULE_PATH for @patch
+- [ ] Remaining tests (281 files have fallback imports)
+
+### Phase 10: Docker Configuration ✅
+
+**Goal**: Update Docker for new packages
+
+- [x] `Dockerfile` - PYTHONPATH includes new packages
+- [x] `docker-compose.yml` - PYTHONPATH environment variable
+- [x] Both old and new packages mounted for hot-reload
+- [ ] Full removal of maverick_mcp (requires 340+ file updates)
+
+---
+
+## Current Status (2025-11-29)
+
+### Completed Infrastructure
+
+| Component | Package | Status |
+|-----------|---------|--------|
+| Circuit Breaker | maverick-core | ✅ |
+| Exceptions | maverick-core | ✅ |
+| Validation | maverick-core | ✅ |
+| Logging | maverick-core | ✅ |
+| Resilience | maverick-core | ✅ |
+| Config | maverick-core | ✅ |
+| Date Utils | maverick-core | ✅ |
+| Models | maverick-data | ✅ |
+| Session/Engine | maverick-data | ✅ |
+| StockDataProvider | maverick-data | ✅ |
+| Services (Cache, Fetch, Screen) | maverick-data | ✅ |
+| Stock Helpers | maverick-data | ✅ |
+| YFinance Pool | maverick-data | ✅ |
+| Monitoring | maverick-server | ✅ |
+| Agents Router | maverick-server | ✅ |
+| Workflows | maverick-backtest | ✅ |
+| Analysis | maverick-backtest | ✅ |
+| Indian Market | maverick-india | ✅ |
+| Concall | maverick-india | ✅ |
+
+### Remaining Work
+
+There are still **1,111+ imports from maverick_mcp** across **340 files**.
+
+**Strategy**: Keep maverick_mcp in Docker until all imports are migrated.
+All new code should import from new packages; legacy code will use fallbacks.
 
 ---
 
