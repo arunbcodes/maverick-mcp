@@ -22,15 +22,29 @@ import yfinance as yf  # noqa: E402
 from sqlalchemy import create_engine, text  # noqa: E402
 from sqlalchemy.orm import sessionmaker  # noqa: E402
 
-from maverick_mcp.data.models import (  # noqa: E402
-    MaverickBearStocks,
-    MaverickStocks,
-    PriceCache,
-    Stock,
-    SupplyDemandBreakoutStocks,
-    TechnicalCache,
-    bulk_insert_screening_data,
-)
+# Try new package structure first, fall back to legacy
+try:
+    from maverick_data import (  # noqa: E402
+        MaverickBearStocks,
+        MaverickStocks,
+        PriceCache,
+        Stock,
+        SupplyDemandBreakoutStocks,
+        TechnicalCache,
+        bulk_insert_screening_data,
+    )
+    from maverick_data.models import Base  # noqa: E402
+except ImportError:
+    from maverick_mcp.data.models import (  # noqa: E402
+        MaverickBearStocks,
+        MaverickStocks,
+        PriceCache,
+        Stock,
+        SupplyDemandBreakoutStocks,
+        TechnicalCache,
+        bulk_insert_screening_data,
+    )
+    from maverick_mcp.database.base import Base  # noqa: E402
 
 # Set up logging
 logging.basicConfig(
@@ -462,7 +476,6 @@ def main():
 
     # Ensure database schema exists before seeding
     logger.info("Ensuring database schema is up to date...")
-    from maverick_mcp.database.base import Base
     Base.metadata.create_all(bind=engine)
     logger.info("✓ Database schema verified")
 
