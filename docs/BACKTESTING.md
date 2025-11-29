@@ -22,7 +22,7 @@ run_backtest("MSFT", "macd", fast_period=12, slow_period=26, signal_period=9)
 ### Parallel Execution (6-8x Performance Boost)
 
 ```python
-from maverick_mcp.backtesting.strategy_executor import ExecutionContext, get_strategy_executor
+from maverick_backtest import ExecutionContext, get_strategy_executor
 
 # Create execution contexts for multiple strategies
 contexts = [
@@ -198,7 +198,7 @@ The system automatically creates optimized indexes for fast data retrieval:
 ### Batch Data Fetching
 
 ```python
-from maverick_mcp.backtesting.strategy_executor import batch_fetch_stock_data
+from maverick_backtest import batch_fetch_stock_data
 
 # Fetch data for multiple symbols efficiently
 symbols = ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA"]
@@ -268,7 +268,7 @@ Enable detailed logging for troubleshooting:
 
 ```python
 import logging
-logging.getLogger("maverick_mcp.backtesting").setLevel(logging.DEBUG)
+logging.getLogger("maverick_backtest").setLevel(logging.DEBUG)
 ```
 
 ## Performance Metrics
@@ -350,7 +350,7 @@ optimization for the best parameters over the last 2 years"
 ### Programmatic Usage
 
 ```python
-from maverick_mcp.backtesting import BacktestingEngine
+from maverick_backtest import BacktestingEngine
 
 async def run_comprehensive_analysis():
     engine = BacktestingEngine()

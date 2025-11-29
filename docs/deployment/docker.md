@@ -611,7 +611,7 @@ docker-compose logs backend
 docker-compose exec postgres psql -U postgres -c "SELECT 1;"
 
 # Check backend can connect
-docker-compose exec backend python -c "from maverick_mcp.data.session_management import get_session; print(get_session())"
+docker-compose exec backend python -c "from maverick_data import get_session; print(get_session())"
 ```
 
 **Common issues:**

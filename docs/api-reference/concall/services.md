@@ -43,7 +43,7 @@ def get_transcript(
 
 **Example**:
 ```python
-from maverick_mcp.concall.services.transcript_service import TranscriptService
+from maverick_india.concall.services.transcript_service import TranscriptService
 
 service = TranscriptService()
 
@@ -150,7 +150,7 @@ def summarize(
 
 **Example**:
 ```python
-from maverick_mcp.concall.services.summarization_service import SummarizationService
+from maverick_india.concall.services.summarization_service import SummarizationService
 
 service = SummarizationService()
 
@@ -249,7 +249,7 @@ How risks are discussed:
 
 **Example**:
 ```python
-from maverick_mcp.concall.services.sentiment_service import SentimentService
+from maverick_india.concall.services.sentiment_service import SentimentService
 
 service = SentimentService()
 
@@ -311,7 +311,7 @@ def setup_rag(
 
 **Example**:
 ```python
-from maverick_mcp.concall.services.rag_service import RAGService
+from maverick_india.concall.services.rag_service import RAGService
 
 service = RAGService()
 
@@ -401,7 +401,7 @@ def compare_quarters(
 
 **Example**:
 ```python
-from maverick_mcp.concall.services.comparison_service import ComparisonService
+from maverick_india.concall.services.comparison_service import ComparisonService
 
 service = ComparisonService()
 

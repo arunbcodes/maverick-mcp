@@ -122,7 +122,7 @@ Production Redis cache with connection pooling.
 
 **Initialization**:
 ```python
-from maverick_mcp.concall.cache.backends import RedisCacheBackend
+from maverick_india.concall.cache.backends import RedisCacheBackend
 
 cache = RedisCacheBackend(
     host="localhost",
@@ -149,7 +149,7 @@ cache = RedisCacheBackend(
 
 **Example**:
 ```python
-from maverick_mcp.concall.cache.backends import RedisCacheBackend
+from maverick_india.concall.cache.backends import RedisCacheBackend
 
 # Initialize
 cache = RedisCacheBackend(host="localhost", port=6379)
@@ -178,7 +178,7 @@ In-memory cache for development and fallback.
 
 **Initialization**:
 ```python
-from maverick_mcp.concall.cache.backends import InMemoryCacheBackend
+from maverick_india.concall.cache.backends import InMemoryCacheBackend
 
 cache = InMemoryCacheBackend(max_size=1000)
 ```
@@ -195,7 +195,7 @@ cache = InMemoryCacheBackend(max_size=1000)
 
 **Example**:
 ```python
-from maverick_mcp.concall.cache.backends import InMemoryCacheBackend
+from maverick_india.concall.cache.backends import InMemoryCacheBackend
 
 # Initialize
 cache = InMemoryCacheBackend(max_size=500)
@@ -217,7 +217,7 @@ High-level domain-specific caching API.
 
 **Initialization**:
 ```python
-from maverick_mcp.concall.cache.cache_service import ConcallCacheService
+from maverick_india.concall.cache.cache_service import ConcallCacheService
 
 # Auto-detects Redis, falls back to in-memory
 service = ConcallCacheService()
@@ -471,7 +471,7 @@ def generate_transcript_key(
 
 **Example**:
 ```python
-from maverick_mcp.concall.cache.key_generator import CacheKeyGenerator
+from maverick_india.concall.cache.key_generator import CacheKeyGenerator
 
 key = CacheKeyGenerator.generate_transcript_key("AAPL", "Q4", 2024)
 print(key)  # "concall:transcript:AAPL:Q4:2024:v1"
@@ -586,8 +586,8 @@ print(parsed)
 ### TranscriptFetcher Integration
 
 ```python
-from maverick_mcp.concall.cache.cache_service import ConcallCacheService
-from maverick_mcp.concall.services.transcript_fetcher import TranscriptFetcher
+from maverick_india.concall.cache.cache_service import ConcallCacheService
+from maverick_india.concall.services.transcript_fetcher import TranscriptFetcher
 
 cache_service = ConcallCacheService()
 fetcher = TranscriptFetcher(cache_service=cache_service)
@@ -599,7 +599,7 @@ transcript = fetcher.fetch_transcript("AAPL", "Q4", 2024)
 ### Summarization Service Integration
 
 ```python
-from maverick_mcp.concall.services.concall_summarizer import ConcallSummarizer
+from maverick_india.concall.services.concall_summarizer import ConcallSummarizer
 
 summarizer = ConcallSummarizer(cache_service=cache_service)
 
