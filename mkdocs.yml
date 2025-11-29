@@ -168,16 +168,24 @@ nav:
       - Troubleshooting: user-guide/troubleshooting.md
       - Best Practices: user-guide/best-practices.md
   - API Reference:
-      - Conference Call:
-          - Models: api-reference/concall/models.md
-          - Providers: api-reference/concall/providers.md
-          - Services: api-reference/concall/services.md
-          - Cache: api-reference/concall/cache.md
-          - Utils: api-reference/concall/utils.md
-      - Core: api-reference/core.md
-      - Providers: api-reference/providers.md
-      - Services: api-reference/services.md
-      - Data: api-reference/data.md
+      - Package Overview: api-reference/index.md
+      - maverick-core:
+          - Configuration: api-reference/maverick-core/config.md
+          - Logging: api-reference/maverick-core/logging.md
+          - Exceptions: api-reference/maverick-core/exceptions.md
+          - Resilience: api-reference/maverick-core/resilience.md
+      - maverick-data:
+          - Models: api-reference/maverick-data/models.md
+          - Providers: api-reference/maverick-data/providers.md
+          - Services: api-reference/maverick-data/services.md
+      - maverick-backtest:
+          - Backtesting Engine: api-reference/maverick-backtest/engine.md
+      - maverick-india:
+          - Market Support: api-reference/maverick-india/market.md
+          - Conference Calls: api-reference/maverick-india/concall.md
+      - maverick-server:
+          - MCP Routers: api-reference/maverick-server/routers.md
+          - Monitoring: api-reference/maverick-server/monitoring.md
   - Deployment:
       - Docker Guide: deployment/docker.md
       - Rancher Desktop: deployment/rancher-desktop.md
