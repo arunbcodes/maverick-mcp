@@ -82,6 +82,9 @@ from maverick_data.providers import (
 # Services
 from maverick_data.services import (
     MarketCalendarService,
+    ScreeningService,
+    StockCacheManager,
+    StockDataFetcher,
     bulk_insert_price_data,
     bulk_insert_screening_data,
     get_latest_maverick_screening,
@@ -155,6 +158,9 @@ __all__ = [
     "SECTOR_ETFS",
     # Services
     "MarketCalendarService",
+    "ScreeningService",
+    "StockCacheManager",
+    "StockDataFetcher",
     "bulk_insert_price_data",
     "bulk_insert_screening_data",
     "get_latest_maverick_screening",
