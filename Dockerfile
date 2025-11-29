@@ -105,10 +105,11 @@ COPY maverick_mcp ./maverick_mcp
 RUN chmod +x /app/scripts/docker-entrypoint.sh
 
 # Set environment variables
+# Include new package source directories in PYTHONPATH for both new and legacy imports
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:$PATH" \
-    PYTHONPATH="/app:$PYTHONPATH"
+    PYTHONPATH="/app/packages/core/src:/app/packages/data/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app:$PYTHONPATH"
 
 # Create non-root user
 RUN groupadd -g ${APP_GID} ${APP_USER} && \
