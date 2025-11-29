@@ -14,6 +14,7 @@ from maverick_server.routers.backtesting import register_backtesting_tools
 from maverick_server.routers.india import register_india_tools
 from maverick_server.routers.health import register_health_tools
 from maverick_server.routers.concall import register_concall_tools
+from maverick_server.routers.agents import register_agents_tools
 
 __all__ = [
     # Core routers (always available)
@@ -27,6 +28,7 @@ __all__ = [
     "register_backtesting_tools",
     "register_india_tools",
     "register_concall_tools",
+    "register_agents_tools",
 ]
 
 
@@ -53,6 +55,7 @@ def register_all_tools(mcp) -> dict[str, bool]:
         ("backtesting", register_backtesting_tools),
         ("india", register_india_tools),
         ("concall", register_concall_tools),
+        ("agents", register_agents_tools),
     ]
 
     for name, register_fn in routers:
