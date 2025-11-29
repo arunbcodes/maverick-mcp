@@ -36,7 +36,7 @@ This will seed **10 Indian companies** including:
 
 ### JSON Structure
 
-IR mappings are defined in: `maverick_mcp/concall/data/company_ir_seed.json`
+IR mappings are defined in: `packages/india/src/maverick_india/concall/data/company_ir_seed.json`
 
 ```json
 {
@@ -82,7 +82,7 @@ IR mappings are defined in: `maverick_mcp/concall/data/company_ir_seed.json`
 **Step 1:** Edit the seed file:
 
 ```bash
-vim maverick_mcp/concall/data/company_ir_seed.json
+vim packages/india/src/maverick_india/concall/data/company_ir_seed.json
 ```
 
 **Step 2:** Add your company:
@@ -637,7 +637,7 @@ python scripts/seed_concall_mappings.py --file full_mappings.json --verify
 
 To contribute mappings back to the project:
 
-1. Add to `maverick_mcp/concall/data/company_ir_seed.json`
+1. Add to `packages/india/src/maverick_india/concall/data/company_ir_seed.json`
 2. Test thoroughly
 3. Add notes about IR structure
 4. Create pull request with verification results

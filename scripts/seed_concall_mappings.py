@@ -22,8 +22,13 @@ from typing import Any
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from maverick_mcp.concall.models import CompanyIRMapping
-from maverick_mcp.data.models import get_session
+# Try new package structure first, fall back to legacy
+try:
+    from maverick_data.models import CompanyIRMapping
+    from maverick_data import get_session
+except ImportError:
+    from maverick_mcp.concall.models import CompanyIRMapping
+    from maverick_mcp.data.models import get_session
 
 logging.basicConfig(
     level=logging.INFO,
@@ -76,7 +81,7 @@ class ConcallMappingSeeder:
         companies = data.get("companies", [])
         if not companies:
             logger.warning("No companies found in JSON file")
-            return {"added": 0, "updated": 0, "skipped": 0}
+            return {"added": 0, "updated": 0, "skipped": 0, "errors": 0}
 
         stats = {"added": 0, "updated": 0, "skipped": 0, "errors": 0}
 
@@ -267,11 +272,22 @@ def main():
     parser = argparse.ArgumentParser(
         description="Seed conference call IR mappings into database"
     )
+    # Default to new package location, with fallback to legacy
+    default_seed_file = (
+        Path(__file__).parent.parent
+        / "packages/india/src/maverick_india/concall/data/company_ir_seed.json"
+    )
+    # Fallback to legacy location if new doesn't exist
+    if not default_seed_file.exists():
+        default_seed_file = (
+            Path(__file__).parent.parent
+            / "maverick_mcp/concall/data/company_ir_seed.json"
+        )
+
     parser.add_argument(
         "--file",
         type=Path,
-        default=Path(__file__).parent.parent
-        / "maverick_mcp/concall/data/company_ir_seed.json",
+        default=default_seed_file,
         help="Path to JSON seed file",
     )
     parser.add_argument(
