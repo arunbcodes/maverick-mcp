@@ -5,7 +5,8 @@ Data provider implementations for fetching stock, market, and macro data.
 
 Providers:
     - BaseStockProvider: Abstract base class for stock data providers
-    - YFinanceProvider: Yahoo Finance data provider
+    - YFinanceProvider: Yahoo Finance data provider (async)
+    - StockDataProvider: Full-featured provider with caching (sync)
     - YFinancePool: Thread-safe connection pooling for yfinance
     - MarketDataProvider: Market indices, gainers, losers, sectors
     - MacroDataProvider: Macroeconomic data from FRED API
@@ -18,6 +19,10 @@ from maverick_data.providers.market_data import (
     SECTOR_ETFS,
     MarketDataProvider,
 )
+from maverick_data.providers.stock_data import (
+    EnhancedStockDataProvider,
+    StockDataProvider,
+)
 from maverick_data.providers.yfinance_pool import (
     YFinancePool,
     cleanup_yfinance_pool,
@@ -29,6 +34,8 @@ __all__ = [
     # Stock providers
     "BaseStockProvider",
     "YFinanceProvider",
+    "StockDataProvider",
+    "EnhancedStockDataProvider",
     # Connection pooling
     "YFinancePool",
     "get_yfinance_pool",

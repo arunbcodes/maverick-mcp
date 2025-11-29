@@ -71,6 +71,8 @@ from maverick_data.repositories import (
 from maverick_data.providers import (
     BaseStockProvider,
     YFinanceProvider,
+    StockDataProvider,
+    EnhancedStockDataProvider,
     MarketDataProvider,
     MacroDataProvider,
     MARKET_INDICES,
@@ -145,6 +147,8 @@ __all__ = [
     # Providers
     "BaseStockProvider",
     "YFinanceProvider",
+    "StockDataProvider",
+    "EnhancedStockDataProvider",
     "MarketDataProvider",
     "MacroDataProvider",
     "MARKET_INDICES",
