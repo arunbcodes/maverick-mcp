@@ -50,7 +50,7 @@ services:
       - ./packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents:ro
       - ./packages/india/src/maverick_india:/app/packages/india/src/maverick_india:ro
       - ./packages/server/src/maverick_server:/app/packages/server/src/maverick_server:ro
-      # Legacy maverick_mcp (read-only, can be removed after full migration)
+      # Legacy maverick_mcp (required until migration complete)
       - ./maverick_mcp:/app/maverick_mcp:ro
       - ./alembic:/app/alembic:ro
       # Writable logs directory

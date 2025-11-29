@@ -98,8 +98,7 @@ COPY alembic ./alembic
 COPY scripts ./scripts
 COPY alembic.ini pyproject.toml uv.lock README.md ./
 
-# Copy legacy maverick_mcp if it exists (for backwards compatibility)
-# This can be removed once migration is complete
+# Copy legacy maverick_mcp (still required until migration is complete)
 COPY maverick_mcp ./maverick_mcp
 
 # Make entrypoint executable
@@ -128,6 +127,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
 # Set entrypoint to handle auto-seeding
 ENTRYPOINT ["/app/scripts/docker-entrypoint.sh"]
 
-# Default command: Start MCP server
-# Can be overridden for different services (e.g., worker, scheduler)
+# Default command: Start MCP server (using legacy entry point until migration complete)
 CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]

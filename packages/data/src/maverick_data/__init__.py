@@ -7,7 +7,10 @@ It includes database models, repositories, cache providers, data providers, and 
 
 # Session management
 from maverick_data.session import (
+    DATABASE_URL,
+    SessionLocal,
     close_async_db_connections,
+    engine,
     ensure_database_schema,
     get_async_db,
     get_db,
@@ -77,6 +80,9 @@ from maverick_data.providers import (
 # Services
 from maverick_data.services import (
     MarketCalendarService,
+    bulk_insert_price_data,
+    bulk_insert_screening_data,
+    get_latest_maverick_screening,
 )
 
 # Market configuration
@@ -93,6 +99,9 @@ __all__ = [
     "init_db",
     "ensure_database_schema",
     "close_async_db_connections",
+    "engine",
+    "SessionLocal",
+    "DATABASE_URL",
     # Cache providers
     "RedisCache",
     "MemoryCache",
@@ -142,6 +151,9 @@ __all__ = [
     "SECTOR_ETFS",
     # Services
     "MarketCalendarService",
+    "bulk_insert_price_data",
+    "bulk_insert_screening_data",
+    "get_latest_maverick_screening",
     # Market configuration
     "MARKET_CONFIGS",
     "get_market_from_symbol",
