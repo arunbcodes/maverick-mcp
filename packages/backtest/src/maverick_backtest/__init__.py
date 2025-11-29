@@ -78,6 +78,25 @@ from maverick_backtest.batch import (
     ExecutionResult,
 )
 
+# Workflows (optional - requires langchain/langgraph)
+try:
+    from maverick_backtest.workflows import (
+        BacktestingWorkflow,
+        MarketAnalyzerAgent,
+        OptimizerAgent,
+        StrategySelectorAgent,
+        ValidatorAgent,
+    )
+
+    _WORKFLOWS_AVAILABLE = True
+except ImportError:
+    _WORKFLOWS_AVAILABLE = False
+    BacktestingWorkflow = None  # type: ignore
+    MarketAnalyzerAgent = None  # type: ignore
+    OptimizerAgent = None  # type: ignore
+    StrategySelectorAgent = None  # type: ignore
+    ValidatorAgent = None  # type: ignore
+
 __all__ = [
     # Engine
     "VectorBTEngine",
@@ -130,4 +149,10 @@ __all__ = [
     "BatchProcessor",
     "CacheManagerProtocol",
     "BacktestEngineProtocol",
+    # Workflows (optional)
+    "BacktestingWorkflow",
+    "MarketAnalyzerAgent",
+    "StrategySelectorAgent",
+    "OptimizerAgent",
+    "ValidatorAgent",
 ]

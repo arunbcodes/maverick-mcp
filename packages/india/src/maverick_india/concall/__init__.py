@@ -51,6 +51,19 @@ from maverick_india.concall.utils import (
     TranscriptLoaderFactory,
 )
 
+# RAG module (optional - requires chromadb and langchain)
+try:
+    from maverick_india.concall.rag import (
+        ConcallRAGEngine,
+        VectorStoreManager,
+    )
+
+    _RAG_AVAILABLE = True
+except ImportError:
+    _RAG_AVAILABLE = False
+    ConcallRAGEngine = None  # type: ignore
+    VectorStoreManager = None  # type: ignore
+
 __all__ = [
     # Providers
     "ConcallProvider",
@@ -68,4 +81,7 @@ __all__ = [
     "HTMLTranscriptLoader",
     "TextTranscriptLoader",
     "TranscriptLoaderFactory",
+    # RAG (optional)
+    "ConcallRAGEngine",
+    "VectorStoreManager",
 ]

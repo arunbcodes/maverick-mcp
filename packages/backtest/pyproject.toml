@@ -17,6 +17,19 @@ dependencies = [
     "seaborn>=0.13.0",
     # Persistence (optional - SQLAlchemy from maverick-data)
     "pandas>=2.2.0",
+    # Technical analysis for market regime detection
+    "pandas-ta>=0.3.14b",
+    # LangGraph workflows
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    "langgraph>=0.2.0",
+]
+
+[project.optional-dependencies]
+# ML strategies require additional dependencies
+ml = [
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
 ]
 
 [build-system]
