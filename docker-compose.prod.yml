@@ -43,7 +43,14 @@ services:
       - WORKERS=${WORKERS:-4}
       - MAX_CONNECTIONS=${MAX_CONNECTIONS:-100}
     volumes:
-      # Read-only application code (no hot reload in production)
+      # Read-only packages (no hot reload in production)
+      - ./packages/core/src/maverick_core:/app/packages/core/src/maverick_core:ro
+      - ./packages/data/src/maverick_data:/app/packages/data/src/maverick_data:ro
+      - ./packages/backtest/src/maverick_backtest:/app/packages/backtest/src/maverick_backtest:ro
+      - ./packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents:ro
+      - ./packages/india/src/maverick_india:/app/packages/india/src/maverick_india:ro
+      - ./packages/server/src/maverick_server:/app/packages/server/src/maverick_server:ro
+      # Legacy maverick_mcp (read-only, can be removed after full migration)
       - ./maverick_mcp:/app/maverick_mcp:ro
       - ./alembic:/app/alembic:ro
       # Writable logs directory
