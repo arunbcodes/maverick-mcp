@@ -163,26 +163,26 @@ import numpy as np
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from maverick_mcp.config.settings import settings
-from maverick_mcp.data.models import Stock, StockPrice
-from maverick_mcp.providers.stock_data import StockDataProvider
+from maverick_core import get_settings
+from maverick_data import Stock
+from maverick_data.providers import StockDataProvider
 
 # ❌ Bad - Mixed and unsorted
-from maverick_mcp.data.models import Stock
+from maverick_data import Stock
 import pandas as pd
 from typing import Any
 import logging
-from maverick_mcp.providers.stock_data import StockDataProvider
+from maverick_data.providers import StockDataProvider
 import numpy as np
 ```
 
 **Avoid star imports**:
 ```python
 # ❌ Bad - Pollutes namespace
-from maverick_mcp.core.technical_analysis import *
+from maverick_backtest.analysis import *
 
 # ✅ Good - Explicit imports
-from maverick_mcp.core.technical_analysis import (
+from maverick_backtest.analysis import (
     calculate_rsi,
     calculate_macd,
     calculate_bollinger_bands,
@@ -406,7 +406,7 @@ apiTimeout = 30
 ```python
 class StockDataProvider:
     def __init__(self):
-        self._api_key = settings.TIINGO_API_KEY  # Private
+        self._api_key = get_settings().TIINGO_API_KEY  # Private
         self._cache = {}                         # Private
 
     def get_stock_data(self, ticker: str) -> dict:  # Public
@@ -502,13 +502,14 @@ Key Features:
     - Support for real-time and historical data
 
 Example:
+    >>> from maverick_data.providers import StockDataProvider
     >>> provider = StockDataProvider()
     >>> data = provider.get_stock_data("AAPL", period="1y")
     >>> indian_data = provider.get_stock_data("RELIANCE.NS", period="6mo")
 
 See Also:
-    - IndianMarketDataProvider for NSE/BSE specific features
-    - CacheManager for caching configuration
+    - maverick_india.market for NSE/BSE specific features
+    - maverick_data.services.stock_cache for caching configuration
 """
 ```
 
@@ -665,23 +666,15 @@ except:
 ### Custom Exceptions
 
 ```python
-# Define custom exception hierarchy
-class MaverickMCPError(Exception):
-    """Base exception for Maverick MCP."""
-    pass
+# Use existing exception hierarchy from maverick_core
+from maverick_core import (
+    MaverickException,
+    DataFetchError as APIError,
+    ValidationError,
+)
 
-
-class APIError(MaverickMCPError):
-    """External API call failed."""
-    pass
-
-
-class ValidationError(MaverickMCPError):
-    """Data validation failed."""
-    pass
-
-
-class CacheError(MaverickMCPError):
+# Or define custom exceptions inheriting from base
+class CacheError(MaverickException):
     """Cache operation failed."""
     pass
 ```

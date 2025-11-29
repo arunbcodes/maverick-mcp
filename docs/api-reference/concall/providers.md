@@ -40,7 +40,7 @@ def fetch_transcript(
 
 **Example**:
 ```python
-from maverick_mcp.concall.providers.company_ir_provider import CompanyIRProvider
+from maverick_india.concall.providers.company_ir_provider import CompanyIRProvider
 
 provider = CompanyIRProvider()
 transcript = provider.fetch_transcript("AAPL", "Q4", 2024)
@@ -111,7 +111,7 @@ def fetch_transcript(
 
 **Example**:
 ```python
-from maverick_mcp.concall.providers.nse_provider import NSEProvider
+from maverick_india.concall.providers.nse_provider import NSEProvider
 
 provider = NSEProvider()
 transcript = provider.fetch_transcript("RELIANCE.NS", "Q1", 2025)
@@ -196,7 +196,7 @@ def fetch_transcript(
 
 **Example**:
 ```python
-from maverick_mcp.concall.providers import TranscriptFetcher
+from maverick_india.concall.providers import TranscriptFetcher
 
 fetcher = TranscriptFetcher()
 
@@ -245,7 +245,7 @@ For .BO suffix stocks:
 ### Provider Errors
 
 ```python
-from maverick_mcp.concall.providers import TranscriptFetcher, ProviderError
+from maverick_india.concall.providers import TranscriptFetcher, ProviderError
 
 fetcher = TranscriptFetcher()
 

@@ -124,7 +124,7 @@ Test module docstring.
 """
 
 import pytest
-from maverick_mcp.services import SomeService
+from maverick_data.services import SomeService
 
 
 class TestSomeService:

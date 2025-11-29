@@ -116,8 +116,8 @@ The `--update` flag will update existing mappings if they already exist.
 ### Method 2: Direct Database Insert
 
 ```python
-from maverick_mcp.concall.models import CompanyIRMapping
-from maverick_mcp.data.models import SessionLocal
+from maverick_india.concall.models import CompanyIRMapping
+from maverick_data import SessionLocal
 from datetime import datetime, UTC
 
 session = SessionLocal()
@@ -353,7 +353,7 @@ By country: {'IN': 10}
 ### Test Transcript Fetching
 
 ```python
-from maverick_mcp.concall.services import TranscriptFetcher
+from maverick_india.concall import TranscriptFetcher
 import asyncio
 
 async def test():
@@ -372,8 +372,8 @@ print(result)
 ### Check Database
 
 ```python
-from maverick_mcp.concall.models import CompanyIRMapping
-from maverick_mcp.data.models import SessionLocal
+from maverick_india.concall.models import CompanyIRMapping
+from maverick_data import SessionLocal
 
 session = SessionLocal()
 
@@ -497,8 +497,8 @@ https://www.company.com/ir/transcripts/Q1_2025_Transcript.pdf
 
 3. Check database
    ```python
-   from maverick_mcp.concall.models import CompanyIRMapping
-   from maverick_mcp.data.models import SessionLocal
+   from maverick_india.concall.models import CompanyIRMapping
+   from maverick_data import SessionLocal
    
    session = SessionLocal()
    mapping = session.query(CompanyIRMapping).filter_by(ticker="RELIANCE.NS").first()
@@ -546,7 +546,7 @@ python scripts/seed_concall_mappings.py --verify
 alembic upgrade head
 
 # Check database connection
-python -c "from maverick_mcp.data.models import SessionLocal; s = SessionLocal(); print(s.query(CompanyIRMapping).count())"
+python -c "from maverick_data import SessionLocal; from maverick_india.concall.models import CompanyIRMapping; s = SessionLocal(); print(s.query(CompanyIRMapping).count())"
 ```
 
 ## Market-Specific Guidance
@@ -592,8 +592,8 @@ python -c "from maverick_mcp.data.models import SessionLocal; s = SessionLocal()
 For programmatic access to IR mappings:
 
 ```python
-from maverick_mcp.concall.models import CompanyIRMapping
-from maverick_mcp.data.models import SessionLocal
+from maverick_india.concall.models import CompanyIRMapping
+from maverick_data import SessionLocal
 
 # Query mappings
 session = SessionLocal()

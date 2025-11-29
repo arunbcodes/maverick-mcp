@@ -32,7 +32,7 @@ def chunk_text(
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.text_processing import chunk_text
+from maverick_india.concall.utils.text_processing import chunk_text
 
 transcript = "Very long transcript text..."
 chunks = chunk_text(transcript, chunk_size=800, overlap=150)
@@ -61,7 +61,7 @@ def extract_speakers(text: str) -> list[str]
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.text_processing import extract_speakers
+from maverick_india.concall.utils.text_processing import extract_speakers
 
 speakers = extract_speakers(transcript_text)
 print(f"Speakers: {', '.join(speakers)}")
@@ -94,7 +94,7 @@ def clean_transcript(text: str) -> str
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.text_processing import clean_transcript
+from maverick_india.concall.utils.text_processing import clean_transcript
 
 raw_text = "<p>Tim Cook:&nbsp;&nbsp;Good morning...</p>"
 cleaned = clean_transcript(raw_text)
@@ -131,7 +131,7 @@ def validate_quarter(quarter: str) -> str
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.validation import validate_quarter
+from maverick_india.concall.utils.validation import validate_quarter
 
 quarter = validate_quarter("q1")  # Returns "Q1"
 quarter = validate_quarter("2")   # Returns "Q2"
@@ -160,7 +160,7 @@ def validate_fiscal_year(year: int) -> int
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.validation import validate_fiscal_year
+from maverick_india.concall.utils.validation import validate_fiscal_year
 
 year = validate_fiscal_year(2024)  # OK
 year = validate_fiscal_year(1999)  # Raises ValueError
@@ -217,7 +217,7 @@ def get_quarter_dates(
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.date_helpers import get_quarter_dates
+from maverick_india.concall.utils.date_helpers import get_quarter_dates
 
 start, end = get_quarter_dates("Q1", 2024)
 print(f"Q1 2024: {start} to {end}")
@@ -247,7 +247,7 @@ def get_previous_quarter(
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.date_helpers import get_previous_quarter
+from maverick_india.concall.utils.date_helpers import get_previous_quarter
 
 prev_q, prev_y = get_previous_quarter("Q1", 2024)
 print(f"Previous: {prev_q} {prev_y}")
@@ -309,7 +309,7 @@ def get_concall_cache_key(
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.caching import get_concall_cache_key
+from maverick_india.concall.utils.caching import get_concall_cache_key
 
 # Transcript cache key
 key = get_concall_cache_key("AAPL", "Q4", 2024, "transcript")
@@ -396,7 +396,7 @@ def calculate_sentiment_change(
 
 **Example**:
 ```python
-from maverick_mcp.concall.utils.metrics import calculate_sentiment_change
+from maverick_india.concall.utils.metrics import calculate_sentiment_change
 
 change = calculate_sentiment_change(4.2, 3.8)
 print(f"Change: {change['change']}")  # 0.4
@@ -432,7 +432,7 @@ def aggregate_sentiment_trend(
 ### Text Processing
 
 ```python
-from maverick_mcp.concall.utils.text_processing import clean_transcript, chunk_text
+from maverick_india.concall.utils.text_processing import clean_transcript, chunk_text
 
 # Always clean before processing
 raw_text = fetch_transcript(...)
@@ -445,7 +445,7 @@ chunks = chunk_text(cleaned, chunk_size=1000)
 ### Validation
 
 ```python
-from maverick_mcp.concall.utils.validation import (
+from maverick_india.concall.utils.validation import (
     validate_quarter,
     validate_fiscal_year,
     validate_ticker_for_concall
@@ -463,7 +463,7 @@ except ValueError as e:
 ### Caching
 
 ```python
-from maverick_mcp.concall.utils.caching import (
+from maverick_india.concall.utils.caching import (
     get_cached_concall_data,
     cache_concall_data
 )
@@ -481,7 +481,7 @@ cache_concall_data(ticker, quarter, year, "summary", summary)
 ### Date Helpers
 
 ```python
-from maverick_mcp.concall.utils.date_helpers import (
+from maverick_india.concall.utils.date_helpers import (
     get_quarter_dates,
     get_previous_quarter
 )
@@ -496,7 +496,7 @@ prev_q, prev_y = get_previous_quarter("Q1", 2024)
 ### Metrics
 
 ```python
-from maverick_mcp.concall.utils.metrics import (
+from maverick_india.concall.utils.metrics import (
     calculate_sentiment_change,
     aggregate_sentiment_trend
 )

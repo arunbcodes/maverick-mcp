@@ -2,7 +2,7 @@
 
 Data models for conference call analysis.
 
-## Module: maverick_mcp.concall.models
+## Module: maverick_india.concall.models
 
 ### Transcript
 
@@ -26,8 +26,8 @@ Conference call transcript model.
 
 **Example**:
 ```python
-from maverick_mcp.concall.models import Transcript
-from maverick_mcp.data.session_management import session_scope
+from maverick_india.concall.models import Transcript
+from maverick_data import session_scope
 
 with session_scope() as session:
     transcript = session.query(Transcript).filter_by(
@@ -64,7 +64,7 @@ AI-generated transcript summary.
 
 **Example**:
 ```python
-from maverick_mcp.concall.models import TranscriptSummary
+from maverick_india.concall.models import TranscriptSummary
 
 summary = session.query(TranscriptSummary).filter_by(
     transcript_id=transcript_id,
@@ -102,7 +102,7 @@ Sentiment analysis of conference calls.
 
 **Example**:
 ```python
-from maverick_mcp.concall.models import SentimentAnalysis
+from maverick_india.concall.models import SentimentAnalysis
 
 sentiment = session.query(SentimentAnalysis).filter_by(
     transcript_id=transcript_id
@@ -134,7 +134,7 @@ Vector embeddings for RAG (Retrieval-Augmented Generation).
 
 **Example**:
 ```python
-from maverick_mcp.concall.models import TranscriptEmbedding
+from maverick_india.concall.models import TranscriptEmbedding
 
 # Get all embeddings for a transcript
 embeddings = session.query(TranscriptEmbedding).filter_by(
@@ -187,7 +187,7 @@ for summary in transcript.summaries:
 ### Caching Strategy
 
 ```python
-from maverick_mcp.data.cache import CacheManager
+from maverick_data.services import StockCacheManager as CacheManager
 
 cache = CacheManager()
 

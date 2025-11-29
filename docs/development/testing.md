@@ -165,7 +165,7 @@ pytest -m "not external"
 import pytest
 from unittest.mock import Mock, patch
 
-from maverick_mcp.services.screening_service import ScreeningService
+from maverick_data.services import ScreeningService
 
 
 class TestScreeningServiceInitialization:
@@ -186,7 +186,7 @@ class TestScreeningServiceInitialization:
 class TestGetMaverickRecommendations:
     """Test Maverick bullish recommendations."""
 
-    @patch('maverick_mcp.services.screening_service.SessionLocal')
+    @patch('maverick_data.services.screening.SessionLocal')
     def test_returns_recommendations_successfully(self, mock_session_local):
         """Test successful retrieval of bullish recommendations."""
         mock_stock = Mock()
@@ -222,7 +222,7 @@ class TestGetMaverickRecommendations:
 import pytest
 from fastmcp.testutils import client_for
 
-from maverick_mcp.api.server import mcp
+from maverick_server import mcp
 
 
 @pytest.mark.integration
@@ -313,7 +313,7 @@ async def test_complete_backtest_workflow():
 import time
 import pytest
 
-from maverick_mcp.services.screening_service import ScreeningService
+from maverick_data.services import ScreeningService
 
 
 @pytest.mark.performance
@@ -335,7 +335,7 @@ def test_screening_performance(benchmark):
 @pytest.mark.slow
 def test_parallel_agent_speedup():
     """Test parallel research achieves 7x+ speedup."""
-    from maverick_mcp.domain.research.agents import ParallelResearchOrchestrator
+    from maverick_agents.research import ParallelResearchOrchestrator
 
     orchestrator = ParallelResearchOrchestrator(num_agents=6)
 
@@ -380,7 +380,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from maverick_mcp.data.models import Base
+from maverick_data.models import Base
 
 
 @pytest.fixture
@@ -428,7 +428,7 @@ def mock_redis_client():
 """tests/services/conftest.py"""
 
 import pytest
-from maverick_mcp.services.screening_service import ScreeningService
+from maverick_data.services import ScreeningService
 
 
 @pytest.fixture
@@ -446,7 +446,7 @@ from unittest.mock import Mock, patch, MagicMock
 
 
 # Mock external API calls
-@patch('maverick_mcp.providers.stock_data.requests.get')
+@patch('maverick_data.providers.stock_data.requests.get')
 def test_fetch_stock_data(mock_get):
     """Test stock data fetching with mocked API."""
     # Arrange
@@ -455,7 +455,7 @@ def test_fetch_stock_data(mock_get):
     mock_get.return_value = mock_response
 
     # Act
-    from maverick_mcp.providers.stock_data import fetch_stock_data
+    from maverick_data.providers import fetch_stock_data
     result = fetch_stock_data("AAPL")
 
     # Assert
@@ -485,7 +485,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_async_research():
     """Test async research agent."""
-    from maverick_mcp.domain.research.agents import ResearchAgent
+    from maverick_agents.research import ResearchAgent
 
     agent = ResearchAgent()
     result = await agent.research_company("AAPL")
@@ -499,7 +499,7 @@ async def test_async_research():
 async def test_parallel_execution():
     """Test parallel agent execution."""
     import asyncio
-    from maverick_mcp.domain.research.agents import create_agents
+    from maverick_agents.research import create_agents
 
     agents = create_agents(count=6)
 
@@ -520,7 +520,7 @@ import pytest
 
 def test_invalid_ticker_raises_error():
     """Test that invalid ticker raises ValueError."""
-    from maverick_mcp.providers.stock_data import StockDataProvider
+    from maverick_data.providers import StockDataProvider
 
     provider = StockDataProvider()
 
@@ -670,7 +670,7 @@ import vcr
 @vcr.use_cassette('tests/vcr_cassettes/tiingo_aapl.yaml')
 def test_tiingo_api():
     """Test Tiingo API with recorded response."""
-    from maverick_mcp.providers.stock_data import StockDataProvider
+    from maverick_data.providers import StockDataProvider
 
     provider = StockDataProvider(api_key="test_key")
     result = provider.get_stock_data("AAPL", period="1mo")
@@ -786,7 +786,7 @@ def create_sample_ohlcv(days=100, start_price=100):
 @pytest.fixture
 def seeded_db(test_db_session):
     """Database with S&P 500 stocks seeded."""
-    from maverick_mcp.data.models import Stock, ScreeningScore
+    from maverick_data import Stock, MaverickStocks as ScreeningScore
 
     # Add sample stocks
     stocks = [
