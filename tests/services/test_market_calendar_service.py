@@ -13,7 +13,11 @@ from datetime import datetime, date, timedelta
 import pandas as pd
 import pytz
 
-from maverick_mcp.services.market_calendar_service import MarketCalendarService
+# Try new package structure first, fall back to legacy
+try:
+    from maverick_data.services.market_calendar import MarketCalendarService
+except ImportError:
+    from maverick_mcp.services.market_calendar_service import MarketCalendarService
 
 
 class TestMarketCalendarServiceInitialization:
