@@ -30,7 +30,7 @@ services:
       - ./packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
       - ./packages/india/src/maverick_india:/app/packages/india/src/maverick_india
       - ./packages/server/src/maverick_server:/app/packages/server/src/maverick_server
-      # Legacy maverick_mcp (can be removed after full migration)
+      # Legacy maverick_mcp (required until migration complete)
       - ./maverick_mcp:/app/maverick_mcp
       # Other directories
       - ./alembic:/app/alembic
