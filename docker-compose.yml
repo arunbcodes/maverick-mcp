@@ -23,13 +23,24 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-production}
     volumes:
+      # Mount packages for development hot-reload
+      - ./packages/core/src/maverick_core:/app/packages/core/src/maverick_core
+      - ./packages/data/src/maverick_data:/app/packages/data/src/maverick_data
+      - ./packages/backtest/src/maverick_backtest:/app/packages/backtest/src/maverick_backtest
+      - ./packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
+      - ./packages/india/src/maverick_india:/app/packages/india/src/maverick_india
+      - ./packages/server/src/maverick_server:/app/packages/server/src/maverick_server
+      # Legacy maverick_mcp (can be removed after full migration)
       - ./maverick_mcp:/app/maverick_mcp
+      # Other directories
       - ./alembic:/app/alembic
       - ./tests:/app/tests
       - ./.env:/app/.env
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   postgres:
     image: postgres:15-alpine
@@ -43,6 +54,11 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "55432:55432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -p 55432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -51,6 +67,11 @@ services:
       - redis-data:/data
     ports:
       - "56379:56379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "56379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres-data:
