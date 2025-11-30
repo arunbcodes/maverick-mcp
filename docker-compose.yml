@@ -17,13 +17,16 @@ services:
       - FRED_API_KEY=${FRED_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      # Crypto API Keys (optional - free tiers available)
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY:-}
+      - CRYPTOPANIC_API_KEY=${CRYPTOPANIC_API_KEY:-}
       # Server Configuration
       - API_HOST=0.0.0.0
       - API_PORT=8000
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-production}
       # Python path for new packages (matches Dockerfile)
-      - PYTHONPATH=/app/packages/core/src:/app/packages/data/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app
+      - PYTHONPATH=/app/packages/core/src:/app/packages/data/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app/packages/crypto/src:/app
     volumes:
       # Mount packages for development hot-reload
       - ./packages/core/src/maverick_core:/app/packages/core/src/maverick_core
@@ -32,6 +35,7 @@ services:
       - ./packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
       - ./packages/india/src/maverick_india:/app/packages/india/src/maverick_india
       - ./packages/server/src/maverick_server:/app/packages/server/src/maverick_server
+      - ./packages/crypto/src/maverick_crypto:/app/packages/crypto/src/maverick_crypto
       # Legacy maverick_mcp (required until migration complete)
       - ./maverick_mcp:/app/maverick_mcp
       # Other directories
