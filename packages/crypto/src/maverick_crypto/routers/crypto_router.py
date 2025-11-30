@@ -899,5 +899,241 @@ def register_crypto_tools(mcp: Any) -> None:
             logger.error(f"Optimization failed for {symbol}: {e}")
             return {"error": str(e), "symbol": symbol, "strategy": strategy}
     
+    # ============================================================
+    # Mixed Portfolio tools (stocks + crypto)
+    # ============================================================
+    
+    @mcp.tool()
+    async def portfolio_mixed_performance(
+        stocks: list[str],
+        cryptos: list[str],
+        stock_weight: float = 0.6,
+        days: int = 90,
+    ) -> dict[str, Any]:
+        """
+        Calculate performance of a mixed stock + crypto portfolio.
+        
+        Creates a portfolio with specified stock and crypto allocations
+        and calculates performance metrics.
+        
+        Args:
+            stocks: Stock symbols (e.g., ["AAPL", "MSFT", "GOOGL"])
+            cryptos: Crypto symbols (e.g., ["BTC", "ETH"])
+            stock_weight: Total weight for stocks (rest goes to crypto). Default: 0.6
+            days: Analysis period (default: 90)
+            
+        Returns:
+            Dictionary with:
+                - portfolio: Total return, Sharpe ratio, volatility
+                - allocation: Stock vs crypto split
+                - assets: Individual asset performance
+                
+        Examples:
+            - "How would 60% AAPL+MSFT and 40% BTC+ETH perform?"
+            - "Calculate mixed portfolio with tech stocks and crypto"
+            - "Compare stocks vs crypto allocation"
+        """
+        from maverick_crypto.portfolio import MixedPortfolioService, PortfolioAsset, AssetType
+        
+        try:
+            service = MixedPortfolioService()
+            
+            # Calculate weights
+            crypto_weight = 1.0 - stock_weight
+            stock_per = stock_weight / len(stocks) if stocks else 0
+            crypto_per = crypto_weight / len(cryptos) if cryptos else 0
+            
+            # Create assets
+            assets = [
+                PortfolioAsset(symbol=s, asset_type=AssetType.STOCK, weight=stock_per)
+                for s in stocks
+            ] + [
+                PortfolioAsset(symbol=c, asset_type=AssetType.CRYPTO, weight=crypto_per)
+                for c in cryptos
+            ]
+            
+            result = await service.calculate_performance(assets, days)
+            return result
+            
+        except Exception as e:
+            logger.error(f"Portfolio performance calculation failed: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def portfolio_correlation(
+        stocks: list[str],
+        cryptos: list[str],
+        days: int = 90,
+    ) -> dict[str, Any]:
+        """
+        Calculate correlation between stocks and cryptocurrencies.
+        
+        Analyzes how different assets move together to help with diversification.
+        
+        Args:
+            stocks: Stock symbols (e.g., ["AAPL", "MSFT", "SPY"])
+            cryptos: Crypto symbols (e.g., ["BTC", "ETH"])
+            days: Analysis period (default: 90)
+            
+        Returns:
+            Dictionary with:
+                - correlation_matrix: Full correlation matrix
+                - stock_crypto_correlation: Average stock-crypto correlation
+                - diversification_score: Higher = better diversification
+                - interpretation: What the correlations mean
+                
+        Examples:
+            - "How correlated are AAPL, MSFT with BTC, ETH?"
+            - "Analyze diversification between stocks and crypto"
+            - "Calculate correlation matrix for my portfolio"
+        """
+        from maverick_crypto.portfolio import CorrelationAnalyzer
+        
+        try:
+            analyzer = CorrelationAnalyzer()
+            result = await analyzer.calculate_correlation_matrix(stocks, cryptos, days)
+            return result
+            
+        except Exception as e:
+            logger.error(f"Correlation analysis failed: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def portfolio_optimize(
+        stocks: list[str],
+        cryptos: list[str],
+        objective: str = "max_sharpe",
+        max_crypto_weight: float = 0.4,
+        days: int = 365,
+    ) -> dict[str, Any]:
+        """
+        Optimize portfolio allocation across stocks and crypto.
+        
+        Uses mean-variance optimization to find optimal weights
+        that maximize return for a given risk level.
+        
+        Args:
+            stocks: Stock symbols (e.g., ["AAPL", "MSFT", "GOOGL"])
+            cryptos: Crypto symbols (e.g., ["BTC", "ETH"])
+            objective: Optimization goal:
+                - "max_sharpe": Maximize risk-adjusted return (default)
+                - "min_volatility": Minimize risk
+                - "max_return": Maximize return (higher risk)
+            max_crypto_weight: Maximum total crypto allocation (default: 0.4 = 40%)
+            days: Historical data period (default: 365)
+            
+        Returns:
+            Dictionary with:
+                - optimal_weights: Best allocation for each asset
+                - metrics: Expected return, volatility, Sharpe ratio
+                - allocation: Total stock vs crypto split
+                
+        Examples:
+            - "Optimize portfolio with AAPL, MSFT, BTC, ETH"
+            - "Find best allocation with max 30% crypto"
+            - "Minimize volatility for my stock and crypto portfolio"
+        """
+        from maverick_crypto.portfolio import PortfolioOptimizer
+        
+        try:
+            optimizer = PortfolioOptimizer()
+            result = await optimizer.optimize(
+                stocks=stocks,
+                cryptos=cryptos,
+                objective=objective,
+                max_crypto_weight=max_crypto_weight,
+                days=days,
+            )
+            return result
+            
+        except Exception as e:
+            logger.error(f"Portfolio optimization failed: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def portfolio_suggest(
+        stocks: list[str],
+        cryptos: list[str],
+        risk_tolerance: str = "moderate",
+    ) -> dict[str, Any]:
+        """
+        Get portfolio allocation suggestion based on risk tolerance.
+        
+        Provides personalized allocation recommendations.
+        
+        Args:
+            stocks: Stock symbols
+            cryptos: Crypto symbols
+            risk_tolerance: Your risk preference:
+                - "conservative": Lower risk, max 15% crypto
+                - "moderate": Balanced, max 30% crypto (default)
+                - "aggressive": Higher risk, max 50% crypto
+                
+        Returns:
+            Dictionary with:
+                - optimal_weights: Suggested allocation
+                - risk_profile: Description of selected profile
+                - metrics: Expected performance
+                
+        Examples:
+            - "Suggest portfolio for conservative investor"
+            - "What allocation for moderate risk with AAPL, BTC?"
+            - "Aggressive portfolio suggestion with tech stocks and crypto"
+        """
+        from maverick_crypto.portfolio import PortfolioOptimizer
+        
+        try:
+            optimizer = PortfolioOptimizer()
+            result = await optimizer.suggest_allocation(
+                stocks=stocks,
+                cryptos=cryptos,
+                risk_tolerance=risk_tolerance,
+            )
+            return result
+            
+        except Exception as e:
+            logger.error(f"Portfolio suggestion failed: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def portfolio_compare_classes(
+        stocks: list[str],
+        cryptos: list[str],
+        days: int = 90,
+    ) -> dict[str, Any]:
+        """
+        Compare stocks vs crypto as asset classes.
+        
+        Analyzes which asset class performed better and provides
+        insights for allocation decisions.
+        
+        Args:
+            stocks: Stock symbols (e.g., ["AAPL", "MSFT", "GOOGL"])
+            cryptos: Crypto symbols (e.g., ["BTC", "ETH"])
+            days: Analysis period (default: 90)
+            
+        Returns:
+            Dictionary with:
+                - stocks: Performance metrics for stocks
+                - crypto: Performance metrics for crypto
+                - comparison: Which performed better
+                - recommendation: Allocation suggestion
+                
+        Examples:
+            - "Compare FAANG stocks vs top cryptos"
+            - "Which performed better: stocks or crypto?"
+            - "Should I hold more stocks or crypto?"
+        """
+        from maverick_crypto.portfolio import CorrelationAnalyzer
+        
+        try:
+            analyzer = CorrelationAnalyzer()
+            result = await analyzer.asset_class_comparison(stocks, cryptos, days)
+            return result
+            
+        except Exception as e:
+            logger.error(f"Asset class comparison failed: {e}")
+            return {"error": str(e)}
+    
     logger.info("Crypto tools registered successfully")
 
