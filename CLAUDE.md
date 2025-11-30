@@ -23,17 +23,19 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
 
 ## Project Structure
 
-- `maverick_mcp/`
-  - `api/`: MCP server implementation
-    - `server.py`: Main FastMCP server (simple stock analysis mode)
-    - `routers/`: Domain-specific routers for organized tool groups
-  - `config/`: Configuration and settings
-  - `core/`: Core financial analysis functions
-  - `data/`: Data handling, caching, and database models
-  - `providers/`: Stock, market, and macro data providers
-  - `utils/`: Development utilities and performance optimizations
-  - `tests/`: Comprehensive test suite
-  - `validation/`: Request/response validation
+### New Modular Packages (Primary)
+- `packages/`
+  - `core/`: Shared configuration, logging, resilience, validation
+  - `data/`: Database models, providers, caching, services
+  - `backtest/`: VectorBT strategies, ML strategies, optimization
+  - `india/`: Indian market support, NSE/BSE, concall analysis
+  - `server/`: MCP server, routers, monitoring, health checks
+  - `agents/`: LangGraph agents, research, market analysis
+
+### Legacy (Backward Compatibility)
+- `maverick_mcp/`: Original monolith (still functional, being phased out)
+
+### Supporting Files
 - `tools/`: Development tools for faster workflows
 - `docs/`: Architecture documentation
 - `scripts/`: Startup and utility scripts
@@ -297,7 +299,7 @@ claude mcp add --transport http maverick-mcp http://localhost:8003/mcp/
 **STDIO Transport (Development only):**
 
 ```bash
-claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport stdio
+claude mcp add maverick-mcp uv run python -m maverick_server --transport stdio
 ```
 
 #### Continue.dev - SSE and STDIO Support
@@ -544,9 +546,9 @@ make dev-http               # Streamable-HTTP transport (for testing with curl/P
 make dev-stdio              # STDIO transport (direct connection)
 
 # Alternative: Direct commands (manual)
-uv run python -m maverick_mcp.api.server --transport sse --port 8003
-uv run python -m maverick_mcp.api.server --transport streamable-http --port 8003
-uv run python -m maverick_mcp.api.server --transport stdio
+uv run python -m maverick_server --transport sse --port 8003
+uv run python -m maverick_server --transport streamable-http --port 8003
+uv run python -m maverick_server --transport stdio
 
 # Script-based startup (with environment variable)
 ./scripts/dev.sh                        # Defaults to SSE
@@ -568,12 +570,12 @@ make test-watch           # Auto-run on changes
 
 # Using uv (recommended)
 uv run pytest                    # Manual pytest execution
-uv run pytest --cov=maverick_mcp # With coverage
+uv run pytest --cov=maverick_server --cov=maverick_core --cov=maverick_data # With coverage
 uv run pytest -m integration    # Integration tests (requires PostgreSQL/Redis)
 
 # Alternative: Direct pytest (if activated in venv)
 pytest                    # Manual pytest execution
-pytest --cov=maverick_mcp # With coverage
+pytest --cov=maverick_server --cov=maverick_core --cov=maverick_data # With coverage
 pytest -m integration    # Integration tests (requires PostgreSQL/Redis)
 ```
 
