@@ -10,6 +10,7 @@ This module tests all public MCP tools exposed by the server including:
 - Multi-ticker comparison
 """
 
+import json
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
@@ -60,7 +61,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "ticker" in data
                 assert data["ticker"] == "AAPL"
                 assert "record_count" in data
@@ -80,7 +81,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "analysis" in data
                 assert "ticker" in data
                 assert data["ticker"] == "AAPL"
@@ -108,7 +109,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "analysis" in data
                 assert "ticker" in data
                 assert data["ticker"] == "MSFT"
@@ -136,7 +137,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "support_levels" in data
                 assert "resistance_levels" in data
                 assert len(data["support_levels"]) > 0
@@ -163,7 +164,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "results" in data
                 assert "success_count" in data
                 assert "error_count" in data
@@ -205,7 +206,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "ticker" in data
                 assert "risk_level" in data
                 assert "position_sizing" in data
@@ -252,7 +253,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "stocks" in data
                 assert len(data["stocks"]) == 2
                 assert data["stocks"][0]["stock"] == "AAPL"
@@ -294,7 +295,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "articles" in data
                 assert len(data["articles"]) > 0
                 assert data["articles"][0]["overall_sentiment_label"] == "Bullish"
@@ -316,7 +317,7 @@ class TestMCPTools:
                 )
 
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "indicators" in data
                 assert "rsi" in data["indicators"]
                 assert "macd" in data["indicators"]

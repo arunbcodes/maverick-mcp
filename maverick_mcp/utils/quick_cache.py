@@ -41,8 +41,8 @@ class QuickCache:
             "kwargs": sorted(kwargs.items()),
         }
         key_str = json.dumps(key_data, sort_keys=True, default=str)
-        # Use hash for shorter keys
-        return hashlib.md5(key_str.encode()).hexdigest()
+        # Use SHA-256 hash for shorter keys (more secure than MD5)
+        return hashlib.sha256(key_str.encode()).hexdigest()[:32]
 
     async def get(self, key: str) -> Any | None:
         """Get value from cache if not expired."""

@@ -372,9 +372,16 @@ class TestBackupAndRecovery:
                     "auth_audit_log",
                 ]
 
+                # Validate table names to prevent SQL injection
+                valid_tables = {"mcp_users", "mcp_api_keys", "auth_audit_log"}
                 for table in critical_tables:
+                    if table not in valid_tables:
+                        pytest.skip(f"Invalid table name: {table}")
+                        continue
                     try:
-                        result = session.execute(f"SELECT COUNT(*) FROM {table}")
+                        from sqlalchemy import text
+                        # Use text() for safe SQL execution with validated table name
+                        result = session.execute(text(f"SELECT COUNT(*) FROM {table}"))
                         count = result.scalar()
                         assert count >= 0  # Should be able to count rows
 
