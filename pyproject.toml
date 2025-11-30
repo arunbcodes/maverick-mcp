@@ -12,6 +12,7 @@ dependencies = [
     "maverick-backtest",
     "maverick-india",
     "maverick-server",
+    "maverick-crypto",
     # Core MCP and server dependencies
     "fastmcp>=2.7.0",
     "mcp>=1.9.3",
@@ -195,4 +196,5 @@ maverick-agents = { workspace = true }
 maverick-backtest = { workspace = true }
 maverick-india = { workspace = true }
 maverick-server = { workspace = true }
+maverick-crypto = { workspace = true }
 

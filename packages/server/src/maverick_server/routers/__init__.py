@@ -16,6 +16,14 @@ from maverick_server.routers.health import register_health_tools
 from maverick_server.routers.concall import register_concall_tools
 from maverick_server.routers.agents import register_agents_tools
 
+# Optional crypto router (standalone package)
+try:
+    from maverick_crypto.routers import register_crypto_tools
+    _HAS_CRYPTO = True
+except ImportError:
+    _HAS_CRYPTO = False
+    register_crypto_tools = None
+
 __all__ = [
     # Core routers (always available)
     "register_technical_tools",
@@ -29,6 +37,7 @@ __all__ = [
     "register_india_tools",
     "register_concall_tools",
     "register_agents_tools",
+    "register_crypto_tools",
 ]
 
 
@@ -57,6 +66,10 @@ def register_all_tools(mcp) -> dict[str, bool]:
         ("concall", register_concall_tools),
         ("agents", register_agents_tools),
     ]
+    
+    # Add crypto router if available (standalone package)
+    if _HAS_CRYPTO and register_crypto_tools is not None:
+        routers.append(("crypto", register_crypto_tools))
 
     for name, register_fn in routers:
         try:
