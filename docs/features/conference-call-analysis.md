@@ -7,10 +7,10 @@ See [Conference Call System](../concall/overview.md) for complete documentation.
 ## Quick Overview
 
 ### Transcript Fetching
-Automatic retrieval from multiple sources:
-- Company IR websites
-- NSE exchange filings (Indian stocks)
-- Screener.in (coming soon)
+Automatic retrieval from multiple sources with cascading fallback:
+- Company IR websites (primary)
+- NSE exchange filings (fallback 1 - Indian stocks)
+- [Screener.in](https://www.screener.in/concalls/) (fallback 2 - consolidated Indian transcripts)
 
 ### AI Summarization
 Structured summaries with:
@@ -90,9 +90,10 @@ Compare RELIANCE sentiment across Q4 2024, Q1 2025, Q2 2025
 
 ### Multi-Source Fetching
 Cascading fallback system:
-1. Company IR website (primary)
-2. NSE exchange filings (fallback)
-3. Alternative sources (future)
+1. Database cache (checked first)
+2. Company IR website (primary)
+3. NSE exchange filings (fallback 1)
+4. [Screener.in](https://www.screener.in/concalls/) (fallback 2)
 
 ### AI Models
 - OpenRouter for summarization

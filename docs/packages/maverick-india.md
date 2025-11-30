@@ -229,8 +229,10 @@ print(f"Transcript: {transcript['transcript_text'][:500]}...")
 
 Transcripts are fetched with cascading fallback:
 
-1. **Company IR Website** (primary)
-2. **NSE Exchange Filings** (fallback)
+1. **Database Cache** (always checked first)
+2. **Company IR Website** (primary)
+3. **NSE Exchange Filings** (fallback 1)
+4. **[Screener.in](https://www.screener.in/concalls/)** (fallback 2 - consolidated Indian transcripts)
 
 ### AI Summarization
 

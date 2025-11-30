@@ -5,7 +5,10 @@ AI-powered conference call analysis for Indian companies.
 ## Overview
 
 Analyze earnings call transcripts with:
-- Transcript fetching from company IR pages
+- Transcript fetching with multi-source fallback:
+  - Company IR pages (primary)
+  - NSE exchange filings (fallback 1)
+  - [Screener.in](https://www.screener.in/concalls/) (fallback 2)
 - AI-powered summarization
 - Sentiment analysis
 - RAG-based Q&A

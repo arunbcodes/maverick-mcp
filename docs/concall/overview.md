@@ -28,6 +28,7 @@ graph TD
 
     A1[IR Websites] --> A
     A2[NSE Filings] --> A
+    A3[Screener.in] --> A
 ```
 
 ## Key Components
@@ -36,7 +37,8 @@ graph TD
 Multi-source fetching with cascading fallback:
 
 - **Primary**: Company Investor Relations websites
-- **Fallback**: NSE exchange filings (for Indian stocks)
+- **Fallback 1**: NSE exchange filings (for Indian stocks)
+- **Fallback 2**: [Screener.in](https://www.screener.in/concalls/) (consolidated Indian transcripts)
 - **Formats**: PDF, HTML, TXT with automatic parsing
 
 [Learn more →](fetching-transcripts.md)
@@ -142,11 +144,21 @@ sequenceDiagram
 
     User->>MCP: fetch_transcript("RELIANCE.NS", "Q1", 2025)
     MCP->>Fetcher: Fetch request
-    Fetcher->>Provider: Try IR website
-    alt IR Success
-        Provider-->>Fetcher: PDF/HTML transcript
-    else IR Failed
-        Provider-->>Fetcher: Fallback to NSE
+    Fetcher->>DB: Check cache
+    alt Cache Hit
+        DB-->>Fetcher: Return cached transcript
+    else Cache Miss
+        Fetcher->>Provider: Try IR website
+        alt IR Success
+            Provider-->>Fetcher: PDF/HTML transcript
+        else IR Failed
+            Provider-->>Fetcher: Try NSE filings
+            alt NSE Success
+                Provider-->>Fetcher: NSE transcript
+            else NSE Failed
+                Provider-->>Fetcher: Try Screener.in
+            end
+        end
     end
     Fetcher->>DB: Store transcript
     Fetcher-->>User: Return transcript + metadata
