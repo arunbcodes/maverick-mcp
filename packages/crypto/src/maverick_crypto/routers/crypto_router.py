@@ -1407,5 +1407,200 @@ def register_crypto_tools(mcp: Any) -> None:
             logger.error(f"Failed to search pools: {e}")
             return {"error": str(e)}
     
+    # ============================================================
+    # News & Sentiment tools
+    # ============================================================
+    
+    @mcp.tool()
+    async def crypto_news(
+        currencies: list[str] | None = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """
+        Get latest cryptocurrency news.
+        
+        Aggregates news from crypto publications with sentiment analysis.
+        
+        Args:
+            currencies: Filter by crypto symbols (e.g., ["BTC", "ETH"])
+            limit: Number of articles to return (default: 20)
+            
+        Returns:
+            Dictionary with:
+                - articles: List of news articles with sentiment
+                - Each includes: title, source, sentiment, url
+                
+        Examples:
+            - "What's the latest crypto news?"
+            - "Get Bitcoin news"
+            - "Show me ETH and SOL news"
+        """
+        try:
+            from maverick_crypto.news import NewsAggregator
+            aggregator = NewsAggregator()
+            articles = await aggregator.get_all_news(currencies=currencies, limit=limit)
+            return {"articles": articles, "count": len(articles)}
+        except Exception as e:
+            logger.error(f"Failed to fetch crypto news: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_news_sentiment(
+        currencies: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Analyze sentiment of recent crypto news.
+        
+        Fetches news and provides aggregate sentiment analysis.
+        
+        Args:
+            currencies: Filter by crypto symbols (e.g., ["BTC", "ETH"])
+            
+        Returns:
+            Dictionary with:
+                - overall_sentiment: bullish/bearish/neutral
+                - sentiment_breakdown: Count by sentiment type
+                - top_articles: Most relevant articles
+                
+        Examples:
+            - "What's the crypto market sentiment?"
+            - "Is Bitcoin news bullish or bearish?"
+            - "Analyze ETH news sentiment"
+        """
+        try:
+            from maverick_crypto.news import NewsAggregator, CryptoSentimentAnalyzer
+            
+            aggregator = NewsAggregator()
+            summary = await aggregator.get_news_summary(currencies=currencies)
+            
+            # Also analyze with keyword analyzer
+            analyzer = CryptoSentimentAnalyzer()
+            articles = summary.get("top_articles", [])
+            detailed_sentiment = analyzer.get_market_sentiment(articles)
+            
+            return {
+                "news_sentiment": summary,
+                "keyword_analysis": detailed_sentiment,
+                "currencies": currencies,
+            }
+        except Exception as e:
+            logger.error(f"Failed to analyze news sentiment: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_trending_news() -> dict[str, Any]:
+        """
+        Get trending crypto news with high engagement.
+        
+        Returns news sorted by community votes and engagement.
+        
+        Returns:
+            Dictionary with:
+                - articles: Trending news articles
+                - sentiment_breakdown: Overall sentiment
+                
+        Examples:
+            - "What's trending in crypto?"
+            - "Most popular crypto news today"
+            - "Hot crypto stories"
+        """
+        try:
+            from maverick_crypto.news import CryptoPanicProvider
+            provider = CryptoPanicProvider()
+            articles = await provider.get_trending(limit=15)
+            
+            return {
+                "articles": [a.to_dict() for a in articles],
+                "count": len(articles),
+            }
+        except Exception as e:
+            logger.error(f"Failed to fetch trending news: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_analyze_headline(headline: str) -> dict[str, Any]:
+        """
+        Analyze sentiment of a specific crypto headline.
+        
+        Uses keyword analysis to determine if news is bullish or bearish.
+        
+        Args:
+            headline: News headline to analyze
+            
+        Returns:
+            Dictionary with:
+                - score: Sentiment score (1-5)
+                - label: bullish/bearish/neutral
+                - confidence: Analysis confidence
+                - keywords: Detected sentiment keywords
+                
+        Examples:
+            - "Analyze: Bitcoin breaks $100k all-time high"
+            - "What's the sentiment of: SEC approves Ethereum ETF"
+            - "Is this bullish: Major exchange suffers hack"
+        """
+        try:
+            from maverick_crypto.news import CryptoSentimentAnalyzer
+            analyzer = CryptoSentimentAnalyzer()
+            result = analyzer.analyze(headline)
+            return result.to_dict()
+        except Exception as e:
+            logger.error(f"Failed to analyze headline: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_bullish_news(limit: int = 10) -> dict[str, Any]:
+        """
+        Get crypto news with bullish sentiment.
+        
+        Returns news articles that indicate positive market sentiment.
+        
+        Args:
+            limit: Number of articles (default: 10)
+            
+        Returns:
+            Dictionary with bullish news articles
+            
+        Examples:
+            - "Show me bullish crypto news"
+            - "Positive crypto stories"
+            - "Good news in crypto market"
+        """
+        try:
+            from maverick_crypto.news import CryptoPanicProvider
+            provider = CryptoPanicProvider()
+            articles = await provider.get_bullish_news(limit=limit)
+            return {"articles": [a.to_dict() for a in articles], "sentiment": "bullish"}
+        except Exception as e:
+            logger.error(f"Failed to fetch bullish news: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_bearish_news(limit: int = 10) -> dict[str, Any]:
+        """
+        Get crypto news with bearish sentiment.
+        
+        Returns news articles that indicate negative market sentiment.
+        
+        Args:
+            limit: Number of articles (default: 10)
+            
+        Returns:
+            Dictionary with bearish news articles
+            
+        Examples:
+            - "Show me bearish crypto news"
+            - "Negative crypto stories"
+            - "What are the crypto concerns?"
+        """
+        try:
+            from maverick_crypto.news import CryptoPanicProvider
+            provider = CryptoPanicProvider()
+            articles = await provider.get_bearish_news(limit=limit)
+            return {"articles": [a.to_dict() for a in articles], "sentiment": "bearish"}
+        except Exception as e:
+            logger.error(f"Failed to fetch bearish news: {e}")
+            return {"error": str(e)}
+    
     logger.info("Crypto tools registered successfully")
 
