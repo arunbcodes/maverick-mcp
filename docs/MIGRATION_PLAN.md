@@ -11,6 +11,7 @@ This document outlines the migration from the legacy `maverick_mcp` monolith to 
 - **Independence**: New packages have **ZERO** imports from `maverick_mcp`
 
 The remaining ~300 imports from `maverick_mcp` are in:
+
 - `maverick_mcp/` folder itself (legacy internal imports)
 - `tests/` for the legacy code
 - Dev tools/templates (non-production)
@@ -32,6 +33,7 @@ packages/
 ## New Package Exports (Feature Parity)
 
 ### maverick-core (Configuration, Logging, Resilience)
+
 - `get_settings`, `Settings`, `CONFIG`, `CACHE_TTL`
 - `get_logger`, `setup_logging`, `StructuredFormatter`
 - `EnhancedCircuitBreaker`, `FallbackChain`, `FallbackStrategy`
@@ -39,6 +41,7 @@ packages/
 - Validation: `validate_symbol`, `validate_date_range`, etc.
 
 ### maverick-data (Models, Providers, Services)
+
 - `SessionLocal`, `engine`, `get_db`, `get_session`
 - `Stock`, `PriceCache`, `MaverickStocks`, etc. (all models)
 - `StockDataProvider`, `EnhancedStockDataProvider`
@@ -47,15 +50,18 @@ packages/
 - `ScreeningService`, `StockCacheManager`, `StockDataFetcher`
 
 ### maverick-backtest (Backtesting Engine)
+
 - VectorBT strategies, analysis tools
 - `BacktestingWorkflow` with LangGraph
 - Walk-forward analysis, optimization
 
 ### maverick-india (Indian Market)
+
 - NSE/BSE market support
 - Concall transcript analysis
 
 ### maverick-server (MCP Server)
+
 - Monitoring: Prometheus, Sentry, health checks
 - Agents router for LangGraph tools
 
@@ -68,6 +74,7 @@ packages/
 **Goal**: Complete migration of all data-related components
 
 #### 1.1 Models (maverick-data)
+
 - [ ] `bulk_insert_screening_data` function
 - [ ] `bulk_insert_price_data` function
 - [ ] `SessionLocal` factory
@@ -77,11 +84,13 @@ packages/
 - [ ] All remaining model helpers
 
 #### 1.2 Database Configuration
+
 - [ ] `config.database` → `maverick-data.session`
 - [ ] Connection pooling settings
 - [ ] Migration utilities (alembic integration)
 
 #### 1.3 Infrastructure Services
+
 - [ ] `infrastructure.data_fetching.StockDataFetchingService`
 - [ ] `infrastructure.caching.CacheManagementService`
 - [ ] `data.performance` utilities
@@ -91,16 +100,19 @@ packages/
 **Goal**: Migrate all data providers
 
 #### 2.1 Stock Data Providers (maverick-data)
+
 - [ ] `providers.stock_data.StockDataProvider`
 - [ ] `providers.stock_data.EnhancedStockDataProvider`
 - [ ] `providers.optimized_stock_data`
 - [ ] `providers.optimized_screening`
 
 #### 2.2 Market Data Providers (maverick-data)
+
 - [ ] `providers.market_data.MarketDataProvider`
 - [ ] `providers.macro_data.MacroDataProvider`
 
 #### 2.3 Indian Market Providers (maverick-india)
+
 - [ ] `providers.indian_market_data.IndianMarketDataProvider`
 - [ ] `providers.rbi_data.RBIDataProvider`
 - [ ] `providers.exchange_rate`
@@ -110,6 +122,7 @@ packages/
 - [ ] `providers.multi_source_news_aggregator`
 
 #### 2.4 LLM Providers (maverick-agents)
+
 - [ ] `providers.openrouter_provider.OpenRouterProvider`
 - [ ] `providers.llm_factory`
 
@@ -118,18 +131,21 @@ packages/
 **Goal**: Complete core utilities migration
 
 #### 3.1 Configuration (maverick-core)
+
 - [ ] `config.settings.get_settings`
 - [ ] `config.settings.settings` singleton
 - [ ] `config.markets` (Market enum, configs)
 - [ ] `config.logging_settings`
 
 #### 3.2 Logging (maverick-core)
+
 - [ ] `utils.logging.get_logger`
 - [ ] `utils.structured_logger`
 - [ ] `utils.logging_init`
 - [ ] `utils.orchestration_logging`
 
 #### 3.3 Utilities (maverick-core)
+
 - [ ] `utils.currency_converter` → maverick-india
 - [ ] `utils.monitoring`
 - [ ] `utils.memory_profiler`
@@ -139,6 +155,7 @@ packages/
 - [ ] `utils.batch_processing`
 
 #### 3.4 Circuit Breakers (maverick-core) ✅
+
 - [x] `utils.circuit_breaker`
 - [x] `utils.circuit_breaker_decorators`
 - [x] `utils.fallback_strategies`
@@ -148,14 +165,17 @@ packages/
 **Goal**: Complete domain model migration
 
 #### 4.1 Domain Services (maverick-core)
+
 - [ ] `domain.stock_analysis.StockAnalysisService`
 - [ ] `domain.services.technical_analysis_service`
 - [ ] `core.technical_analysis`
 
 #### 4.2 Value Objects (maverick-core)
+
 - [ ] `domain.value_objects.technical_indicators`
 
 #### 4.3 Application Services
+
 - [ ] `application.screening.indian_market`
 - [ ] `analysis.market_comparison`
 
@@ -164,11 +184,13 @@ packages/
 **Goal**: Migrate server and all routers
 
 #### 5.1 Server Core (maverick-server)
+
 - [ ] `api.server.mcp` - Main MCP server
 - [ ] `api.api_server.create_api_app`
 - [ ] Entry point (`__main__.py`)
 
 #### 5.2 Routers (maverick-server)
+
 - [ ] `api.routers.tool_registry`
 - [ ] `api.routers.concall`
 - [ ] `api.routers.research`
@@ -178,6 +200,7 @@ packages/
 - [ ] All other routers
 
 #### 5.3 Authentication (maverick-server)
+
 - [ ] `auth` module (if applicable)
 
 ### Phase 6: Agents Layer (Priority: MEDIUM) ✅
@@ -202,11 +225,13 @@ packages/
 **Goal**: Update all scripts to use new packages (with fallback)
 
 #### 8.1 Seed Scripts
+
 - [x] `scripts/seed_sp500.py` - Uses maverick_data with fallback
 - [x] `scripts/seed_indian_stocks.py` - Uses maverick_data/maverick_india with fallback
 - [x] `scripts/seed_concall_mappings.py` - Already had fallback
 
 #### 8.2 Docker Scripts
+
 - [x] `scripts/docker-entrypoint.sh` - Uses new packages with fallback
 
 ### Phase 9: Tests ✅
@@ -232,38 +257,40 @@ packages/
 
 ### Completed Infrastructure
 
-| Component | Package | Status |
-|-----------|---------|--------|
-| Circuit Breaker | maverick-core | ✅ |
-| Exceptions | maverick-core | ✅ |
-| Validation | maverick-core | ✅ |
-| Logging | maverick-core | ✅ |
-| Resilience | maverick-core | ✅ |
-| Config | maverick-core | ✅ |
-| Date Utils | maverick-core | ✅ |
-| Models | maverick-data | ✅ |
-| Session/Engine | maverick-data | ✅ |
-| StockDataProvider | maverick-data | ✅ |
-| Services (Cache, Fetch, Screen) | maverick-data | ✅ |
-| Stock Helpers | maverick-data | ✅ |
-| YFinance Pool | maverick-data | ✅ |
-| Monitoring | maverick-server | ✅ |
-| Agents Router | maverick-server | ✅ |
-| Workflows | maverick-backtest | ✅ |
-| Analysis | maverick-backtest | ✅ |
-| Indian Market | maverick-india | ✅ |
-| Concall | maverick-india | ✅ |
+| Component                       | Package           | Status |
+| ------------------------------- | ----------------- | ------ |
+| Circuit Breaker                 | maverick-core     | ✅     |
+| Exceptions                      | maverick-core     | ✅     |
+| Validation                      | maverick-core     | ✅     |
+| Logging                         | maverick-core     | ✅     |
+| Resilience                      | maverick-core     | ✅     |
+| Config                          | maverick-core     | ✅     |
+| Date Utils                      | maverick-core     | ✅     |
+| Models                          | maverick-data     | ✅     |
+| Session/Engine                  | maverick-data     | ✅     |
+| StockDataProvider               | maverick-data     | ✅     |
+| Services (Cache, Fetch, Screen) | maverick-data     | ✅     |
+| Stock Helpers                   | maverick-data     | ✅     |
+| YFinance Pool                   | maverick-data     | ✅     |
+| Monitoring                      | maverick-server   | ✅     |
+| Agents Router                   | maverick-server   | ✅     |
+| Workflows                       | maverick-backtest | ✅     |
+| Analysis                        | maverick-backtest | ✅     |
+| Indian Market                   | maverick-india    | ✅     |
+| Concall                         | maverick-india    | ✅     |
 
 ### Remaining Work
 
 The remaining ~300 `maverick_mcp` imports are **ALL in legacy code**:
+
 - `maverick_mcp/` folder itself (internal imports within the legacy monolith)
 - `tests/` for legacy code
 - Dev tools and templates
 
 **The new packages (`packages/`) have ZERO dependencies on the old code.**
 
-**Strategy**: 
+**Strategy**:
+
 - New code should ONLY import from new packages
 - Legacy `maverick_mcp/` can be deleted when ready
 - Tests should be migrated to test new packages
@@ -299,29 +326,29 @@ except ImportError:
 
 ### ✅ All Core Components Implemented
 
-| Package | Component | Status |
-|---------|-----------|--------|
-| maverick-data | `bulk_insert_*` functions | ✅ Implemented |
-| maverick-data | `SessionLocal`, `engine` | ✅ Implemented |
-| maverick-data | `StockDataProvider`, `EnhancedStockDataProvider` | ✅ Implemented |
-| maverick-data | `MarketDataProvider`, `MacroDataProvider` | ✅ Implemented |
-| maverick-data | `StockCacheManager`, `StockDataFetcher`, `ScreeningService` | ✅ Implemented |
-| maverick-core | `get_settings`, `Settings` | ✅ Implemented |
-| maverick-core | `get_logger`, `setup_logging` | ✅ Implemented |
-| maverick-core | Exceptions, Validation, Resilience | ✅ Implemented |
-| maverick-india | Market support, Concall analysis | ✅ Implemented |
-| maverick-backtest | VectorBT engine, Strategies, Workflows | ✅ Implemented |
-| maverick-server | Monitoring (Prometheus, Sentry) | ✅ Implemented |
-| maverick-server | Agents router | ✅ Implemented |
+| Package           | Component                                                   | Status         |
+| ----------------- | ----------------------------------------------------------- | -------------- |
+| maverick-data     | `bulk_insert_*` functions                                   | ✅ Implemented |
+| maverick-data     | `SessionLocal`, `engine`                                    | ✅ Implemented |
+| maverick-data     | `StockDataProvider`, `EnhancedStockDataProvider`            | ✅ Implemented |
+| maverick-data     | `MarketDataProvider`, `MacroDataProvider`                   | ✅ Implemented |
+| maverick-data     | `StockCacheManager`, `StockDataFetcher`, `ScreeningService` | ✅ Implemented |
+| maverick-core     | `get_settings`, `Settings`                                  | ✅ Implemented |
+| maverick-core     | `get_logger`, `setup_logging`                               | ✅ Implemented |
+| maverick-core     | Exceptions, Validation, Resilience                          | ✅ Implemented |
+| maverick-india    | Market support, Concall analysis                            | ✅ Implemented |
+| maverick-backtest | VectorBT engine, Strategies, Workflows                      | ✅ Implemented |
+| maverick-server   | Monitoring (Prometheus, Sentry)                             | ✅ Implemented |
+| maverick-server   | Agents router                                               | ✅ Implemented |
 
 ### Remaining (Optional) Items
 
-| Package | Component | Priority | Notes |
-|---------|-----------|----------|-------|
-| maverick-india | `CurrencyConverter` | LOW | Can be added when needed |
-| maverick-india | `RBIDataProvider` | LOW | Can be added when needed |
-| maverick-server | All routers | LOW | Currently use legacy routers |
-| maverick-server | Main server entry | LOW | Currently use legacy server |
+| Package         | Component           | Priority | Notes                        |
+| --------------- | ------------------- | -------- | ---------------------------- |
+| maverick-india  | `CurrencyConverter` | LOW      | Can be added when needed     |
+| maverick-india  | `RBIDataProvider`   | LOW      | Can be added when needed     |
+| maverick-server | All routers         | LOW      | Currently use legacy routers |
+| maverick-server | Main server entry   | LOW      | Currently use legacy server  |
 
 **Note**: These are not blocking. The new packages provide full functionality for new code.
 
@@ -340,16 +367,16 @@ except ImportError:
 
 ## Migration Complete Summary
 
-| Phase | Status |
-|-------|--------|
-| Phase 1-3: Data, Providers, Config | ✅ Complete |
-| Phase 4: Domain | ✅ Complete |
+| Phase                                  | Status      |
+| -------------------------------------- | ----------- |
+| Phase 1-3: Data, Providers, Config     | ✅ Complete |
+| Phase 4: Domain                        | ✅ Complete |
 | Phase 5: API (partial - agents router) | ✅ Complete |
-| Phase 6: Agents | ✅ Complete |
-| Phase 7: Utility Functions | ✅ Complete |
-| Phase 8: Scripts | ✅ Complete |
-| Phase 9: Tests Infrastructure | ✅ Complete |
-| Phase 10: Docker Configuration | ✅ Complete |
+| Phase 6: Agents                        | ✅ Complete |
+| Phase 7: Utility Functions             | ✅ Complete |
+| Phase 8: Scripts                       | ✅ Complete |
+| Phase 9: Tests Infrastructure          | ✅ Complete |
+| Phase 10: Docker Configuration         | ✅ Complete |
 
 ---
 
@@ -362,6 +389,5 @@ except ImportError:
 
 ---
 
-*Last Updated: 2025-11-29*
-*Status: ✅ COMPLETE - New packages have full feature parity*
-
+_Last Updated: 2025-11-29_
+_Status: ✅ COMPLETE - New packages have full feature parity_

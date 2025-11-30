@@ -70,7 +70,14 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [.]
+          paths:
+            - packages/core/src
+            - packages/data/src
+            - packages/backtest/src
+            - packages/india/src
+            - packages/server/src
+            - packages/agents/src
+            - .
           options:
             docstring_style: google
             show_source: true
@@ -189,6 +196,14 @@ nav:
   - Deployment:
       - Docker Guide: deployment/docker.md
       - Rancher Desktop: deployment/rancher-desktop.md
+  - Packages:
+      - Overview: packages/index.md
+      - maverick-core: packages/maverick-core.md
+      - maverick-data: packages/maverick-data.md
+      - maverick-backtest: packages/maverick-backtest.md
+      - maverick-india: packages/maverick-india.md
+      - maverick-server: packages/maverick-server.md
+      - Migration Guide: packages/migration-guide.md
   - Development:
       - Contributing: development/contributing.md
       - Architecture: development/architecture.md
