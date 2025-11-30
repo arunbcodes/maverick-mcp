@@ -203,6 +203,77 @@ EXCHANGE_RATE_API_KEY=your_exchange_rate_api_key_here
 
 ---
 
+## 🪙 **Cryptocurrency API Keys**
+
+### 9. **COINGECKO_API_KEY** (Optional - Recommended for Heavy Usage)
+
+**What it does:** Access to 6,000+ cryptocurrencies with market data, trending coins, Fear & Greed Index
+
+**Cost:** FREE (Demo tier: 500 calls/min with free key, Public: 10-30 calls/min without key)
+
+**Why recommended:**
+- Higher rate limits (500 vs 10-30 calls/min)
+- Access to premium endpoints
+- More reliable service
+
+**How to get:**
+1. Go to [coingecko.com/en/api](https://www.coingecko.com/en/api)
+2. Sign up for a free Demo account
+3. Generate an API key
+
+**Add to .env:**
+```bash
+COINGECKO_API_KEY=your_coingecko_api_key_here
+```
+
+**Features enabled:**
+- ✅ Crypto price data (6,000+ coins)
+- ✅ Trending cryptocurrencies
+- ✅ Fear & Greed Index
+- ✅ Global market data
+- ✅ OHLC historical data
+- ✅ Coin details and metadata
+
+**Note:** Most features work without an API key! Key just increases rate limits.
+
+### 10. **CRYPTOPANIC_API_KEY** (Optional - For News Features)
+
+**What it does:** Crypto news aggregation with community sentiment
+
+**Cost:** FREE (Public feed access)
+
+**How to get:**
+1. Go to [cryptopanic.com/developers/api](https://cryptopanic.com/developers/api/)
+2. Sign up for a free account
+3. Generate an API key
+
+**Add to .env:**
+```bash
+CRYPTOPANIC_API_KEY=your_cryptopanic_api_key_here
+```
+
+**Features enabled:**
+- ✅ Crypto news aggregation
+- ✅ Community sentiment voting
+- ✅ Trending news filter
+- ✅ Bullish/bearish news filter
+
+**Note:** RSS fallback works without API key (Cointelegraph, Decrypt, The Block).
+
+### Free Crypto Data Sources (No API Key Required)
+
+These sources work without any API key:
+
+| Source | Data | Limits |
+|--------|------|--------|
+| **CoinGecko** (public) | Prices, trending, OHLC | 10-30 calls/min |
+| **DefiLlama** | TVL, yields, stablecoins | Unlimited |
+| **yfinance** | Crypto OHLCV (BTC-USD, etc.) | Unlimited |
+| **RSS Feeds** | News (Cointelegraph, etc.) | Unlimited |
+| **Alternative.me** | Fear & Greed Index | Unlimited |
+
+---
+
 ## 🇮🇳 **Indian Market Keys (Future Enhancements)**
 
 These are NOT currently implemented but documented for future use:
@@ -269,6 +340,12 @@ TAVILY_API_KEY=your_tavily_key_here
 EXCHANGE_RATE_API_KEY=your_exchange_rate_key_here
 
 # ========================================
+# OPTIONAL - Cryptocurrency (Free tiers work!)
+# ========================================
+COINGECKO_API_KEY=your_coingecko_key_here
+CRYPTOPANIC_API_KEY=your_cryptopanic_key_here
+
+# ========================================
 # PERFORMANCE - Caching
 # ========================================
 CACHE_ENABLED=true
@@ -296,6 +373,10 @@ DATABASE_URL=postgresql://user:pass@localhost/maverick_mcp
 | **News Sentiment** | TIINGO_API_KEY | - |
 | **Technical Analysis** | TIINGO_API_KEY | - |
 | **Stock Screening** | TIINGO_API_KEY | - |
+| **Crypto Data** | - (works free) | COINGECKO_API_KEY |
+| **Crypto News** | - (RSS fallback) | CRYPTOPANIC_API_KEY |
+| **DeFi Metrics** | - (DefiLlama free) | - |
+| **Crypto Backtesting** | - (yfinance free) | - |
 
 ---
 
@@ -308,6 +389,8 @@ DATABASE_URL=postgresql://user:pass@localhost/maverick_mcp
 - ✅ TIINGO_API_KEY (free)
 - ✅ FRED_API_KEY (free)
 - ✅ EXCHANGE_RATE_API_KEY (free tier: 1,500 req/month)
+- ✅ COINGECKO_API_KEY (free Demo tier: 500 calls/min)
+- ✅ DefiLlama (free, no key needed)
 
 **What you get:**
 - Stock data (500 req/day)
@@ -315,6 +398,9 @@ DATABASE_URL=postgresql://user:pass@localhost/maverick_mcp
 - US economic data
 - Indian market data
 - News sentiment
+- **Cryptocurrency data (6,000+ coins)**
+- **DeFi metrics (TVL, yields)**
+- **Crypto backtesting**
 
 ### Recommended (Full Features)
 
@@ -432,6 +518,9 @@ make dev
 - **Exa:** [docs.exa.ai](https://docs.exa.ai)
 - **FRED:** [fred.stlouisfed.org/docs/api](https://fred.stlouisfed.org/docs/api)
 - **Exchange Rate API:** [exchangerate-api.com/docs](https://www.exchangerate-api.com/docs)
+- **CoinGecko:** [docs.coingecko.com](https://docs.coingecko.com)
+- **CryptoPanic:** [cryptopanic.com/developers/api](https://cryptopanic.com/developers/api/)
+- **DefiLlama:** [defillama.com/docs/api](https://defillama.com/docs/api)
 
 ---
 
