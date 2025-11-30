@@ -266,7 +266,7 @@ make tail-log
 
 **Check for errors**:
 ```bash
-tail -100 ~/.maverick_mcp/logs/maverick_mcp.log
+tail -100 ~/.maverick_mcp/logs/maverick.log
 ```
 
 ## Multiple Servers Configuration
@@ -305,7 +305,7 @@ Create `~/Library/LaunchAgents/com.maverick-mcp.plist`:
     <array>
         <string>/usr/local/bin/python3</string>
         <string>-m</string>
-        <string>maverick_mcp.api.server</string>
+        <string>maverick_server</string>
         <string>--transport</string>
         <string>sse</string>
         <string>--port</string>
@@ -341,7 +341,7 @@ After=network.target
 Type=simple
 User=YOUR_USERNAME
 WorkingDirectory=/home/YOUR_USERNAME/maverick-mcp
-ExecStart=/usr/bin/python3 -m maverick_mcp.api.server --transport sse --port 8003
+ExecStart=/usr/bin/python3 -m maverick_server --transport sse --port 8003
 Restart=always
 RestartSec=10
 
@@ -364,7 +364,7 @@ sudo systemctl start maverick-mcp
 4. Trigger: At log on
 5. Action: Start a program
 6. Program: `python.exe`
-7. Arguments: `-m maverick_mcp.api.server --transport sse --port 8003`
+7. Arguments: `-m maverick_server --transport sse --port 8003`
 8. Start in: `C:\path\to\maverick-mcp`
 
 ## Security Considerations
@@ -375,7 +375,7 @@ By default, the server binds to `localhost` (127.0.0.1), making it accessible on
 
 To allow network access (use with caution):
 ```bash
-python -m maverick_mcp.api.server --host 0.0.0.0 --port 8003
+python -m maverick_server --host 0.0.0.0 --port 8003
 ```
 
 ### Firewall Configuration
@@ -440,7 +440,7 @@ DATABASE_URL=postgresql://localhost/maverick_mcp
 
 For heavy usage:
 ```bash
-python -m maverick_mcp.api.server --workers 4
+python -m maverick_server --workers 4
 ```
 
 ## Next Steps

@@ -34,7 +34,7 @@ Ensure your `docker-compose.yml` has the following command override for the back
 services:
   backend:
     build: .
-    command: ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uv", "run", "python", "-m", "maverick_server", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "8000"]
     ports:
       - "8003:8000"
     environment:
