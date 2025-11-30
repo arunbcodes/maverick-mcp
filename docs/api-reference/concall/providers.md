@@ -147,20 +147,69 @@ def search_filings(
 
 ---
 
-## Module: maverick_mcp.concall.providers.screener_provider
+## Module: maverick_india.concall.providers.screener_provider
 
 ### ScreenerProvider
 
-Fetch transcripts from Screener.in (future implementation).
+Fetch transcripts from [Screener.in](https://www.screener.in/concalls/) - a consolidated repository of Indian company earnings call transcripts.
 
 **Class**: `ScreenerProvider`
 
-**Status**: Coming soon - planned for Phase 5
+**Status**: ✅ Available
 
-**Planned Features**:
-- Access to Screener.in Indian stock transcripts
-- Historical transcript archive
-- Simplified access for Indian stocks
+**Methods**:
+
+#### fetch_transcript()
+
+Fetch transcript from Screener.in.
+
+**Signature**:
+```python
+async def fetch_transcript(
+    self,
+    ticker: str,
+    quarter: str,
+    fiscal_year: int
+) -> dict | None
+```
+
+**Parameters**:
+- `ticker` (str): Stock symbol (e.g., "RELIANCE.NS", "TCS.NS")
+- `quarter` (str): Quarter ("Q1", "Q2", "Q3", "Q4")
+- `fiscal_year` (int): Fiscal year
+
+**Returns**:
+- dict | None: Transcript data or None if not found
+  - `transcript_text` (str): Full transcript
+  - `source` (str): "screener"
+  - `source_url` (str): Screener.in URL
+  - `metadata` (dict): Additional info
+
+**Data Sources**:
+1. Company-specific concalls page: `/company/{SYMBOL}/concalls/`
+2. Main concalls search page: `/concalls/`
+
+**Example**:
+```python
+from maverick_india.concall import ScreenerProvider
+
+provider = ScreenerProvider()
+transcript = await provider.fetch_transcript("RELIANCE.NS", "Q1", 2025)
+
+if transcript:
+    print(f"Source: {transcript['source_url']}")
+    print(transcript['transcript_text'][:500])
+```
+
+**Features**:
+- All Indian NSE/BSE companies supported
+- Automatic symbol normalization
+- Rate-limited (2s between requests)
+- 20+ ticker-to-company mappings pre-configured
+- PDF/HTML format support
+
+!!! note "Premium Features"
+    Some transcripts on Screener.in may require a premium account.
 
 ---
 
@@ -189,10 +238,10 @@ def fetch_transcript(
 ```
 
 **Fallback Order**:
-1. **Company IR Website** (primary) - Direct from source
-2. **NSE Exchange Filings** (fallback) - For Indian stocks
-3. **Screener.in** (future) - Alternative for Indian stocks
-4. **Database Cache** (always checked first) - 7-day TTL
+1. **Database Cache** (always checked first) - 7-day TTL
+2. **Company IR Website** (primary) - Direct from official source
+3. **NSE Exchange Filings** (fallback 1) - For Indian stocks
+4. **Screener.in** (fallback 2) - Consolidated Indian transcripts
 
 **Example**:
 ```python
@@ -224,11 +273,12 @@ For US stocks (no suffix):
 ### Indian NSE Stocks
 
 For .NS suffix stocks:
-1. Try Company IR website
-2. Fallback to NSE exchange filings
-3. Fallback to Screener.in (future)
+1. Check database cache first
+2. Try Company IR website
+3. Fallback to NSE exchange filings
+4. Fallback to Screener.in
 
-**Example**: "RELIANCE.NS" → Company IR → NSE → Screener
+**Example**: "RELIANCE.NS" → Cache → Company IR → NSE → Screener.in
 
 ### Indian BSE Stocks
 
