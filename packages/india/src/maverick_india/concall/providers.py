@@ -7,6 +7,7 @@ Available Providers:
     - ConcallProvider: Abstract base interface
     - CompanyIRProvider: Fetch from company IR websites
     - NSEProvider: Fetch from NSE exchange filings
+    - ScreenerProvider: Fetch from Screener.in (consolidated source)
 
 Design:
     All providers implement ConcallProvider interface for consistency.
@@ -864,4 +865,523 @@ class NSEProvider(ConcallProvider):
             return "html"
 
 
-__all__ = ["ConcallProvider", "CompanyIRProvider", "NSEProvider"]
+class ScreenerProvider(ConcallProvider):
+    """
+    Fetch conference call transcripts from Screener.in.
+
+    Screener.in (https://www.screener.in/concalls/) provides a consolidated
+    repository of Indian company earnings call transcripts. This serves as
+    an excellent fallback when company IR websites or NSE filings fail.
+
+    Design Philosophy:
+        - Fallback source: Use when primary sources fail
+        - Rate-limited: Respectful scraping with delays
+        - Consolidated: All Indian company concalls in one place
+        - Premium features: Some transcripts may require login
+
+    Attributes:
+        timeout: HTTP request timeout (default 30s)
+        max_retries: Number of retry attempts (default 3)
+        rate_limit_delay: Delay between requests in seconds (default 2s)
+        session_token: Optional premium session token
+
+    Example:
+        >>> provider = ScreenerProvider()
+        >>> transcript = await provider.fetch_transcript("RELIANCE.NS", "Q1", 2025)
+        >>> if transcript:
+        ...     print(transcript["transcript_text"][:100])
+
+    Note:
+        Screener.in is a third-party service. Some features may require
+        a premium subscription. Always respect their Terms of Service.
+    """
+
+    # Screener.in endpoints
+    SCREENER_BASE_URL = "https://www.screener.in"
+    SCREENER_CONCALLS_URL = "https://www.screener.in/concalls/"
+    SCREENER_API_URL = "https://www.screener.in/api/company"
+
+    # Common user agents
+    USER_AGENTS = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
+    ]
+
+    # Company name mappings for common tickers
+    TICKER_TO_NAME = {
+        "RELIANCE": "Reliance Industries",
+        "TCS": "TCS",
+        "HDFCBANK": "HDFC Bank",
+        "INFY": "Infosys",
+        "ICICIBANK": "ICICI Bank",
+        "HINDUNILVR": "Hindustan Unilever",
+        "SBIN": "State Bank of India",
+        "BAJFINANCE": "Bajaj Finance",
+        "BHARTIARTL": "Bharti Airtel",
+        "KOTAKBANK": "Kotak Mahindra Bank",
+        "ITC": "ITC",
+        "LT": "Larsen & Toubro",
+        "ASIANPAINT": "Asian Paints",
+        "MARUTI": "Maruti Suzuki",
+        "TITAN": "Titan Company",
+        "AXISBANK": "Axis Bank",
+        "WIPRO": "Wipro",
+        "HCLTECH": "HCL Technologies",
+        "TATAMOTORS": "Tata Motors",
+        "TATASTEEL": "Tata Steel",
+    }
+
+    def __init__(
+        self,
+        timeout: int = 30,
+        max_retries: int = 3,
+        rate_limit_delay: float = 2.0,
+        session_token: str | None = None,
+    ):
+        """
+        Initialize Screener.in provider.
+
+        Args:
+            timeout: HTTP request timeout in seconds
+            max_retries: Number of retry attempts for failed requests
+            rate_limit_delay: Delay between requests in seconds
+            session_token: Optional session token for premium access
+        """
+        self.timeout = timeout
+        self.max_retries = max_retries
+        self.rate_limit_delay = rate_limit_delay
+        self.session_token = session_token
+        self._cookies: dict[str, str] = {}
+
+    @property
+    def name(self) -> str:
+        """Provider name."""
+        return "screener"
+
+    def is_available(self, ticker: str) -> bool:
+        """
+        Check if ticker is an Indian stock (NSE/BSE).
+
+        Args:
+            ticker: Stock symbol to check
+
+        Returns:
+            bool: True if Indian stock (ends with .NS or .BO)
+        """
+        ticker_upper = ticker.upper()
+        # Support Indian stocks
+        return (
+            ticker_upper.endswith(".NS")
+            or ticker_upper.endswith(".BO")
+            or len(ticker_upper) <= 20  # Assume Indian if no suffix
+        )
+
+    def _normalize_ticker(self, ticker: str) -> str:
+        """
+        Normalize ticker for Screener.in.
+
+        Args:
+            ticker: Stock symbol (e.g., "RELIANCE.NS" or "RELIANCE")
+
+        Returns:
+            str: Screener format symbol (e.g., "RELIANCE")
+        """
+        return ticker.upper().replace(".NS", "").replace(".BO", "")
+
+    def _get_company_name(self, ticker: str) -> str:
+        """
+        Get company name from ticker for search.
+
+        Args:
+            ticker: Normalized ticker symbol
+
+        Returns:
+            str: Company name for search
+        """
+        return self.TICKER_TO_NAME.get(ticker, ticker)
+
+    def _get_random_user_agent(self) -> str:
+        """Get random user agent for rotation."""
+        return random.choice(self.USER_AGENTS)
+
+    async def fetch_transcript(
+        self, ticker: str, quarter: str, fiscal_year: int
+    ) -> dict[str, Any] | None:
+        """
+        Fetch transcript from Screener.in.
+
+        Args:
+            ticker: Stock symbol (e.g., "RELIANCE.NS")
+            quarter: Quarter (e.g., "Q1", "Q2")
+            fiscal_year: Year (e.g., 2025)
+
+        Returns:
+            dict with transcript data or None if not found
+
+        Algorithm:
+            1. Normalize ticker to Screener format
+            2. Search company concalls page
+            3. Find quarter-specific transcript
+            4. Download and parse content
+            5. Return structured data
+        """
+        if not self.is_available(ticker):
+            logger.warning(f"Screener does not support ticker: {ticker}")
+            return None
+
+        # Normalize ticker
+        screener_symbol = self._normalize_ticker(ticker)
+        company_name = self._get_company_name(screener_symbol)
+
+        try:
+            # Rate limiting
+            await asyncio.sleep(self.rate_limit_delay)
+
+            # Try company-specific concalls page
+            company_url = f"{self.SCREENER_BASE_URL}/company/{screener_symbol}/concalls/"
+            logger.info(f"Fetching Screener.in concalls from: {company_url}")
+
+            transcript_data = await self._fetch_company_concalls(
+                company_url, screener_symbol, quarter, fiscal_year
+            )
+
+            if transcript_data:
+                return transcript_data
+
+            # Fallback: Search in main concalls page
+            logger.info(f"Searching main concalls page for {company_name}")
+            transcript_data = await self._search_concalls_page(
+                company_name, quarter, fiscal_year
+            )
+
+            if transcript_data:
+                return transcript_data
+
+            logger.info(
+                f"No transcript found on Screener.in for {screener_symbol} {quarter} FY{fiscal_year}"
+            )
+            return None
+
+        except Exception as e:
+            logger.error(f"Failed to fetch transcript from Screener.in for {ticker}: {e}")
+            return None
+
+    async def _fetch_company_concalls(
+        self,
+        url: str,
+        symbol: str,
+        quarter: str,
+        fiscal_year: int,
+    ) -> dict[str, Any] | None:
+        """
+        Fetch concalls from company-specific page.
+
+        Args:
+            url: Company concalls page URL
+            symbol: Company symbol
+            quarter: Quarter string
+            fiscal_year: Year
+
+        Returns:
+            dict with transcript data or None
+        """
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                headers = {
+                    "User-Agent": self._get_random_user_agent(),
+                    "Accept": "text/html,application/xhtml+xml",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Referer": self.SCREENER_BASE_URL,
+                }
+
+                if self.session_token:
+                    headers["Cookie"] = f"sessionid={self.session_token}"
+
+                response = await client.get(
+                    url,
+                    headers=headers,
+                    follow_redirects=True,
+                )
+
+                if response.status_code == 404:
+                    logger.debug(f"Company concalls page not found: {url}")
+                    return None
+
+                response.raise_for_status()
+                html = response.text
+
+                # Parse HTML for transcript links
+                transcript_url = self._parse_screener_page(
+                    html, quarter, fiscal_year
+                )
+
+                if not transcript_url:
+                    return None
+
+                # Make absolute URL
+                if not transcript_url.startswith("http"):
+                    transcript_url = urljoin(self.SCREENER_BASE_URL, transcript_url)
+
+                # Fetch transcript content
+                transcript_content = await self._fetch_transcript_content(
+                    transcript_url
+                )
+
+                if not transcript_content:
+                    return None
+
+                return {
+                    "transcript_text": transcript_content,
+                    "source_url": transcript_url,
+                    "transcript_format": self._detect_format(transcript_url),
+                    "metadata": {
+                        "ticker": symbol,
+                        "quarter": quarter,
+                        "fiscal_year": fiscal_year,
+                        "source": "screener.in",
+                        "company_page": url,
+                    },
+                }
+
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 403:
+                logger.warning("Screener.in access denied - may need login")
+            else:
+                logger.warning(f"HTTP error from Screener.in: {e}")
+            return None
+
+        except Exception as e:
+            logger.warning(f"Failed to fetch company concalls from Screener.in: {e}")
+            return None
+
+    async def _search_concalls_page(
+        self,
+        company_name: str,
+        quarter: str,
+        fiscal_year: int,
+    ) -> dict[str, Any] | None:
+        """
+        Search main concalls page for company.
+
+        Args:
+            company_name: Company name for search
+            quarter: Quarter string
+            fiscal_year: Year
+
+        Returns:
+            dict with transcript data or None
+        """
+        try:
+            # Search parameters
+            params = {
+                "q": company_name,
+            }
+
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.get(
+                    self.SCREENER_CONCALLS_URL,
+                    params=params,
+                    headers={
+                        "User-Agent": self._get_random_user_agent(),
+                        "Accept": "text/html,application/xhtml+xml",
+                        "Referer": self.SCREENER_BASE_URL,
+                    },
+                    follow_redirects=True,
+                )
+
+                response.raise_for_status()
+                html = response.text
+
+                # Parse search results
+                transcript_url = self._parse_screener_search_results(
+                    html, company_name, quarter, fiscal_year
+                )
+
+                if not transcript_url:
+                    return None
+
+                # Make absolute URL
+                if not transcript_url.startswith("http"):
+                    transcript_url = urljoin(self.SCREENER_BASE_URL, transcript_url)
+
+                # Fetch transcript content
+                transcript_content = await self._fetch_transcript_content(
+                    transcript_url
+                )
+
+                if not transcript_content:
+                    return None
+
+                return {
+                    "transcript_text": transcript_content,
+                    "source_url": transcript_url,
+                    "transcript_format": self._detect_format(transcript_url),
+                    "metadata": {
+                        "company_name": company_name,
+                        "quarter": quarter,
+                        "fiscal_year": fiscal_year,
+                        "source": "screener.in",
+                        "search_page": self.SCREENER_CONCALLS_URL,
+                    },
+                }
+
+        except Exception as e:
+            logger.warning(f"Failed to search Screener.in concalls: {e}")
+            return None
+
+    def _parse_screener_page(
+        self, html: str, quarter: str, fiscal_year: int
+    ) -> str | None:
+        """
+        Parse Screener.in page for transcript link.
+
+        Args:
+            html: HTML content
+            quarter: Quarter string (Q1, Q2, etc.)
+            fiscal_year: Year
+
+        Returns:
+            str: Transcript URL or None
+        """
+        soup = BeautifulSoup(html, "html.parser")
+
+        # Quarter keywords
+        quarter_num = quarter.replace("Q", "")
+        fy_short = str(fiscal_year)[-2:]  # 2025 -> 25
+        fy_full = str(fiscal_year)
+
+        # Search patterns for quarter
+        search_patterns = [
+            f"Q{quarter_num} FY{fy_short}",
+            f"Q{quarter_num} FY{fy_full}",
+            f"Q{quarter_num} {fy_full}",
+            f"Q{quarter_num}-FY{fy_short}",
+            f"{quarter} {fy_full}",
+            f"FY{fy_short} Q{quarter_num}",
+        ]
+
+        # Find all concall links
+        concall_items = soup.find_all(
+            ["a", "div", "li"], class_=lambda x: x and "concall" in x.lower() if x else False
+        )
+
+        # Also look for links in tables or lists
+        all_links = soup.find_all("a", href=True)
+
+        for link in all_links:
+            href = link.get("href", "")
+            text = link.get_text().strip()
+            parent_text = link.parent.get_text() if link.parent else ""
+
+            # Check if link matches our quarter
+            combined_text = f"{text} {parent_text}".lower()
+
+            for pattern in search_patterns:
+                if pattern.lower() in combined_text:
+                    # Found matching quarter
+                    if "concall" in combined_text or "transcript" in combined_text:
+                        logger.debug(f"Found matching concall link: {href}")
+                        return href
+                    elif href.endswith(".pdf"):
+                        logger.debug(f"Found PDF link for quarter: {href}")
+                        return href
+
+        # Fallback: Look for any transcript link
+        for link in all_links:
+            href = link.get("href", "")
+            text = link.get_text().lower()
+
+            if "transcript" in text and href:
+                logger.debug(f"Found transcript link (fallback): {href}")
+                return href
+
+        return None
+
+    def _parse_screener_search_results(
+        self,
+        html: str,
+        company_name: str,
+        quarter: str,
+        fiscal_year: int,
+    ) -> str | None:
+        """
+        Parse search results page for transcript link.
+
+        Args:
+            html: HTML content
+            company_name: Company name searched
+            quarter: Quarter string
+            fiscal_year: Year
+
+        Returns:
+            str: Transcript URL or None
+        """
+        soup = BeautifulSoup(html, "html.parser")
+
+        # Search for company in results
+        company_lower = company_name.lower()
+        quarter_num = quarter.replace("Q", "")
+        fy_short = str(fiscal_year)[-2:]
+
+        # Find result items
+        results = soup.find_all(["div", "tr", "li"], class_=True)
+
+        for result in results:
+            text = result.get_text().lower()
+
+            # Check if this result is for our company and quarter
+            if company_lower in text:
+                # Look for quarter match
+                if f"q{quarter_num}" in text and (
+                    f"fy{fy_short}" in text or str(fiscal_year) in text
+                ):
+                    # Find link within this result
+                    link = result.find("a", href=True)
+                    if link:
+                        return link.get("href")
+
+        return None
+
+    async def _fetch_transcript_content(self, url: str) -> str | None:
+        """
+        Fetch actual transcript content.
+
+        Args:
+            url: URL of transcript file
+
+        Returns:
+            str: Transcript text content or None
+        """
+        try:
+            # Use factory to auto-select and load
+            loader_factory = TranscriptLoaderFactory()
+            text = loader_factory.load(url)
+
+            logger.info(f"Successfully loaded transcript from Screener.in: {url}")
+            return text
+
+        except Exception as e:
+            logger.error(f"Failed to load transcript from Screener.in {url}: {e}")
+            return None
+
+    def _detect_format(self, url: str) -> str:
+        """
+        Detect transcript format from URL.
+
+        Args:
+            url: Transcript URL
+
+        Returns:
+            str: Format (pdf, html, txt)
+        """
+        url_lower = url.lower()
+        if url_lower.endswith(".pdf"):
+            return "pdf"
+        elif url_lower.endswith(".txt"):
+            return "txt"
+        else:
+            return "html"
+
+
+__all__ = ["ConcallProvider", "CompanyIRProvider", "NSEProvider", "ScreenerProvider"]

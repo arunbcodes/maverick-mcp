@@ -716,6 +716,29 @@ CIRCUIT_BREAKER_CONFIGS = {
         detection_strategy=FailureDetectionStrategy.CONSECUTIVE_FAILURES,
         expected_exceptions=(Exception,),
     ),
+    # Indian market concall providers
+    "screener_in": CircuitBreakerConfig(
+        name="screener_in",
+        failure_threshold=3,
+        failure_rate_threshold=0.5,
+        timeout_threshold=30.0,
+        recovery_timeout=120,  # Wait 2 mins before retry
+        success_threshold=2,
+        window_size=300,
+        detection_strategy=FailureDetectionStrategy.COMBINED,
+        expected_exceptions=(Exception,),
+    ),
+    "nse_india": CircuitBreakerConfig(
+        name="nse_india",
+        failure_threshold=3,
+        failure_rate_threshold=0.5,
+        timeout_threshold=30.0,
+        recovery_timeout=180,  # NSE can be slow, wait 3 mins
+        success_threshold=2,
+        window_size=300,
+        detection_strategy=FailureDetectionStrategy.COMBINED,
+        expected_exceptions=(Exception,),
+    ),
 }
 
 

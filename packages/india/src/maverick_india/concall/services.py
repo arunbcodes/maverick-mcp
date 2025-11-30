@@ -18,7 +18,12 @@ import logging
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Callable
 
-from maverick_india.concall.providers import CompanyIRProvider, ConcallProvider, NSEProvider
+from maverick_india.concall.providers import (
+    CompanyIRProvider,
+    ConcallProvider,
+    NSEProvider,
+    ScreenerProvider,
+)
 
 if TYPE_CHECKING:
     from maverick_data.models import ConferenceCall
@@ -40,8 +45,9 @@ class TranscriptFetcher:
         - Simple API: One method to fetch transcripts
 
     Provider Priority:
-        1. CompanyIRProvider (legal, reliable)
+        1. CompanyIRProvider (legal, reliable, official)
         2. NSEProvider (exchange filings)
+        3. ScreenerProvider (consolidated source, fallback)
 
     Attributes:
         providers: List of data providers to try
@@ -74,6 +80,7 @@ class TranscriptFetcher:
         self.providers = providers or [
             CompanyIRProvider(session_factory=session_factory),
             NSEProvider(),
+            ScreenerProvider(),  # Fallback: https://www.screener.in/concalls/
         ]
         self.save_to_db = save_to_db
         self.use_cache = use_cache

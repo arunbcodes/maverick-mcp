@@ -23,7 +23,7 @@ The system attempts to fetch transcripts directly from company IR websites first
 - HTML pages
 - Plain text files
 
-### Fallback Source: NSE Exchange Filings
+### Fallback Source 1: NSE Exchange Filings
 
 For Indian stocks (.NS suffix), transcripts are fetched from NSE regulatory filings.
 
@@ -37,6 +37,26 @@ For Indian stocks (.NS suffix), transcripts are fetched from NSE regulatory fili
 - All NSE-listed companies
 - Nifty 50 constituents
 - Major BSE stocks
+
+### Fallback Source 2: Screener.in
+
+[Screener.in](https://www.screener.in/concalls/) provides a consolidated repository of Indian company earnings call transcripts.
+
+**Advantages:**
+- All Indian companies in one place
+- Well-organized by quarter/year
+- Often has transcripts when other sources fail
+- Popular among Indian investors
+
+**URL:** https://www.screener.in/concalls/
+
+**Supported Companies:**
+- All major NSE/BSE listed companies
+- Nifty 50, Nifty Next 50
+- Mid-cap and small-cap stocks
+
+!!! note "Premium Features"
+    Some transcripts on Screener.in may require a premium account. Free accounts have access to recent transcripts.
 
 ## Fetching Process
 
@@ -59,19 +79,27 @@ fiscal_year = 2025
 The system cascades through sources in priority order:
 
 ```
-1. Company IR Website
+1. Company IR Website (Primary - most reliable)
    ├─ Check for transcript section
    ├─ Parse quarter/year from URL patterns
    └─ Download PDF/HTML content
 
-2. NSE Exchange Filings
+2. NSE Exchange Filings (Fallback 1)
    ├─ Query corporate actions API
    ├─ Filter for earnings announcements
    └─ Download attached transcripts
 
-3. Database Cache
+3. Screener.in (Fallback 2 - consolidated source)
+   ├─ Search company concalls page
+   ├─ Find quarter-specific transcript
+   └─ Download PDF/HTML content
+
+4. Database Cache
    └─ Return previously fetched transcript
 ```
+
+!!! tip "Why Multiple Sources?"
+    Different sources may have transcripts at different times. Company IR is fastest, NSE is most official, and Screener.in is most comprehensive for Indian stocks.
 
 ### Step 3: Content Extraction
 
