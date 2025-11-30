@@ -227,10 +227,23 @@ class MixedPortfolioService:
         
         returns = {}
         for symbol, df in data.items():
+            # Normalize timezone to UTC then remove timezone info
+            if df.index.tz is not None:
+                df.index = df.index.tz_convert("UTC").tz_localize(None)
+            
+            # Normalize to date only (remove time component)
+            df.index = pd.to_datetime(df.index.date)
+            
             close = df["Close"] if "Close" in df.columns else df["close"]
             returns[symbol] = close.pct_change()
         
-        return pd.DataFrame(returns).dropna()
+        # Combine and align by date
+        returns_df = pd.DataFrame(returns)
+        
+        # Drop rows where ANY asset has NaN (first row + misaligned dates)
+        returns_df = returns_df.dropna()
+        
+        return returns_df
     
     async def calculate_performance(
         self,
