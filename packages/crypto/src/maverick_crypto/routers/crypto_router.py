@@ -673,5 +673,231 @@ def register_crypto_tools(mcp: Any) -> None:
             logger.error(f"Error fetching coin info for {symbol}: {e}")
             return {"error": str(e)}
     
+    # ============================================================
+    # Backtesting tools (requires vectorbt)
+    # ============================================================
+    
+    @mcp.tool()
+    async def crypto_backtest(
+        symbol: str,
+        strategy: str = "crypto_momentum",
+        days: int = 90,
+        initial_capital: float = 10000.0,
+    ) -> dict[str, Any]:
+        """
+        Run a backtest on cryptocurrency data.
+        
+        Tests a trading strategy on historical crypto data and returns
+        performance metrics including return, Sharpe ratio, and drawdown.
+        
+        Args:
+            symbol: Crypto symbol (e.g., "BTC", "ETH", "SOL")
+            strategy: Strategy name. Options:
+                - crypto_momentum: SMA crossover momentum
+                - crypto_mean_reversion: Bollinger Band mean reversion
+                - crypto_breakout: Volatility breakout
+                - crypto_rsi: RSI overbought/oversold
+                - crypto_macd: MACD crossover
+                - crypto_bollinger: Bollinger Band bounce
+            days: Number of days of data (default: 90)
+            initial_capital: Starting capital (default: $10,000)
+            
+        Returns:
+            Dictionary with:
+                - total_return_pct: Total return percentage
+                - sharpe_ratio: Risk-adjusted return
+                - max_drawdown: Maximum drawdown
+                - win_rate: Percentage of winning trades
+                - num_trades: Number of trades executed
+                - trades: Recent trade history
+                
+        Examples:
+            - "Backtest Bitcoin with momentum strategy"
+            - "Test RSI strategy on ETH for 180 days"
+            - "Compare crypto_macd vs crypto_rsi on Solana"
+        """
+        try:
+            from maverick_crypto.backtesting import CryptoBacktestEngine
+        except ImportError:
+            return {
+                "error": "Backtesting dependencies not available",
+                "help": "Install with: pip install vectorbt",
+            }
+        
+        try:
+            engine = CryptoBacktestEngine()
+            result = await engine.run_backtest(
+                symbol=symbol,
+                strategy=strategy,
+                days=days,
+                initial_capital=initial_capital,
+            )
+            return result
+        except Exception as e:
+            logger.error(f"Backtest failed for {symbol}: {e}")
+            return {"error": str(e), "symbol": symbol, "strategy": strategy}
+    
+    @mcp.tool()
+    async def crypto_compare_strategies(
+        symbol: str,
+        days: int = 90,
+    ) -> dict[str, Any]:
+        """
+        Compare all crypto strategies on a single symbol.
+        
+        Runs all available crypto strategies and ranks them by performance.
+        Useful for finding the best strategy for a particular cryptocurrency.
+        
+        Args:
+            symbol: Crypto symbol (e.g., "BTC", "ETH")
+            days: Number of days for backtesting (default: 90)
+            
+        Returns:
+            Dictionary with:
+                - results: Performance for each strategy
+                - best_strategy: Name of best performing strategy
+                - best_return: Return of best strategy
+                - comparison_summary: Side-by-side comparison
+                
+        Examples:
+            - "Which strategy works best for Bitcoin?"
+            - "Compare all strategies on ETH over 180 days"
+            - "Find the best crypto strategy for Solana"
+        """
+        try:
+            from maverick_crypto.backtesting import CryptoBacktestEngine
+        except ImportError:
+            return {
+                "error": "Backtesting dependencies not available",
+                "help": "Install with: pip install vectorbt",
+            }
+        
+        try:
+            engine = CryptoBacktestEngine()
+            result = await engine.compare_strategies(
+                symbol=symbol,
+                days=days,
+            )
+            return result
+        except Exception as e:
+            logger.error(f"Strategy comparison failed for {symbol}: {e}")
+            return {"error": str(e), "symbol": symbol}
+    
+    @mcp.tool()
+    async def crypto_list_strategies() -> dict[str, Any]:
+        """
+        List all available crypto backtesting strategies.
+        
+        Returns information about each strategy including description
+        and default parameters.
+        
+        Returns:
+            Dictionary with:
+                - strategies: List of available strategies
+                - count: Number of strategies
+                
+        Examples:
+            - "What crypto strategies are available?"
+            - "List backtesting strategies for crypto"
+            - "Show me crypto trading strategies"
+        """
+        try:
+            from maverick_crypto.backtesting import list_crypto_strategies
+            strategies = list_crypto_strategies()
+            return {
+                "strategies": strategies,
+                "count": len(strategies),
+                "note": "All strategies are adjusted for crypto volatility",
+            }
+        except Exception as e:
+            logger.error(f"Failed to list strategies: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_optimize_strategy(
+        symbol: str,
+        strategy: str = "crypto_momentum",
+        days: int = 90,
+    ) -> dict[str, Any]:
+        """
+        Optimize strategy parameters for a cryptocurrency.
+        
+        Uses grid search to find optimal parameters for a given strategy.
+        Tests multiple parameter combinations and returns the best.
+        
+        Args:
+            symbol: Crypto symbol (e.g., "BTC", "ETH")
+            strategy: Strategy to optimize (default: crypto_momentum)
+            days: Number of days for backtesting (default: 90)
+            
+        Returns:
+            Dictionary with:
+                - best_parameters: Optimal parameter values
+                - best_metric_value: Best Sharpe ratio achieved
+                - top_10_results: Top 10 parameter combinations
+                
+        Examples:
+            - "Optimize momentum strategy for Bitcoin"
+            - "Find best RSI parameters for ETH"
+            - "Optimize crypto_macd for Solana"
+        """
+        try:
+            from maverick_crypto.backtesting import CryptoBacktestEngine
+        except ImportError:
+            return {
+                "error": "Backtesting dependencies not available",
+                "help": "Install with: pip install vectorbt",
+            }
+        
+        # Define parameter grids for each strategy
+        param_grids = {
+            "crypto_momentum": {
+                "fast_period": [5, 10, 15, 20],
+                "slow_period": [20, 30, 40, 50],
+            },
+            "crypto_rsi": {
+                "period": [7, 14, 21],
+                "oversold": [20, 25, 30],
+                "overbought": [70, 75, 80],
+            },
+            "crypto_macd": {
+                "fast_period": [6, 8, 12],
+                "slow_period": [18, 21, 26],
+                "signal_period": [7, 9, 12],
+            },
+            "crypto_bollinger": {
+                "period": [15, 20, 25],
+                "std_dev": [2.0, 2.5, 3.0],
+            },
+            "crypto_mean_reversion": {
+                "period": [15, 20, 25],
+                "std_dev": [2.0, 2.5, 3.0],
+            },
+            "crypto_breakout": {
+                "lookback": [10, 20, 30],
+                "volume_threshold": [1.2, 1.5, 2.0],
+            },
+        }
+        
+        if strategy not in param_grids:
+            return {
+                "error": f"No optimization grid for {strategy}",
+                "available": list(param_grids.keys()),
+            }
+        
+        try:
+            engine = CryptoBacktestEngine()
+            result = await engine.optimize_strategy(
+                symbol=symbol,
+                strategy=strategy,
+                param_grid=param_grids[strategy],
+                days=days,
+                metric="sharpe_ratio",
+            )
+            return result
+        except Exception as e:
+            logger.error(f"Optimization failed for {symbol}: {e}")
+            return {"error": str(e), "symbol": symbol, "strategy": strategy}
+    
     logger.info("Crypto tools registered successfully")
 
