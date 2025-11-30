@@ -150,7 +150,7 @@ For local development without Docker, you can run the server directly:
         "run",
         "python",
         "-m",
-        "maverick_mcp.api.server",
+        "maverick_server",
         "--transport",
         "stdio"
       ],
@@ -217,7 +217,7 @@ If using a different port:
 Start server on custom port:
 
 ```bash
-python -m maverick_mcp.api.server --port 9000
+python -m maverick_server --port 9000
 ```
 
 ### Environment Variables
@@ -229,7 +229,7 @@ Pass environment variables to STDIO mode:
   "mcpServers": {
     "maverick-mcp": {
       "command": "python",
-      "args": ["-m", "maverick_mcp.api.server", "--transport", "stdio"],
+      "args": ["-m", "maverick_server", "--transport", "stdio"],
       "cwd": "/path/to/maverick-mcp",
       "env": {
         "TIINGO_API_KEY": "your-key",
@@ -419,7 +419,7 @@ sudo chown -R $(whoami) ~/.npm
 **Permission errors**:
 
 ```bash
-chmod +x /path/to/maverick-mcp/maverick_mcp/api/server.py
+chmod +x /path/to/maverick-mcp/packages/server/src/maverick_server/__main__.py
 ```
 
 **Python not found**:
@@ -427,7 +427,7 @@ chmod +x /path/to/maverick-mcp/maverick_mcp/api/server.py
 ```json
 {
   "command": "/full/path/to/python3",
-  "args": ["-m", "maverick_mcp.api.server", "--transport", "stdio"]
+  "args": ["-m", "maverick_server", "--transport", "stdio"]
 }
 ```
 
@@ -450,7 +450,7 @@ which python3
 Start on new port:
 
 ```bash
-python -m maverick_mcp.api.server --port 8004
+python -m maverick_server --port 8004
 ```
 
 ## Integration Patterns

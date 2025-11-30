@@ -135,7 +135,7 @@ Add MaverickMCP:
         "maverick-mcp-backend-1",
         "python",
         "-m",
-        "maverick_mcp.api.server"
+        "maverick_server"
       ]
     }
   }
@@ -426,7 +426,7 @@ python scripts/seed_indian_stocks.py
 make dev
 
 # Or manually:
-uv run python -m maverick_mcp.api.server
+uv run python -m maverick_server
 ```
 
 **Step 8: Verify it's running**
@@ -460,7 +460,7 @@ Add MaverickMCP:
         "run",
         "python",
         "-m",
-        "maverick_mcp.api.server"
+        "maverick_server"
       ]
     }
   }

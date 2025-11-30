@@ -201,7 +201,7 @@ This configuration provides stable tool registration and prevents tools from dis
         "run",
         "python",
         "-m",
-        "maverick_mcp.api.server",
+        "maverick_server",
         "--transport",
         "stdio"
       ],
@@ -285,7 +285,7 @@ claude mcp add --transport sse maverick-mcp http://localhost:8003/sse/
 **STDIO Transport (Development)**:
 
 ```bash
-claude mcp add maverick-mcp uv run python -m maverick_mcp.api.server --transport stdio
+claude mcp add maverick-mcp uv run python -m maverick_server --transport stdio
 ```
 
 #### Windsurf IDE - STDIO and SSE
@@ -355,12 +355,12 @@ make test-watch        # Auto-run tests on file changes
 
 # Using uv (recommended)
 uv run pytest                 # Unit tests only
-uv run pytest --cov=maverick_mcp  # With coverage
+uv run pytest --cov=packages  # With coverage (new packages)
 uv run pytest -m ""           # All tests (requires PostgreSQL/Redis)
 
 # Alternative: Direct pytest (if activated in venv)
 pytest                 # Unit tests only
-pytest --cov=maverick_mcp  # With coverage
+pytest --cov=packages         # With coverage (new packages)
 pytest -m ""           # All tests (requires PostgreSQL/Redis)
 ```
 

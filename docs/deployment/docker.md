@@ -212,7 +212,7 @@ The default `docker-compose.yml` uses **Streamable-HTTP transport** for broad co
 ```yaml
 services:
   backend:
-    command: ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uv", "run", "python", "-m", "maverick_server", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 This configuration:
@@ -228,7 +228,7 @@ For direct SSE connections (Claude Desktop without mcp-remote), override the com
 ```yaml
 services:
   backend:
-    command: ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uv", "run", "python", "-m", "maverick_server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 **When to use SSE**:
@@ -286,7 +286,7 @@ cp docker-compose.override.yml.example docker-compose.override.yml
 services:
   backend:
     # Enable hot reload (using streamable-http for compatibility)
-    command: uv run python -m maverick_mcp.api.server --transport streamable-http --host 0.0.0.0 --port 8000 --reload
+    command: uv run python -m maverick_server --transport streamable-http --host 0.0.0.0 --port 8000 --reload
 
     environment:
       - ENVIRONMENT=development
@@ -567,7 +567,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Start MCP server (default to SSE, can be overridden by docker-compose.yml)
-CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "python", "-m", "maverick_server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 !!! note "Transport Configuration"
