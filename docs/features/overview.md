@@ -34,6 +34,14 @@ Maverick MCP provides comprehensive stock analysis and conference call analysis 
 - **Walk-Forward Optimization**: Out-of-sample testing
 - **Monte Carlo Simulation**: Robustness testing
 
+### 🪙 Cryptocurrency Analysis
+- **6,000+ Coins**: Via CoinGecko integration
+- **24/7 Markets**: Continuous trading support
+- **6 Crypto Strategies**: Optimized for higher volatility
+- **DeFi Metrics**: TVL, yields, stablecoin data via DefiLlama
+- **News Sentiment**: Real-time crypto news with sentiment analysis
+- **Mixed Portfolios**: Optimize stocks + crypto together
+
 ### 🔬 Research Tools
 - **AI-Powered Research**: Multi-agent parallel research (7-256x faster)
 - **Market Sentiment**: Multi-source sentiment analysis
@@ -43,10 +51,11 @@ Maverick MCP provides comprehensive stock analysis and conference call analysis 
 ## Key Features
 
 ### Multi-Market Support
-Analyze stocks from:
+Analyze assets from:
 - **US Markets**: NASDAQ, NYSE
 - **Indian NSE**: `.NS` suffix (e.g., RELIANCE.NS)
 - **Indian BSE**: `.BO` suffix (e.g., TCS.BO)
+- **Cryptocurrency**: BTC, ETH, and 6,000+ coins
 
 Market-specific features:
 - Trading calendars (NYSE, NSE)
@@ -74,6 +83,8 @@ Intelligent AI model selection:
 
 ### Data Sources
 - **Tiingo API**: Stock market data (500 requests/day free)
+- **CoinGecko API**: Cryptocurrency data (10-30 calls/min free)
+- **DefiLlama API**: DeFi protocol metrics (free, no key)
 - **OpenRouter**: AI analysis and summarization
 - **OpenAI**: Embeddings for RAG Q&A
 - **FRED**: Economic indicators (optional)
@@ -148,3 +159,4 @@ Explore detailed documentation for each feature:
 - [Conference Call Analysis](conference-call-analysis.md) - Transcript analysis
 - [Research Tools](research-tools.md) - AI-powered research
 - [Backtesting](backtesting.md) - Strategy testing and optimization
+- [Cryptocurrency Analysis](crypto-analysis.md) - Crypto data, DeFi, and sentiment

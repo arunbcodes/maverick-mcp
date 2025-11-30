@@ -39,6 +39,13 @@ Maverick MCP is a comprehensive Model Context Protocol (MCP) server that brings 
 - **Supply/Demand Breakouts**: Confirmed uptrend patterns
 - **7 Indian Market Strategies**: Specialized screens for NSE/BSE
 
+### 🪙 Cryptocurrency Analysis
+- **6,000+ Cryptocurrencies**: Via CoinGecko API
+- **24/7 Market Support**: Continuous crypto trading analysis
+- **DeFi Metrics**: TVL, yields, stablecoin data via DefiLlama
+- **News Sentiment**: Real-time crypto news with sentiment analysis
+- **Mixed Portfolios**: Optimize stocks + crypto together
+
 ### 📈 Advanced Features
 - **Portfolio Optimization**: Modern Portfolio Theory with risk analysis
 - **Research Agents**: AI-powered market research with 7-256x speedup
@@ -107,14 +114,16 @@ Seamless analysis across:
 - 🇺🇸 US Markets (NASDAQ/NYSE)
 - 🇮🇳 Indian NSE (.NS suffix)
 - 🇮🇳 Indian BSE (.BO suffix)
+- 🪙 Cryptocurrency (BTC, ETH, 6,000+ coins)
 
 ## 📦 What's Included
 
-- **35+ MCP Tools**: Complete toolkit for stock analysis
+- **70+ MCP Tools**: Complete toolkit for stock and crypto analysis
+- **35 Crypto Tools**: Data, DeFi, backtesting, portfolio, news
 - **5 Conference Call Tools**: Fetch, summarize, analyze, query, compare
 - **Pre-seeded Data**: 520 S&P 500 stocks + screening recommendations
 - **Indian Market Data**: Nifty 50, Sensex constituents, economic indicators
-- **Comprehensive Tests**: 93 tests with 84% coverage
+- **Comprehensive Tests**: 150+ tests with good coverage
 - **Production Ready**: Type-checked, linted, and tested
 
 ## 🔗 Integration
