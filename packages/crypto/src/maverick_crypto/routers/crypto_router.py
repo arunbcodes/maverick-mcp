@@ -15,7 +15,7 @@ Tools:
 from __future__ import annotations
 
 import logging
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -401,6 +401,277 @@ def register_crypto_tools(mcp: Any) -> None:
         status["market_hours"] = calendar.get_market_hours()
         
         return status
+    
+    # ============================================================
+    # CoinGecko-powered tools (optional - requires pycoingecko)
+    # ============================================================
+    
+    @mcp.tool()
+    async def crypto_trending() -> dict[str, Any]:
+        """
+        Get trending cryptocurrencies from CoinGecko.
+        
+        Returns the top 7 trending coins based on CoinGecko's algorithm,
+        which considers search volume, price action, and social metrics.
+        
+        Returns:
+            Dictionary with:
+                - coins: List of trending coin data
+                - timestamp: When data was fetched
+                
+        Note:
+            Requires pycoingecko: pip install maverick-crypto[coingecko]
+            
+        Examples:
+            - "What cryptos are trending today?"
+            - "Show me trending coins"
+            - "What's hot in crypto right now?"
+        """
+        try:
+            from maverick_crypto.providers import CoinGeckoProvider, HAS_COINGECKO
+        except ImportError:
+            return {"error": "CoinGecko provider not available"}
+        
+        if not HAS_COINGECKO:
+            return {
+                "error": "pycoingecko not installed",
+                "help": "Install with: pip install maverick-crypto[coingecko]",
+            }
+        
+        try:
+            provider = CoinGeckoProvider()
+            return await provider.get_trending()
+        except Exception as e:
+            logger.error(f"Error fetching trending cryptos: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_fear_greed() -> dict[str, Any]:
+        """
+        Get the Crypto Fear & Greed Index.
+        
+        The Fear & Greed Index measures market sentiment on a scale of 0-100:
+        - 0-24: Extreme Fear (potential buying opportunity)
+        - 25-49: Fear
+        - 50-74: Greed
+        - 75-100: Extreme Greed (potential selling signal)
+        
+        Returns:
+            Dictionary with:
+                - value: Current index value (0-100)
+                - classification: Text classification
+                - interpretation: What the value means
+                - timestamp: When data was fetched
+                
+        Examples:
+            - "What's the crypto fear and greed index?"
+            - "Is the market fearful or greedy?"
+            - "What's the crypto sentiment right now?"
+        """
+        try:
+            from maverick_crypto.providers.coingecko_provider import FearGreedProvider
+        except ImportError:
+            return {"error": "Fear & Greed provider not available"}
+        
+        try:
+            provider = FearGreedProvider()
+            return await provider.get_fear_greed_index()
+        except Exception as e:
+            logger.error(f"Error fetching fear/greed index: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_global_data() -> dict[str, Any]:
+        """
+        Get global cryptocurrency market data.
+        
+        Returns comprehensive market-wide metrics including total market cap,
+        Bitcoin/Ethereum dominance, and market trends.
+        
+        Returns:
+            Dictionary with:
+                - total_market_cap_usd: Total crypto market cap
+                - btc_dominance: Bitcoin's market share (%)
+                - eth_dominance: Ethereum's market share (%)
+                - active_cryptocurrencies: Number of tracked coins
+                - market_cap_change_24h_pct: 24h market change
+                
+        Note:
+            Requires pycoingecko: pip install maverick-crypto[coingecko]
+            
+        Examples:
+            - "What's Bitcoin's market dominance?"
+            - "Show me the total crypto market cap"
+            - "What's the global crypto market data?"
+        """
+        try:
+            from maverick_crypto.providers import CoinGeckoProvider, HAS_COINGECKO
+        except ImportError:
+            return {"error": "CoinGecko provider not available"}
+        
+        if not HAS_COINGECKO:
+            return {
+                "error": "pycoingecko not installed",
+                "help": "Install with: pip install maverick-crypto[coingecko]",
+            }
+        
+        try:
+            provider = CoinGeckoProvider()
+            return await provider.get_global_data()
+        except Exception as e:
+            logger.error(f"Error fetching global data: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_top_coins(limit: int = 20) -> dict[str, Any]:
+        """
+        Get top cryptocurrencies by market cap.
+        
+        Returns the largest cryptocurrencies ranked by market capitalization.
+        Similar to S&P 500 for stocks but for crypto.
+        
+        Args:
+            limit: Number of coins to return (default: 20, max: 100)
+            
+        Returns:
+            Dictionary with:
+                - coins: List of coin data with price, market cap, etc.
+                - count: Number of coins returned
+                - timestamp: When data was fetched
+                
+        Note:
+            Requires pycoingecko: pip install maverick-crypto[coingecko]
+            
+        Examples:
+            - "Show me the top 10 cryptos by market cap"
+            - "What are the largest cryptocurrencies?"
+            - "List top 50 crypto coins"
+        """
+        try:
+            from maverick_crypto.providers import CoinGeckoProvider, HAS_COINGECKO
+        except ImportError:
+            return {"error": "CoinGecko provider not available"}
+        
+        if not HAS_COINGECKO:
+            return {
+                "error": "pycoingecko not installed",
+                "help": "Install with: pip install maverick-crypto[coingecko]",
+            }
+        
+        try:
+            limit = min(limit, 100)  # Cap at 100
+            provider = CoinGeckoProvider()
+            coins = await provider.get_top_coins(limit=limit)
+            
+            return {
+                "coins": coins,
+                "count": len(coins),
+                "timestamp": datetime.now().isoformat(),
+            }
+        except Exception as e:
+            logger.error(f"Error fetching top coins: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_search(query: str) -> dict[str, Any]:
+        """
+        Search for cryptocurrencies by name or symbol.
+        
+        Finds coins matching a search query - useful for discovering
+        coins by partial name or symbol.
+        
+        Args:
+            query: Search term (e.g., "bit", "doge", "solana")
+            
+        Returns:
+            Dictionary with:
+                - coins: List of matching coins
+                - count: Number of matches
+                
+        Note:
+            Requires pycoingecko: pip install maverick-crypto[coingecko]
+            
+        Examples:
+            - "Search for coins with 'dog' in the name"
+            - "Find crypto called pepe"
+            - "Search for layer 2 tokens"
+        """
+        try:
+            from maverick_crypto.providers import CoinGeckoProvider, HAS_COINGECKO
+        except ImportError:
+            return {"error": "CoinGecko provider not available"}
+        
+        if not HAS_COINGECKO:
+            return {
+                "error": "pycoingecko not installed",
+                "help": "Install with: pip install maverick-crypto[coingecko]",
+            }
+        
+        try:
+            provider = CoinGeckoProvider()
+            coins = await provider.search_coins(query)
+            
+            return {
+                "query": query,
+                "coins": coins,
+                "count": len(coins),
+            }
+        except Exception as e:
+            logger.error(f"Error searching coins: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def crypto_detailed_info(symbol: str) -> dict[str, Any]:
+        """
+        Get detailed information for a specific cryptocurrency.
+        
+        Returns comprehensive data including description, market data,
+        supply information, and all-time high/low prices.
+        
+        Args:
+            symbol: Crypto symbol (e.g., "BTC", "ETH", "SOL")
+            
+        Returns:
+            Dictionary with detailed coin information:
+                - id, symbol, name, description
+                - market_cap_rank, current_price, market_cap
+                - circulating_supply, total_supply, max_supply
+                - ath (all-time high), atl (all-time low)
+                
+        Note:
+            Requires pycoingecko: pip install maverick-crypto[coingecko]
+            
+        Examples:
+            - "Get detailed info for Bitcoin"
+            - "Tell me about Ethereum"
+            - "What's the max supply of Solana?"
+        """
+        try:
+            from maverick_crypto.providers import CoinGeckoProvider, HAS_COINGECKO
+        except ImportError:
+            return {"error": "CoinGecko provider not available"}
+        
+        if not HAS_COINGECKO:
+            return {
+                "error": "pycoingecko not installed",
+                "help": "Install with: pip install maverick-crypto[coingecko]",
+            }
+        
+        try:
+            provider = CoinGeckoProvider()
+            
+            # Get CoinGecko ID from symbol
+            coin_id = await provider.get_coin_id(symbol)
+            if not coin_id:
+                return {
+                    "error": f"Unknown symbol: {symbol}",
+                    "help": "Try searching with crypto_search first",
+                }
+            
+            return await provider.get_coin_data(coin_id)
+        except Exception as e:
+            logger.error(f"Error fetching coin info for {symbol}: {e}")
+            return {"error": str(e)}
     
     logger.info("Crypto tools registered successfully")
 
