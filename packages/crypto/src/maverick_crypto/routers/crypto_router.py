@@ -1135,5 +1135,277 @@ def register_crypto_tools(mcp: Any) -> None:
             logger.error(f"Asset class comparison failed: {e}")
             return {"error": str(e)}
     
+    # ============================================================
+    # DeFi tools (DefiLlama + GeckoTerminal)
+    # ============================================================
+    
+    @mcp.tool()
+    async def defi_top_protocols(limit: int = 20) -> dict[str, Any]:
+        """
+        Get top DeFi protocols by Total Value Locked (TVL).
+        
+        Data from DefiLlama - the largest DeFi TVL aggregator.
+        
+        Args:
+            limit: Number of protocols to return (default: 20)
+            
+        Returns:
+            Dictionary with:
+                - protocols: List of top DeFi protocols with TVL
+                - Each protocol includes: name, tvl, category, chains
+                
+        Examples:
+            - "What are the top DeFi protocols by TVL?"
+            - "Show me the largest DeFi platforms"
+            - "List top 10 protocols by locked value"
+        """
+        try:
+            from maverick_crypto.defi import DefiLlamaProvider
+            provider = DefiLlamaProvider()
+            protocols = await provider.get_top_protocols(limit)
+            return {"protocols": protocols, "count": len(protocols)}
+        except Exception as e:
+            logger.error(f"Failed to fetch top protocols: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def defi_top_chains(limit: int = 20) -> dict[str, Any]:
+        """
+        Get top blockchain chains by DeFi TVL.
+        
+        Shows which chains have the most value locked in DeFi protocols.
+        
+        Args:
+            limit: Number of chains to return (default: 20)
+            
+        Returns:
+            Dictionary with:
+                - chains: List of chains sorted by TVL
+                - Each chain includes: name, tvl, token symbol
+                
+        Examples:
+            - "Which chains have the most DeFi TVL?"
+            - "Compare Ethereum vs Solana TVL"
+            - "Top DeFi chains by locked value"
+        """
+        try:
+            from maverick_crypto.defi import DefiLlamaProvider
+            provider = DefiLlamaProvider()
+            chains = await provider.get_top_chains(limit)
+            return {"chains": chains, "count": len(chains)}
+        except Exception as e:
+            logger.error(f"Failed to fetch top chains: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def defi_protocol_info(protocol: str) -> dict[str, Any]:
+        """
+        Get detailed information for a specific DeFi protocol.
+        
+        Args:
+            protocol: Protocol slug (e.g., "uniswap", "aave", "lido")
+            
+        Returns:
+            Dictionary with:
+                - Protocol TVL, category, chains
+                - Historical TVL data
+                
+        Examples:
+            - "Get TVL info for Uniswap"
+            - "How much is locked in Aave?"
+            - "Show me Lido protocol details"
+        """
+        try:
+            from maverick_crypto.defi import DefiLlamaProvider
+            provider = DefiLlamaProvider()
+            data = await provider.get_protocol(protocol.lower())
+            
+            if not data:
+                return {"error": f"Protocol '{protocol}' not found"}
+            
+            return {
+                "name": data.get("name"),
+                "symbol": data.get("symbol"),
+                "tvl": data.get("tvl"),
+                "category": data.get("category"),
+                "chains": data.get("chains", [])[:10],
+                "url": data.get("url"),
+                "description": data.get("description", "")[:500],
+            }
+        except Exception as e:
+            logger.error(f"Failed to fetch protocol info: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def defi_yields(limit: int = 20) -> dict[str, Any]:
+        """
+        Get top DeFi yield farming opportunities.
+        
+        Shows pools with highest APY across DeFi protocols.
+        
+        Args:
+            limit: Number of pools to return (default: 20)
+            
+        Returns:
+            Dictionary with:
+                - pools: List of yield pools sorted by APY
+                - Each pool includes: project, chain, apy, tvl
+                
+        Examples:
+            - "What are the best DeFi yields?"
+            - "Show highest APY farming opportunities"
+            - "Top staking rewards in DeFi"
+        """
+        try:
+            from maverick_crypto.defi import DefiLlamaProvider
+            provider = DefiLlamaProvider()
+            yields = await provider.get_yields(limit)
+            return {"pools": yields, "count": len(yields)}
+        except Exception as e:
+            logger.error(f"Failed to fetch yields: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def defi_stablecoins() -> dict[str, Any]:
+        """
+        Get stablecoin market data.
+        
+        Shows major stablecoins with market cap and peg information.
+        
+        Returns:
+            Dictionary with:
+                - stablecoins: List of stablecoins with market data
+                - Each includes: name, symbol, circulating supply, peg type
+                
+        Examples:
+            - "What are the top stablecoins?"
+            - "Compare USDT vs USDC market cap"
+            - "Show stablecoin market overview"
+        """
+        try:
+            from maverick_crypto.defi import DefiLlamaProvider
+            provider = DefiLlamaProvider()
+            stables = await provider.get_stablecoins()
+            total_mcap = sum(s.get("circulating", 0) or 0 for s in stables)
+            return {
+                "stablecoins": stables[:20],
+                "total_market_cap": total_mcap,
+            }
+        except Exception as e:
+            logger.error(f"Failed to fetch stablecoins: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def defi_summary() -> dict[str, Any]:
+        """
+        Get comprehensive DeFi market summary.
+        
+        Provides overview of DeFi market including top protocols,
+        chains, and stablecoins.
+        
+        Returns:
+            Dictionary with:
+                - top_protocols: Top 10 by TVL
+                - top_chains: Top 10 chains
+                - stablecoin_market_cap: Total stablecoin value
+                
+        Examples:
+            - "Give me a DeFi market overview"
+            - "What's the state of DeFi?"
+            - "DeFi market summary"
+        """
+        try:
+            from maverick_crypto.defi import DefiLlamaProvider
+            provider = DefiLlamaProvider()
+            summary = await provider.get_defi_summary()
+            return summary
+        except Exception as e:
+            logger.error(f"Failed to generate DeFi summary: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def onchain_trending_pools(network: str | None = None) -> dict[str, Any]:
+        """
+        Get trending DEX pools on-chain.
+        
+        Shows pools with highest activity from DEX aggregators.
+        Data from CoinGecko's GeckoTerminal.
+        
+        Args:
+            network: Optional filter (e.g., "ethereum", "solana", "base")
+            
+        Returns:
+            Dictionary with:
+                - pools: Trending pools with volume and price data
+                - Each includes: name, dex, price_change, volume_24h
+                
+        Examples:
+            - "What pools are trending on-chain?"
+            - "Show trending Solana DEX pools"
+            - "Hot pools on Ethereum DEXs"
+        """
+        try:
+            from maverick_crypto.defi import OnChainProvider
+            provider = OnChainProvider()
+            pools = await provider.get_trending_pools(network)
+            return {"pools": pools, "network": network or "all", "count": len(pools)}
+        except Exception as e:
+            logger.error(f"Failed to fetch trending pools: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def onchain_new_pools(network: str | None = None) -> dict[str, Any]:
+        """
+        Get recently created DEX pools.
+        
+        Useful for discovering new tokens and trading opportunities.
+        
+        Args:
+            network: Optional filter (e.g., "ethereum", "solana")
+            
+        Returns:
+            Dictionary with:
+                - pools: New pools sorted by creation time
+                - Each includes: name, dex, created_at, reserve
+                
+        Examples:
+            - "What new pools were just created?"
+            - "Show new token pools on Solana"
+            - "Latest DEX pool launches"
+        """
+        try:
+            from maverick_crypto.defi import OnChainProvider
+            provider = OnChainProvider()
+            pools = await provider.get_new_pools(network)
+            return {"pools": pools, "network": network or "all", "count": len(pools)}
+        except Exception as e:
+            logger.error(f"Failed to fetch new pools: {e}")
+            return {"error": str(e)}
+    
+    @mcp.tool()
+    async def onchain_search_pools(query: str) -> dict[str, Any]:
+        """
+        Search for DEX pools by token name or symbol.
+        
+        Args:
+            query: Token name or symbol to search
+            
+        Returns:
+            Dictionary with matching pools
+            
+        Examples:
+            - "Search for PEPE pools"
+            - "Find pools for WIF token"
+            - "Search Bonk DEX pools"
+        """
+        try:
+            from maverick_crypto.defi import OnChainProvider
+            provider = OnChainProvider()
+            pools = await provider.search_pools(query)
+            return {"pools": pools, "query": query, "count": len(pools)}
+        except Exception as e:
+            logger.error(f"Failed to search pools: {e}")
+            return {"error": str(e)}
+    
     logger.info("Crypto tools registered successfully")
 
