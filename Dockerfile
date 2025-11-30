@@ -9,6 +9,7 @@
 #     maverick-backtest - Backtesting engine and strategies
 #     maverick-agents   - AI/LLM agents and workflows
 #     maverick-india    - Indian market specific features
+#     maverick-crypto   - Cryptocurrency data, DeFi, sentiment
 #     maverick-server   - MCP server (main entry point)
 
 # ============================================================================
@@ -53,7 +54,7 @@ COPY packages/ ./packages/
 
 # Install all packages in the workspace
 # This installs maverick-core, maverick-data, maverick-backtest, 
-# maverick-agents, maverick-india, maverick-server with all dependencies
+# maverick-agents, maverick-india, maverick-crypto, maverick-server with all dependencies
 RUN uv sync --frozen --no-dev
 
 # ============================================================================
@@ -109,7 +110,7 @@ RUN chmod +x /app/scripts/docker-entrypoint.sh
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:$PATH" \
-    PYTHONPATH="/app/packages/core/src:/app/packages/data/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app:$PYTHONPATH"
+    PYTHONPATH="/app/packages/core/src:/app/packages/data/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app/packages/crypto/src:/app:$PYTHONPATH"
 
 # Create non-root user
 RUN groupadd -g ${APP_GID} ${APP_USER} && \
