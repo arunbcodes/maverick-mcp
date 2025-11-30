@@ -7,6 +7,7 @@ This module provides:
 - ConcallProvider: Abstract interface for transcript providers
 - CompanyIRProvider: Fetch transcripts from company IR websites
 - NSEProvider: Fetch transcripts from NSE exchange filings
+- ScreenerProvider: Fetch from Screener.in (consolidated fallback)
 - TranscriptLoader utilities: Parse PDF, HTML, and text transcripts
 
 Models (from maverick-data):
@@ -20,7 +21,7 @@ Services (require LLM integration):
 - ConcallRAGEngine: RAG-based Q&A (requires maverick-agents)
 
 Example:
-    >>> from maverick_india.concall import CompanyIRProvider, NSEProvider
+    >>> from maverick_india.concall import CompanyIRProvider, NSEProvider, ScreenerProvider
     >>>
     >>> # Fetch from company IR website
     >>> ir_provider = CompanyIRProvider()
@@ -29,12 +30,17 @@ Example:
     >>> # Fallback to NSE filings
     >>> nse_provider = NSEProvider()
     >>> transcript = await nse_provider.fetch_transcript("RELIANCE.NS", "Q1", 2025)
+    >>>
+    >>> # Fallback to Screener.in (https://www.screener.in/concalls/)
+    >>> screener_provider = ScreenerProvider()
+    >>> transcript = await screener_provider.fetch_transcript("RELIANCE.NS", "Q1", 2025)
 """
 
 from maverick_india.concall.providers import (
     CompanyIRProvider,
     ConcallProvider,
     NSEProvider,
+    ScreenerProvider,
 )
 from maverick_india.concall.services import (
     SENTIMENT_ANALYSIS_PROMPT,
@@ -69,6 +75,7 @@ __all__ = [
     "ConcallProvider",
     "CompanyIRProvider",
     "NSEProvider",
+    "ScreenerProvider",
     # Services
     "TranscriptFetcher",
     "ConcallSummarizer",
