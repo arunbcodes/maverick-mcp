@@ -11,6 +11,7 @@ packages/
 ├── maverick-backtest  # Backtesting engine, strategies, workflows
 ├── maverick-india     # Indian market support, news, concall
 ├── maverick-agents    # LLM agents, research, supervisors
+├── maverick-crypto    # Cryptocurrency data, DeFi, news sentiment
 └── maverick-server    # MCP server, routers, tools
 ```
 
@@ -32,6 +33,7 @@ graph TB
         Agents[maverick-agents]
         Backtest[maverick-backtest]
         India[maverick-india]
+        Crypto[maverick-crypto]
     end
     
     subgraph "Data Layer"
@@ -47,13 +49,16 @@ graph TB
     Routers --> Agents
     Routers --> Backtest
     Routers --> India
+    Routers --> Crypto
     Agents --> Data
     Backtest --> Data
     India --> Data
+    Crypto --> Data
     Data --> Core
     Agents --> Core
     Backtest --> Core
     India --> Core
+    Crypto --> Core
 ```
 
 ## Package Dependencies
@@ -65,6 +70,7 @@ graph TB
 | **maverick-backtest** | maverick-core, maverick-data, vectorbt | Strategy backtesting |
 | **maverick-india** | maverick-core, maverick-data | Indian market support |
 | **maverick-agents** | maverick-core, langchain, langgraph | AI-powered analysis |
+| **maverick-crypto** | maverick-core, pycoingecko, vectorbt | Cryptocurrency analysis |
 | **maverick-server** | All packages, fastmcp | MCP server and API |
 
 ## Quick Start
@@ -170,6 +176,7 @@ def fetch_data(ticker: str) -> dict:
 - [maverick-data](maverick-data.md) - Data access layer
 - [maverick-backtest](maverick-backtest.md) - Backtesting engine
 - [maverick-india](maverick-india.md) - Indian market support
+- [maverick-crypto](maverick-crypto.md) - Cryptocurrency analysis
 - [maverick-server](maverick-server.md) - MCP server
 - [Migration Guide](migration-guide.md) - Migrating from legacy code
 
@@ -182,5 +189,6 @@ def fetch_data(ticker: str) -> dict:
 | maverick-backtest | 0.1.0 | ≥3.12 |
 | maverick-india | 0.1.0 | ≥3.12 |
 | maverick-agents | 0.1.0 | ≥3.12 |
+| maverick-crypto | 0.1.0 | ≥3.12 |
 | maverick-server | 0.1.0 | ≥3.12 |
 

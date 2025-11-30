@@ -77,6 +77,7 @@ plugins:
             - packages/india/src
             - packages/server/src
             - packages/agents/src
+            - packages/crypto/src
             - .
           options:
             docstring_style: google
@@ -158,6 +159,7 @@ nav:
       - Portfolio Analysis: features/portfolio-analysis.md
       - Research Tools: features/research-tools.md
       - Backtesting: features/backtesting.md
+      - Cryptocurrency Analysis: features/crypto-analysis.md
   - Conference Call System:
       - Overview: concall/overview.md
       - Fetching Transcripts: concall/fetching-transcripts.md
@@ -193,6 +195,14 @@ nav:
       - maverick-server:
           - MCP Routers: api-reference/maverick-server/routers.md
           - Monitoring: api-reference/maverick-server/monitoring.md
+      - maverick-crypto:
+          - Overview: api-reference/maverick-crypto/index.md
+          - Providers: api-reference/maverick-crypto/providers.md
+          - Calendar: api-reference/maverick-crypto/calendar.md
+          - Backtesting: api-reference/maverick-crypto/backtesting.md
+          - Portfolio: api-reference/maverick-crypto/portfolio.md
+          - DeFi: api-reference/maverick-crypto/defi.md
+          - News: api-reference/maverick-crypto/news.md
   - Deployment:
       - Docker Guide: deployment/docker.md
       - Rancher Desktop: deployment/rancher-desktop.md
@@ -203,6 +213,7 @@ nav:
       - maverick-backtest: packages/maverick-backtest.md
       - maverick-india: packages/maverick-india.md
       - maverick-server: packages/maverick-server.md
+      - maverick-crypto: packages/maverick-crypto.md
       - Migration Guide: packages/migration-guide.md
   - Development:
       - Contributing: development/contributing.md
