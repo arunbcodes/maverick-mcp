@@ -549,7 +549,7 @@ Remember to:
 
         # Cache results if conversation store available
         if self.conversation_store:
-            query_hash = hashlib.md5(query.lower().encode()).hexdigest()[:8]
+            query_hash = hashlib.sha256(query.lower().encode()).hexdigest()[:8]
             cache_key = f"{screening_strategy}_{query_hash}"
 
             self.conversation_store.save_analysis(

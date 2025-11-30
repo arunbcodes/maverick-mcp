@@ -6,6 +6,7 @@ or network calls, using FastMCP's in-memory transport capabilities.
 """
 
 import asyncio
+import json
 from datetime import datetime, timedelta
 from typing import Any
 from unittest.mock import Mock, patch
@@ -92,7 +93,7 @@ class TestInMemoryServer:
             # Result is a list of content items
             assert len(result) > 0
             assert result[0].text is not None
-            health_data = eval(result[0].text)  # Convert string representation to dict
+            health_data = json.loads(result[0].text)  # Convert string representation to dict
 
             # In testing environment, status might be degraded due to mocked services
             assert health_data["status"] in ["ok", "degraded"]
@@ -131,7 +132,7 @@ class TestInMemoryServer:
             assert len(result) > 0
             assert result[0].text is not None
             # Result should contain stock data
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
             assert data["ticker"] == "AAPL"
             assert "columns" in data
             assert "Open" in data["columns"]
@@ -149,7 +150,7 @@ class TestInMemoryServer:
             assert len(result) > 0
             assert result[0].text is not None
             # Should contain RSI data
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
             assert "analysis" in data
             assert "ticker" in data
             assert data["ticker"] == "AAPL"
@@ -171,7 +172,7 @@ class TestInMemoryServer:
 
             assert len(result) > 0
             assert result[0].text is not None
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
 
             assert "results" in data
             assert "AAPL" in data["results"]
@@ -197,7 +198,7 @@ class TestInMemoryServer:
             # Should return empty data for invalid ticker
             assert len(result) > 0
             assert result[0].text is not None
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
             # Invalid ticker returns empty data
             assert data["record_count"] == 0
             assert len(data["data"]) == 0
@@ -249,7 +250,7 @@ class TestInMemoryServer:
             for result in results:
                 assert len(result) > 0
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert data["ticker"] == "AAPL"
 
 
@@ -294,7 +295,7 @@ class TestErrorHandling:
                 result = await client.read_resource("health://")
 
                 assert len(result) > 0
-                health_data = eval(result[0].text)
+                health_data = json.loads(result[0].text)
                 # Database should show an error
                 assert health_data["status"] in ["degraded", "unhealthy"]
                 assert "components" in health_data
@@ -310,7 +311,7 @@ class TestErrorHandling:
                 result = await client.read_resource("health://")
 
                 assert len(result) > 0
-                health_data = eval(result[0].text)
+                health_data = json.loads(result[0].text)
                 # Cache should fall back to memory
                 assert "components" in health_data
                 if "cache" in health_data["components"]:

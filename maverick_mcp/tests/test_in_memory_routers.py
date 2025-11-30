@@ -6,6 +6,7 @@ router mounting and in-memory testing capabilities.
 """
 
 import asyncio
+import json
 from unittest.mock import Mock, patch
 
 import pytest
@@ -237,7 +238,7 @@ class TestTechnicalRouter:
 
                 assert len(result) > 0
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "analysis" in data
                 assert "histogram" in data["analysis"]
                 assert "indicator" in data["analysis"]
@@ -280,7 +281,7 @@ class TestTechnicalRouter:
 
                 assert len(result) > 0
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
                 assert "support_levels" in data
                 assert "resistance_levels" in data
                 assert len(data["support_levels"]) > 0
@@ -302,7 +303,7 @@ class TestScreeningRouter:
 
             assert len(result) > 0
             assert result[0].text is not None
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
 
             assert "stocks" in data
             assert len(data["stocks"]) == 2  # AAPL and MSFT
@@ -326,7 +327,7 @@ class TestScreeningRouter:
 
             assert len(result) > 0
             assert result[0].text is not None
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
 
             assert "stocks" in data
             assert len(data["stocks"]) == 1  # Only GOOGL
@@ -347,7 +348,7 @@ class TestScreeningRouter:
 
             assert len(result) > 0
             assert result[0].text is not None
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
 
             assert "maverick_stocks" in data
             assert "maverick_bear_stocks" in data
@@ -399,7 +400,7 @@ class TestPortfolioRouter:
 
                 assert len(result) > 0
                 assert result[0].text is not None
-                data = eval(result[0].text)
+                data = json.loads(result[0].text)
 
                 assert "risk_level" in data or "analysis" in data
                 assert "ticker" in data
@@ -486,7 +487,7 @@ class TestDataRouter:
 
             assert len(result) > 0
             assert result[0].text is not None
-            data = eval(result[0].text)
+            data = json.loads(result[0].text)
             assert "results" in data
             assert len(data["results"]) == 2
 

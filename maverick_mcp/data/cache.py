@@ -246,9 +246,9 @@ def generate_cache_key(base_key: str, **kwargs) -> str:
 
     full_key = ":".join(str(part) for part in key_parts)
 
-    # Hash long keys to prevent Redis key length limits
+    # Hash long keys to prevent Redis key length limits (using SHA-256 for security)
     if len(full_key) > 250:
-        key_hash = hashlib.md5(full_key.encode()).hexdigest()
+        key_hash = hashlib.sha256(full_key.encode()).hexdigest()[:32]
         return f"{CACHE_VERSION}:hashed:{key_hash}"
 
     return full_key
