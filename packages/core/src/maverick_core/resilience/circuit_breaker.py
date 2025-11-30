@@ -693,6 +693,29 @@ CIRCUIT_BREAKER_CONFIGS = {
         detection_strategy=FailureDetectionStrategy.COMBINED,
         expected_exceptions=(Exception,),
     ),
+    # Cryptocurrency API providers
+    "coingecko": CircuitBreakerConfig(
+        name="coingecko",
+        failure_threshold=3,
+        failure_rate_threshold=0.5,
+        timeout_threshold=30.0,
+        recovery_timeout=60,  # Wait 60s before retry (rate limit reset)
+        success_threshold=2,
+        window_size=120,  # 2-minute window for rate-limited API
+        detection_strategy=FailureDetectionStrategy.COMBINED,
+        expected_exceptions=(Exception,),
+    ),
+    "fear_greed": CircuitBreakerConfig(
+        name="fear_greed",
+        failure_threshold=3,
+        failure_rate_threshold=0.5,
+        timeout_threshold=15.0,
+        recovery_timeout=120,  # Alternative.me API is more lenient
+        success_threshold=2,
+        window_size=300,
+        detection_strategy=FailureDetectionStrategy.CONSECUTIVE_FAILURES,
+        expected_exceptions=(Exception,),
+    ),
 }
 
 
