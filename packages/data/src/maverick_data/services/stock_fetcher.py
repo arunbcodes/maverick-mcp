@@ -12,6 +12,8 @@ from typing import Any
 import pandas as pd
 import yfinance as yf
 
+from maverick_core.decorators import safe_execute
+from maverick_core.exceptions import DataProviderError
 from maverick_data.providers.yfinance_pool import get_yfinance_pool
 
 logger = logging.getLogger(__name__)
@@ -113,6 +115,7 @@ class StockDataFetcher:
         logger.debug(f"Retrieved info for {symbol}")
         return info
 
+    @safe_execute(default=None, log_errors=True)
     def fetch_realtime_data(self, symbol: str) -> dict[str, Any] | None:
         """
         Fetch real-time stock data.
@@ -122,50 +125,48 @@ class StockDataFetcher:
 
         Returns:
             Dictionary with real-time data or None if unavailable
+
+        Raises:
+            DataProviderError: If data fetch fails critically
         """
-        try:
-            # Use connection pool for real-time data
-            data = self._yf_pool.get_history(symbol, period="1d")
+        # Use connection pool for real-time data
+        data = self._yf_pool.get_history(symbol, period="1d")
 
-            if data.empty:
-                logger.warning(f"No real-time data available for {symbol}")
-                return None
-
-            latest = data.iloc[-1]
-
-            # Get previous close for change calculation
-            info = self._yf_pool.get_info(symbol)
-            prev_close = info.get("previousClose", None)
-            if prev_close is None:
-                # Try to get from 2-day history
-                data_2d = self._yf_pool.get_history(symbol, period="2d")
-                if len(data_2d) > 1:
-                    prev_close = data_2d.iloc[0]["Close"]
-                else:
-                    prev_close = latest["Close"]
-
-            # Calculate change
-            price = latest["Close"]
-            change = price - prev_close
-            change_percent = (change / prev_close) * 100 if prev_close != 0 else 0
-
-            result = {
-                "symbol": symbol,
-                "price": round(float(price), 2),
-                "change": round(float(change), 2),
-                "change_percent": round(float(change_percent), 2),
-                "volume": int(latest["Volume"]),
-                "timestamp": data.index[-1],
-                "timestamp_display": data.index[-1].strftime("%Y-%m-%d %H:%M:%S"),
-                "is_real_time": False,  # yfinance data has some delay
-            }
-
-            logger.debug(f"Fetched realtime data for {symbol}: {result['price']}")
-            return result
-
-        except Exception as e:
-            logger.error(f"Error fetching realtime data for {symbol}: {e}")
+        if data.empty:
+            logger.warning(f"No real-time data available for {symbol}")
             return None
+
+        latest = data.iloc[-1]
+
+        # Get previous close for change calculation
+        info = self._yf_pool.get_info(symbol)
+        prev_close = info.get("previousClose", None)
+        if prev_close is None:
+            # Try to get from 2-day history
+            data_2d = self._yf_pool.get_history(symbol, period="2d")
+            if len(data_2d) > 1:
+                prev_close = data_2d.iloc[0]["Close"]
+            else:
+                prev_close = latest["Close"]
+
+        # Calculate change
+        price = latest["Close"]
+        change = price - prev_close
+        change_percent = (change / prev_close) * 100 if prev_close != 0 else 0
+
+        result = {
+            "symbol": symbol,
+            "price": round(float(price), 2),
+            "change": round(float(change), 2),
+            "change_percent": round(float(change_percent), 2),
+            "volume": int(latest["Volume"]),
+            "timestamp": data.index[-1],
+            "timestamp_display": data.index[-1].strftime("%Y-%m-%d %H:%M:%S"),
+            "is_real_time": False,  # yfinance data has some delay
+        }
+
+        logger.debug(f"Fetched realtime data for {symbol}: {result['price']}")
+        return result
 
     def fetch_multiple_realtime(self, symbols: list[str]) -> dict[str, dict]:
         """
@@ -186,6 +187,11 @@ class StockDataFetcher:
         logger.info(f"Fetched realtime data for {len(results)}/{len(symbols)} symbols")
         return results
 
+    _empty_news_df = pd.DataFrame(
+        columns=["title", "publisher", "link", "providerPublishTime", "type"]
+    )
+
+    @safe_execute(default=_empty_news_df, log_errors=True)
     def fetch_news(self, symbol: str, limit: int = 10) -> pd.DataFrame:
         """
         Fetch news for a stock from yfinance.
@@ -197,38 +203,34 @@ class StockDataFetcher:
         Returns:
             DataFrame with news articles
         """
-        try:
-            ticker = yf.Ticker(symbol)
-            news = ticker.news
+        ticker = yf.Ticker(symbol)
+        news = ticker.news
 
-            if not news:
-                return pd.DataFrame(
-                    columns=[
-                        "title",
-                        "publisher",
-                        "link",
-                        "providerPublishTime",
-                        "type",
-                    ]
-                )
-
-            df = pd.DataFrame(news[:limit])
-
-            # Convert timestamp to datetime
-            if "providerPublishTime" in df.columns:
-                df["providerPublishTime"] = pd.to_datetime(
-                    df["providerPublishTime"], unit="s"
-                )
-
-            logger.debug(f"Fetched {len(df)} news items for {symbol}")
-            return df
-
-        except Exception as e:
-            logger.error(f"Error fetching news for {symbol}: {e}")
+        if not news:
             return pd.DataFrame(
-                columns=["title", "publisher", "link", "providerPublishTime", "type"]
+                columns=[
+                    "title",
+                    "publisher",
+                    "link",
+                    "providerPublishTime",
+                    "type",
+                ]
             )
 
+        df = pd.DataFrame(news[:limit])
+
+        # Convert timestamp to datetime
+        if "providerPublishTime" in df.columns:
+            df["providerPublishTime"] = pd.to_datetime(
+                df["providerPublishTime"], unit="s"
+            )
+
+        logger.debug(f"Fetched {len(df)} news items for {symbol}")
+        return df
+
+    _empty_earnings = {"earnings": {}, "earnings_dates": {}, "earnings_trend": {}}
+
+    @safe_execute(default=_empty_earnings, log_errors=True)
     def fetch_earnings(self, symbol: str) -> dict[str, Any]:
         """
         Fetch earnings information for a stock.
@@ -239,27 +241,25 @@ class StockDataFetcher:
         Returns:
             Dictionary with earnings data
         """
-        try:
-            ticker = yf.Ticker(symbol)
-            result = {
-                "earnings": ticker.earnings.to_dict()
-                if hasattr(ticker, "earnings") and ticker.earnings is not None and not ticker.earnings.empty
-                else {},
-                "earnings_dates": ticker.earnings_dates.to_dict()
-                if hasattr(ticker, "earnings_dates") and ticker.earnings_dates is not None and not ticker.earnings_dates.empty
-                else {},
-                "earnings_trend": ticker.earnings_trend
-                if hasattr(ticker, "earnings_trend")
-                else {},
-            }
+        ticker = yf.Ticker(symbol)
+        result = {
+            "earnings": ticker.earnings.to_dict()
+            if hasattr(ticker, "earnings") and ticker.earnings is not None and not ticker.earnings.empty
+            else {},
+            "earnings_dates": ticker.earnings_dates.to_dict()
+            if hasattr(ticker, "earnings_dates") and ticker.earnings_dates is not None and not ticker.earnings_dates.empty
+            else {},
+            "earnings_trend": ticker.earnings_trend
+            if hasattr(ticker, "earnings_trend")
+            else {},
+        }
 
-            logger.debug(f"Fetched earnings data for {symbol}")
-            return result
+        logger.debug(f"Fetched earnings data for {symbol}")
+        return result
 
-        except Exception as e:
-            logger.error(f"Error fetching earnings for {symbol}: {e}")
-            return {"earnings": {}, "earnings_dates": {}, "earnings_trend": {}}
+    _empty_recommendations_df = pd.DataFrame(columns=["firm", "toGrade", "fromGrade", "action"])
 
+    @safe_execute(default=_empty_recommendations_df, log_errors=True)
     def fetch_recommendations(self, symbol: str) -> pd.DataFrame:
         """
         Fetch analyst recommendations for a stock.
@@ -270,20 +270,16 @@ class StockDataFetcher:
         Returns:
             DataFrame with recommendations
         """
-        try:
-            ticker = yf.Ticker(symbol)
-            recommendations = ticker.recommendations
+        ticker = yf.Ticker(symbol)
+        recommendations = ticker.recommendations
 
-            if recommendations is None or recommendations.empty:
-                return pd.DataFrame(columns=["firm", "toGrade", "fromGrade", "action"])
-
-            logger.debug(f"Fetched {len(recommendations)} recommendations for {symbol}")
-            return recommendations
-
-        except Exception as e:
-            logger.error(f"Error fetching recommendations for {symbol}: {e}")
+        if recommendations is None or recommendations.empty:
             return pd.DataFrame(columns=["firm", "toGrade", "fromGrade", "action"])
 
+        logger.debug(f"Fetched {len(recommendations)} recommendations for {symbol}")
+        return recommendations
+
+    @safe_execute(default=False, log_errors=True)
     def is_etf(self, symbol: str) -> bool:
         """
         Check if a symbol is an ETF.
@@ -303,20 +299,16 @@ class StockDataFetcher:
         if symbol.upper() in common_etfs:
             return True
 
-        try:
-            stock = yf.Ticker(symbol)
-            # Check if quoteType exists and is ETF
-            if "quoteType" in stock.info:
-                return stock.info["quoteType"].upper() == "ETF"
+        stock = yf.Ticker(symbol)
+        # Check if quoteType exists and is ETF
+        if "quoteType" in stock.info:
+            return stock.info["quoteType"].upper() == "ETF"
 
-            # Fallback check for common ETF identifiers
-            return any([
-                symbol.endswith(("ETF", "FUND")),
-                "ETF" in stock.info.get("longName", "").upper(),
-            ])
-        except Exception as e:
-            logger.error(f"Error checking if {symbol} is ETF: {e}")
-            return False
+        # Fallback check for common ETF identifiers
+        return any([
+            symbol.endswith(("ETF", "FUND")),
+            "ETF" in stock.info.get("longName", "").upper(),
+        ])
 
 
 __all__ = ["StockDataFetcher"]

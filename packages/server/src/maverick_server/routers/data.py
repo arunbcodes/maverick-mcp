@@ -5,6 +5,7 @@ All data fetching and caching lives in maverick-data.
 This router only defines MCP tool signatures and delegates.
 """
 
+import asyncio
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -93,9 +94,9 @@ def register_data_tools(mcp: FastMCP) -> None:
         """
         try:
             provider = YFinanceProvider()
-            results = {}
 
-            for ticker in tickers:
+            async def fetch_single_ticker(ticker: str) -> tuple[str, dict]:
+                """Fetch data for a single ticker."""
                 try:
                     df = await provider.get_stock_data(
                         ticker,
@@ -104,15 +105,22 @@ def register_data_tools(mcp: FastMCP) -> None:
                     )
 
                     if not df.empty:
-                        results[ticker] = {
+                        return ticker, {
                             "data_points": len(df),
                             "latest_close": round(float(df["Close"].iloc[-1]), 2),
                             "latest_date": str(df.index[-1].date()),
                         }
                     else:
-                        results[ticker] = {"error": "No data found"}
+                        return ticker, {"error": "No data found"}
                 except Exception as e:
-                    results[ticker] = {"error": str(e)}
+                    return ticker, {"error": str(e)}
+
+            # Fetch all tickers in parallel
+            ticker_results = await asyncio.gather(
+                *[fetch_single_ticker(t) for t in tickers]
+            )
+
+            results = {ticker: result for ticker, result in ticker_results}
 
             return {
                 "tickers_requested": len(tickers),

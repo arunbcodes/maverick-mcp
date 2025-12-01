@@ -83,38 +83,58 @@ class CryptoPanicProvider:
         "theblock": "https://www.theblock.co/rss.xml",
     }
     
-    def __init__(self, api_key: str | None = None, timeout: float = 30.0):
+    def __init__(
+        self,
+        api_key: str | None = None,
+        timeout: float = 30.0,
+        http_client: httpx.AsyncClient | None = None,
+    ):
         """
         Initialize CryptoPanic provider.
-        
+
         Args:
             api_key: Optional API key for premium features
             timeout: Request timeout
+            http_client: Optional shared HTTP client (recommended for connection reuse)
         """
         self.api_key = api_key
         self.timeout = timeout
-        
+        self._http_client = http_client
+        self._owns_client = http_client is None
+
         # Use authenticated or public endpoint
         if api_key:
             self.base_url = self.BASE_URL
         else:
             self.base_url = self.PUBLIC_URL
-            
+
         logger.info(f"CryptoPanicProvider initialized (API key: {'yes' if api_key else 'no'})")
-    
+
+    async def _get_client(self) -> httpx.AsyncClient:
+        """Get or create HTTP client."""
+        if self._http_client is None:
+            self._http_client = httpx.AsyncClient(timeout=self.timeout)
+        return self._http_client
+
+    async def close(self) -> None:
+        """Close HTTP client if owned by this instance."""
+        if self._owns_client and self._http_client is not None:
+            await self._http_client.aclose()
+            self._http_client = None
+
     async def _request(self, endpoint: str, params: dict | None = None) -> dict | None:
-        """Make async HTTP request."""
+        """Make async HTTP request using shared client."""
         url = f"{self.base_url}/{endpoint}"
-        
+
         params = params or {}
         if self.api_key:
             params["auth_token"] = self.api_key
-        
+
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(url, params=params)
-                response.raise_for_status()
-                return response.json()
+            client = await self._get_client()
+            response = await client.get(url, params=params)
+            response.raise_for_status()
+            return response.json()
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error from CryptoPanic: {e}")
             return None
@@ -214,39 +234,39 @@ class CryptoPanicProvider:
     ) -> list[NewsArticle]:
         """Fetch news from RSS feeds as fallback."""
         articles = []
-        
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            for source, feed_url in self.RSS_FEEDS.items():
-                try:
-                    response = await client.get(feed_url)
-                    response.raise_for_status()
-                    
-                    # Parse RSS XML
-                    root = ET.fromstring(response.text)
-                    
-                    for item in root.findall(".//item")[:10]:
-                        title = item.findtext("title", "")
-                        link = item.findtext("link", "")
-                        pub_date = item.findtext("pubDate", "")
-                        description = item.findtext("description", "")
-                        
-                        # Filter by currency if specified
-                        if currencies:
-                            title_lower = title.lower()
-                            if not any(c.lower() in title_lower for c in currencies):
-                                continue
-                        
-                        articles.append(NewsArticle(
-                            title=title,
-                            url=link,
-                            source=source,
-                            published_at=self._parse_rss_date(pub_date),
-                            summary=description[:200] if description else None,
-                            sentiment="neutral",
-                        ))
-                        
-                except Exception as e:
-                    logger.warning(f"Failed to fetch RSS from {source}: {e}")
+        client = await self._get_client()
+
+        for source, feed_url in self.RSS_FEEDS.items():
+            try:
+                response = await client.get(feed_url)
+                response.raise_for_status()
+
+                # Parse RSS XML
+                root = ET.fromstring(response.text)
+
+                for item in root.findall(".//item")[:10]:
+                    title = item.findtext("title", "")
+                    link = item.findtext("link", "")
+                    pub_date = item.findtext("pubDate", "")
+                    description = item.findtext("description", "")
+
+                    # Filter by currency if specified
+                    if currencies:
+                        title_lower = title.lower()
+                        if not any(c.lower() in title_lower for c in currencies):
+                            continue
+
+                    articles.append(NewsArticle(
+                        title=title,
+                        url=link,
+                        source=source,
+                        published_at=self._parse_rss_date(pub_date),
+                        summary=description[:200] if description else None,
+                        sentiment="neutral",
+                    ))
+
+            except Exception as e:
+                logger.warning(f"Failed to fetch RSS from {source}: {e}")
         
         # Sort by date and limit
         articles.sort(key=lambda x: x.published_at or datetime.min, reverse=True)

@@ -150,23 +150,14 @@ class StockRepository:
         symbol = symbol.upper()
 
         try:
-            # Get stock to get stock_id
-            stock_result = await session.execute(
-                select(Stock).where(Stock.ticker_symbol == symbol)
-            )
-            stock = stock_result.scalar_one_or_none()
-
-            if not stock:
-                logger.debug(f"Stock {symbol} not found in database")
-                return None
-
-            # Query price cache
+            # Query price cache with JOIN to Stock (single query instead of two)
             start_dt = pd.to_datetime(start_date).date()
             end_dt = pd.to_datetime(end_date).date()
 
             result = await session.execute(
                 select(PriceCache)
-                .where(PriceCache.stock_id == stock.stock_id)
+                .join(Stock, PriceCache.stock_id == Stock.stock_id)
+                .where(Stock.ticker_symbol == symbol)
                 .where(PriceCache.date >= start_dt)
                 .where(PriceCache.date <= end_dt)
                 .order_by(PriceCache.date)

@@ -23,50 +23,67 @@ from typing import Any
 
 import httpx
 
+from maverick_core.http import AsyncHTTPClient
+
 logger = logging.getLogger(__name__)
 
 
 class DefiLlamaProvider:
     """
     DefiLlama API provider for DeFi TVL and protocol data.
-    
+
     All endpoints are free and require no authentication.
     Rate limits are generous (no documented limit).
-    
+
     Example:
         >>> provider = DefiLlamaProvider()
         >>> tvl = await provider.get_protocol_tvl("uniswap")
         >>> print(f"Uniswap TVL: ${tvl['tvl']:,.0f}")
     """
-    
+
     BASE_URL = "https://api.llama.fi"
     YIELDS_URL = "https://yields.llama.fi"
     COINS_URL = "https://coins.llama.fi"
     STABLECOINS_URL = "https://stablecoins.llama.fi"
-    
-    def __init__(self, timeout: float = 30.0):
+
+    def __init__(self, timeout: float = 30.0, http_client: AsyncHTTPClient | None = None):
         """
         Initialize DefiLlama provider.
-        
+
         Args:
             timeout: Request timeout in seconds
+            http_client: Optional shared HTTP client (recommended for connection reuse)
         """
         self.timeout = timeout
+        self._http_client = http_client
+        self._owns_client = http_client is None
         logger.info("DefiLlamaProvider initialized")
-    
+
+    async def _get_client(self) -> AsyncHTTPClient:
+        """Get or create HTTP client."""
+        if self._http_client is None:
+            self._http_client = AsyncHTTPClient(timeout=self.timeout)
+        return self._http_client
+
     async def _request(self, url: str, params: dict | None = None) -> dict | list | None:
-        """Make async HTTP request."""
+        """Make async HTTP request using shared client."""
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(url, params=params)
-                response.raise_for_status()
-                return response.json()
+            client = await self._get_client()
+            response = await client.get(url, params=params, timeout=self.timeout)
+            response.raise_for_status()
+            return response.json()
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error from DefiLlama: {e}")
             return None
         except Exception as e:
             logger.error(f"Error fetching from DefiLlama: {e}")
             return None
+
+    async def close(self) -> None:
+        """Close HTTP client if owned by this instance."""
+        if self._owns_client and self._http_client is not None:
+            await self._http_client.close()
+            self._http_client = None
     
     # ==================== TVL Endpoints ====================
     

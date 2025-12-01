@@ -2,9 +2,21 @@
 Maverick Core Utilities.
 
 Common utility functions for date/time operations, data processing,
-and other shared functionality.
+type conversions, and other shared functionality.
 """
 
+from maverick_core.utils.conversion import (
+    decimal_from_dict,
+    float_from_dict,
+    get_with_default,
+    int_from_dict,
+    round_price,
+    to_decimal,
+    to_decimal_or_none,
+    to_float,
+    to_float_or_none,
+    to_int,
+)
 from maverick_core.utils.datetime_utils import (
     DateLike,
     add_days,
@@ -44,5 +56,16 @@ __all__ = [
     "start_of_month",
     "end_of_month",
     "time_ago",
+    # Type conversion utilities
+    "to_decimal",
+    "to_decimal_or_none",
+    "to_float",
+    "to_float_or_none",
+    "to_int",
+    "round_price",
+    "get_with_default",
+    "decimal_from_dict",
+    "float_from_dict",
+    "int_from_dict",
 ]
 

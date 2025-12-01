@@ -7,6 +7,7 @@ compatibility with the existing infrastructure.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import uuid
@@ -337,7 +338,8 @@ def register_agents_tools(mcp: FastMCP) -> None:
             results = {}
             execution_times = {}
 
-            for agent_type in agent_types:
+            async def run_agent(agent_type: str) -> tuple[str, dict]:
+                """Run single agent and return result tuple."""
                 try:
                     agent = get_or_create_agent(agent_type, persona)
 
@@ -354,19 +356,33 @@ def register_agents_tools(mcp: FastMCP) -> None:
                             max_agents=2,
                         )
                     else:
-                        continue
+                        return agent_type, {"error": "unknown agent type", "status": "skipped"}
 
-                    results[agent_type] = {
-                        "summary": result.get("summary", ""),
-                        "key_findings": result.get("key_findings", []),
-                        "confidence": result.get("confidence", 0.0),
-                        "methodology": result.get("methodology", f"{agent_type} analysis"),
+                    return agent_type, {
+                        "result": {
+                            "summary": result.get("summary", ""),
+                            "key_findings": result.get("key_findings", []),
+                            "confidence": result.get("confidence", 0.0),
+                            "methodology": result.get("methodology", f"{agent_type} analysis"),
+                        },
+                        "execution_time_ms": result.get("execution_time_ms", 0),
                     }
-                    execution_times[agent_type] = result.get("execution_time_ms", 0)
-
                 except Exception as e:
                     logger.warning(f"Error with {agent_type} agent: {str(e)}")
-                    results[agent_type] = {"error": str(e), "status": "failed"}
+                    return agent_type, {"error": str(e), "status": "failed"}
+
+            # Run all agents in parallel
+            agent_results = await asyncio.gather(
+                *[run_agent(agent_type) for agent_type in agent_types]
+            )
+
+            # Collect results
+            for agent_type, result in agent_results:
+                if "error" in result:
+                    results[agent_type] = result
+                else:
+                    results[agent_type] = result["result"]
+                    execution_times[agent_type] = result.get("execution_time_ms", 0)
 
             return {
                 "status": "success",
@@ -449,22 +465,28 @@ def register_agents_tools(mcp: FastMCP) -> None:
             if not session_id:
                 session_id = str(uuid.uuid4())
 
-            results = {}
-
-            for persona in ["conservative", "moderate", "aggressive"]:
+            async def analyze_with_persona(persona: str) -> tuple[str, dict]:
+                """Analyze with specific persona."""
                 agent = get_or_create_agent("market", persona)
 
                 result = await agent.analyze_market(
                     query=query, session_id=f"{session_id}_{persona}", max_results=10
                 )
 
-                results[persona] = {
+                return persona, {
                     "summary": result.get("results", {}).get("summary", ""),
                     "top_picks": result.get("results", {}).get("screened_symbols", [])[:5],
                     "risk_parameters": {
                         "risk_tolerance": getattr(agent, "persona", {}).get("risk_tolerance", "N/A"),
                     },
                 }
+
+            # Run all persona analyses in parallel
+            persona_results = await asyncio.gather(
+                *[analyze_with_persona(p) for p in ["conservative", "moderate", "aggressive"]]
+            )
+
+            results = {persona: result for persona, result in persona_results}
 
             return {
                 "status": "success",
