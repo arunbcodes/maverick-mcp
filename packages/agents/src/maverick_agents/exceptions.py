@@ -13,7 +13,7 @@ class AgentError(MaverickError):
     """Base exception for agent-related errors."""
 
     def __init__(self, message: str, details: dict | None = None):
-        super().__init__(message, details)
+        super().__init__(message, details=details)
 
 
 class AgentInitializationError(AgentError):
@@ -24,7 +24,7 @@ class AgentInitializationError(AgentError):
         self.reason = reason
         super().__init__(
             f"Failed to initialize {agent_type}: {reason}",
-            {"agent_type": agent_type, "reason": reason},
+            details={"agent_type": agent_type, "reason": reason},
         )
 
 
@@ -37,7 +37,7 @@ class AgentExecutionError(AgentError):
         self.reason = reason
         super().__init__(
             f"{agent_type} failed during {operation}: {reason}",
-            {"agent_type": agent_type, "operation": operation, "reason": reason},
+            details={"agent_type": agent_type, "operation": operation, "reason": reason},
         )
 
 
@@ -49,7 +49,7 @@ class QueryClassificationError(AgentError):
         self.reason = reason
         super().__init__(
             f"Failed to classify query '{query[:50]}...': {reason}",
-            {"query": query, "reason": reason},
+            details={"query": query, "reason": reason},
         )
 
 
@@ -61,7 +61,7 @@ class AgentTimeoutError(AgentError):
         self.timeout_seconds = timeout_seconds
         super().__init__(
             f"{agent_type} timed out after {timeout_seconds}s",
-            {"agent_type": agent_type, "timeout_seconds": timeout_seconds},
+            details={"agent_type": agent_type, "timeout_seconds": timeout_seconds},
         )
 
 
@@ -72,5 +72,5 @@ class SynthesisError(AgentError):
         self.reason = reason
         super().__init__(
             f"Failed to synthesize results: {reason}",
-            {"reason": reason},
+            details={"reason": reason},
         )

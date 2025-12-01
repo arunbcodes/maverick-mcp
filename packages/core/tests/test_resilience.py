@@ -286,13 +286,13 @@ class TestFallbackStrategy:
                 self._return_value = return_value
                 self._should_fail = should_fail
 
-            def execute(self, context):
+            async def execute_async(self, *args, **kwargs):
+                return self.execute_sync(*args, **kwargs)
+
+            def execute_sync(self, *args, **kwargs):
                 if self._should_fail:
                     raise Exception("Fallback failed")
                 return self._return_value
-
-            def can_execute(self, context):
-                return True
 
         # Create chain with multiple fallbacks
         chain = FallbackChain([
@@ -305,12 +305,13 @@ class TestFallbackStrategy:
         assert result == "second"  # First fails, second succeeds
 
     def test_fallback_chain_all_fail(self):
+        """Test that the last fallback's error is re-raised when all fail."""
         class FailingFallback(FallbackStrategy):
-            def execute(self, context):
+            async def execute_async(self, *args, **kwargs):
                 raise Exception("Failed")
 
-            def can_execute(self, context):
-                return True
+            def execute_sync(self, *args, **kwargs):
+                raise Exception("Failed")
 
         chain = FallbackChain([
             FailingFallback(),
@@ -320,18 +321,23 @@ class TestFallbackStrategy:
         with pytest.raises(Exception) as exc_info:
             chain.execute_sync({})
 
-        assert "All fallbacks failed" in str(exc_info.value)
+        # When all fallbacks fail, the last error is re-raised
+        assert "Failed" in str(exc_info.value)
 
     def test_fallback_can_execute_filtering(self):
+        """Test that fallbacks are executed in order until one succeeds."""
         class ConditionalFallback(FallbackStrategy):
             def __init__(self, required_key):
                 self._required_key = required_key
 
-            def execute(self, context):
-                return f"executed_{self._required_key}"
+            async def execute_async(self, *args, **kwargs):
+                return self.execute_sync(*args, **kwargs)
 
-            def can_execute(self, context):
-                return self._required_key in context
+            def execute_sync(self, context, *args, **kwargs):
+                # Raise if required key is not in context (simulates can_execute)
+                if self._required_key not in context:
+                    raise KeyError(f"Required key '{self._required_key}' not found")
+                return f"executed_{self._required_key}"
 
         chain = FallbackChain([
             ConditionalFallback("missing"),

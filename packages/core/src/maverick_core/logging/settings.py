@@ -172,10 +172,19 @@ class LoggingSettings:
         }
 
     def ensure_log_directory(self) -> None:
-        """Ensure the log directory exists."""
+        """Ensure the log directory exists.
+
+        Silently ignores permission errors (e.g., /var/log on non-root systems).
+        File logging will fail later if the directory cannot be created.
+        """
         if self.enable_file_logging and self.log_file_path:
             log_path = Path(self.log_file_path)
-            log_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+            except PermissionError:
+                # Cannot create directory (e.g., /var/log without root)
+                # File logging will be disabled or fail gracefully later
+                pass
 
     def get_debug_modules(self) -> list[str]:
         """Get list of modules for debug logging."""
