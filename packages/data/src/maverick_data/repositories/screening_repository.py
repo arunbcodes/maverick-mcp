@@ -103,20 +103,42 @@ class ScreeningRepository:
             # Clear existing results for this strategy
             await session.execute(delete(model))
 
-            # Prepare records for batch insert
+            # Extract all symbols from results
+            symbols = [
+                result.get("symbol", result.get("ticker", "")).upper()
+                for result in results
+            ]
+            symbols = [s for s in symbols if s]  # Filter empty
+
+            # Batch fetch all existing stocks in ONE query (fixes N+1)
+            existing_stocks_result = await session.execute(
+                select(Stock).where(Stock.ticker_symbol.in_(symbols))
+            )
+            existing_stocks = {
+                stock.ticker_symbol: stock
+                for stock in existing_stocks_result.scalars().all()
+            }
+
+            # Create missing stocks in batch
+            missing_symbols = set(symbols) - set(existing_stocks.keys())
+            if missing_symbols:
+                new_stocks = [Stock(ticker_symbol=s) for s in missing_symbols]
+                session.add_all(new_stocks)
+                await session.flush()
+                # Refresh stock map with newly created stocks
+                for stock in new_stocks:
+                    existing_stocks[stock.ticker_symbol] = stock
+
+            # Now create screening records using the pre-loaded stock map
             for result in results:
                 symbol = result.get("symbol", result.get("ticker", "")).upper()
+                if not symbol:
+                    continue
 
-                # Get or create stock
-                stock_result = await session.execute(
-                    select(Stock).where(Stock.ticker_symbol == symbol)
-                )
-                stock = stock_result.scalar_one_or_none()
-
+                stock = existing_stocks.get(symbol)
                 if not stock:
-                    stock = Stock(ticker_symbol=symbol)
-                    session.add(stock)
-                    await session.flush()
+                    logger.warning(f"Stock not found for symbol {symbol}, skipping")
+                    continue
 
                 # Create screening record based on model type
                 if model == MaverickStocks:
@@ -296,20 +318,25 @@ class ScreeningRepository:
         Returns:
             Dictionary with all screening types and their recommendations
         """
+        import asyncio
+
         default_limit = 20
         limits = limits or {}
 
-        maverick = await self.get_screening_results(
-            "maverick",
-            limit=limits.get("maverick", default_limit)
-        )
-        maverick_bear = await self.get_screening_results(
-            "maverick_bear",
-            limit=limits.get("maverick_bear", default_limit)
-        )
-        supply_demand = await self.get_screening_results(
-            "supply_demand",
-            limit=limits.get("supply_demand", default_limit)
+        # Fetch all strategies concurrently using asyncio.gather
+        maverick, maverick_bear, supply_demand = await asyncio.gather(
+            self.get_screening_results(
+                "maverick",
+                limit=limits.get("maverick", default_limit)
+            ),
+            self.get_screening_results(
+                "maverick_bear",
+                limit=limits.get("maverick_bear", default_limit)
+            ),
+            self.get_screening_results(
+                "supply_demand",
+                limit=limits.get("supply_demand", default_limit)
+            ),
         )
 
         return {

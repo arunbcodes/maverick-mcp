@@ -53,50 +53,70 @@ class OnChainProvider:
         "optimism": "optimism",
     }
     
-    def __init__(self, api_key: str | None = None, timeout: float = 30.0):
+    def __init__(
+        self,
+        api_key: str | None = None,
+        timeout: float = 30.0,
+        http_client: httpx.AsyncClient | None = None,
+    ):
         """
         Initialize OnChain provider.
-        
+
         Args:
             api_key: Optional CoinGecko API key for higher rate limits
             timeout: Request timeout in seconds
+            http_client: Optional shared HTTP client (recommended for connection reuse)
         """
         self.api_key = api_key
         self.timeout = timeout
-        
+        self._http_client = http_client
+        self._owns_client = http_client is None
+
         # Use Pro API if key provided
         if api_key:
             self.base_url = "https://pro-api.coingecko.com/api/v3"
         else:
             self.base_url = self.BASE_URL
-            
+
         logger.info(f"OnChainProvider initialized (API key: {'yes' if api_key else 'no'})")
-    
+
+    async def _get_client(self) -> httpx.AsyncClient:
+        """Get or create HTTP client."""
+        if self._http_client is None:
+            self._http_client = httpx.AsyncClient(timeout=self.timeout)
+        return self._http_client
+
+    async def close(self) -> None:
+        """Close HTTP client if owned by this instance."""
+        if self._owns_client and self._http_client is not None:
+            await self._http_client.aclose()
+            self._http_client = None
+
     def _get_headers(self) -> dict[str, str]:
         """Get request headers with API key if available."""
         headers = {"Accept": "application/json"}
         if self.api_key:
             headers["x-cg-pro-api-key"] = self.api_key
         return headers
-    
+
     async def _request(self, endpoint: str, params: dict | None = None) -> dict | list | None:
-        """Make async HTTP request."""
+        """Make async HTTP request using shared client."""
         url = f"{self.base_url}{endpoint}"
-        
+
         # Add API key to params for demo API
         if self.api_key and "pro-api" not in self.base_url:
             params = params or {}
             params["x_cg_demo_api_key"] = self.api_key
-        
+
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(
-                    url,
-                    params=params,
-                    headers=self._get_headers(),
-                )
-                response.raise_for_status()
-                return response.json()
+            client = await self._get_client()
+            response = await client.get(
+                url,
+                params=params,
+                headers=self._get_headers(),
+            )
+            response.raise_for_status()
+            return response.json()
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error: {e.response.status_code} - {e.response.text}")
             return None

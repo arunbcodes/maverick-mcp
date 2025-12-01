@@ -176,6 +176,25 @@ from maverick_core.logging import (
     with_correlation_id,
 )
 
+# Decorators
+from maverick_core.decorators import (
+    handle_async_errors,
+    handle_errors,
+    handle_provider_errors,
+    handle_repository_errors,
+    handle_service_errors,
+    safe_execute,
+    safe_execute_async,
+)
+
+# HTTP Client
+from maverick_core.http import (
+    AsyncHTTPClient,
+    close_http_client,
+    get_http_client,
+    http_client_context,
+)
+
 __version__ = "0.1.0"
 
 __all__ = [
@@ -360,6 +379,19 @@ __all__ = [
     "set_correlation_id",
     # Logging - Error handling
     "ErrorLogger",
+    # Decorators - Error handling
+    "handle_errors",
+    "handle_async_errors",
+    "handle_provider_errors",
+    "handle_repository_errors",
+    "handle_service_errors",
+    "safe_execute",
+    "safe_execute_async",
+    # HTTP Client
+    "AsyncHTTPClient",
+    "get_http_client",
+    "close_http_client",
+    "http_client_context",
     # Version
     "__version__",
 ]

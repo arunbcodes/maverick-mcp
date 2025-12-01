@@ -464,44 +464,58 @@ class CoinGeckoProvider:
 class FearGreedProvider:
     """
     Crypto Fear & Greed Index provider.
-    
+
     Uses Alternative.me API which is free and requires no authentication.
     The index ranges from 0 (Extreme Fear) to 100 (Extreme Greed).
-    
+
     Index Interpretation:
         - 0-24: Extreme Fear (buying opportunity?)
         - 25-49: Fear
         - 50-74: Greed
         - 75-100: Extreme Greed (selling opportunity?)
     """
-    
+
     API_URL = "https://api.alternative.me/fng/"
-    
-    def __init__(self):
+
+    def __init__(self, http_client: httpx.AsyncClient | None = None):
         """Initialize Fear & Greed provider."""
         self.rate_limiter = RateLimiter(calls_per_minute=30)
-    
+        self._http_client = http_client
+        self._owns_client = http_client is None
+
+    async def _get_client(self) -> httpx.AsyncClient:
+        """Get or create HTTP client."""
+        if self._http_client is None:
+            self._http_client = httpx.AsyncClient(timeout=30.0)
+        return self._http_client
+
+    async def close(self) -> None:
+        """Close HTTP client if owned by this instance."""
+        if self._owns_client and self._http_client is not None:
+            await self._http_client.aclose()
+            self._http_client = None
+
     async def get_fear_greed_index(self, limit: int = 1) -> dict[str, Any]:
         """
         Get current Fear & Greed Index.
-        
+
         Args:
             limit: Number of days of history (default: 1 for current)
-            
+
         Returns:
             Dictionary with fear/greed data
         """
         import httpx
-        
+
         await self.rate_limiter.acquire()
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                self.API_URL,
-                params={"limit": limit, "format": "json"},
-            )
-            response.raise_for_status()
-            data = response.json()
+
+        client = await self._get_client()
+        response = await client.get(
+            self.API_URL,
+            params={"limit": limit, "format": "json"},
+        )
+        response.raise_for_status()
+        data = response.json()
         
         if not data.get("data"):
             return {"error": "No data available"}

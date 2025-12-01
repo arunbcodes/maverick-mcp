@@ -33,11 +33,20 @@ KNOWN_CURRENCY_CODES = {
 }
 
 
+# Standard stock symbol pattern: letters, numbers, dots, hyphens
+# Supports: AAPL, BRK.A, BTC-USD, RELIANCE.NS, TCS.BO
+STOCK_SYMBOL_PATTERN = r"^[A-Z0-9][A-Z0-9.\-]{0,19}$"
+
+# Crypto symbol pattern: letters followed by optional -USD
+CRYPTO_SYMBOL_PATTERN = r"^[A-Z]{2,10}(-USD)?$"
+
+
 def validate_symbol(
     symbol: str,
     min_length: int = 1,
     max_length: int = 20,
     pattern: Optional[str] = None,
+    strict: bool = False,
 ) -> tuple[bool, Optional[str]]:
     """
     Validate stock ticker symbol.
@@ -46,7 +55,8 @@ def validate_symbol(
         symbol: Stock symbol to validate
         min_length: Minimum symbol length
         max_length: Maximum symbol length
-        pattern: Optional regex pattern to match
+        pattern: Optional regex pattern to match (overrides default)
+        strict: If True, uses strict pattern validation
 
     Returns:
         Tuple of (is_valid, error_message)
@@ -56,9 +66,16 @@ def validate_symbol(
         (True, None)
         >>> validate_symbol("")
         (False, 'Symbol cannot be empty')
+        >>> validate_symbol("RELIANCE.NS")
+        (True, None)
+        >>> validate_symbol("BTC-USD")
+        (True, None)
     """
     if not symbol:
         return False, "Symbol cannot be empty"
+
+    # Strip whitespace
+    symbol = symbol.strip()
 
     if len(symbol) < min_length:
         return False, f"Symbol must be at least {min_length} characters"
@@ -66,10 +83,49 @@ def validate_symbol(
     if len(symbol) > max_length:
         return False, f"Symbol must be at most {max_length} characters"
 
-    if pattern and not re.match(pattern, symbol.upper()):
-        return False, "Symbol does not match required pattern"
+    # Use provided pattern or default based on strict mode
+    check_pattern = pattern
+    if not check_pattern and strict:
+        check_pattern = STOCK_SYMBOL_PATTERN
+
+    if check_pattern and not re.match(check_pattern, symbol.upper()):
+        return False, f"Symbol '{symbol}' does not match required format"
+
+    # Additional security checks
+    if ".." in symbol or "--" in symbol:
+        return False, "Symbol contains invalid character sequence"
+
+    # Check for potential injection attempts
+    dangerous_chars = ["'", '"', ";", "\\", "/", "<", ">", "&"]
+    for char in dangerous_chars:
+        if char in symbol:
+            return False, f"Symbol contains invalid character: {char}"
 
     return True, None
+
+
+def validate_stock_symbol(symbol: str) -> tuple[bool, Optional[str]]:
+    """
+    Validate stock ticker symbol with strict rules.
+
+    Supports formats:
+    - US stocks: AAPL, MSFT, BRK.A, BRK.B
+    - Indian stocks: RELIANCE.NS, TCS.BO
+    - Crypto: BTC-USD, ETH-USD
+
+    Args:
+        symbol: Stock symbol to validate
+
+    Returns:
+        Tuple of (is_valid, error_message)
+
+    Example:
+        >>> validate_stock_symbol("AAPL")
+        (True, None)
+        >>> validate_stock_symbol("invalid!")
+        (False, "Symbol 'invalid!' does not match required format")
+    """
+    return validate_symbol(symbol, strict=True)
 
 
 def validate_date_range(
@@ -430,7 +486,10 @@ def _to_date(value: Union[str, datetime, date]) -> date:
 
 
 __all__ = [
+    "STOCK_SYMBOL_PATTERN",
+    "CRYPTO_SYMBOL_PATTERN",
     "validate_symbol",
+    "validate_stock_symbol",
     "validate_date_range",
     "validate_positive_number",
     "validate_in_range",
