@@ -1,55 +1,53 @@
+# Docker Compose for API development
+# Usage: docker-compose -f docker-compose.api.yml up
+
 services:
-  backend:
-    build: .
-    command: ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    command: ["uvicorn", "maverick_api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     ports:
-      - "8003:8000"
+      - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:55432/maverick_mcp
-      - REDIS_HOST=redis
-      - REDIS_PORT=56379
-      # Required API Keys
-      - TIINGO_API_KEY=${TIINGO_API_KEY}
-      # Optional API Keys for Enhanced Features
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - EXA_API_KEY=${EXA_API_KEY}
-      - TAVILY_API_KEY=${TAVILY_API_KEY}
-      - FRED_API_KEY=${FRED_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      # Crypto API Keys (optional - free tiers available)
-      - COINGECKO_API_KEY=${COINGECKO_API_KEY:-}
-      - CRYPTOPANIC_API_KEY=${CRYPTOPANIC_API_KEY:-}
-      # Server Configuration
-      - API_HOST=0.0.0.0
-      - API_PORT=8000
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - ENVIRONMENT=${ENVIRONMENT:-production}
-      # Python path for new packages (matches Dockerfile)
+      - MAVERICK_ENVIRONMENT=development
+      - MAVERICK_DEBUG=true
+      - MAVERICK_DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:55432/maverick_mcp
+      - MAVERICK_REDIS_URL=redis://redis:56379
+      - MAVERICK_JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - MAVERICK_CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+      # External API keys
+      - MAVERICK_TIINGO_API_KEY=${TIINGO_API_KEY:-}
+      - MAVERICK_OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - MAVERICK_ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Python path for packages
       - PYTHONPATH=/app/packages/schemas/src:/app/packages/core/src:/app/packages/data/src:/app/packages/services/src:/app/packages/api/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app/packages/crypto/src:/app
     volumes:
-      # Mount packages for development hot-reload
+      # Mount packages for hot-reload
       - ./packages/schemas/src/maverick_schemas:/app/packages/schemas/src/maverick_schemas
       - ./packages/core/src/maverick_core:/app/packages/core/src/maverick_core
       - ./packages/data/src/maverick_data:/app/packages/data/src/maverick_data
       - ./packages/services/src/maverick_services:/app/packages/services/src/maverick_services
       - ./packages/api/src/maverick_api:/app/packages/api/src/maverick_api
+      - ./packages/server/src/maverick_server:/app/packages/server/src/maverick_server
       - ./packages/backtest/src/maverick_backtest:/app/packages/backtest/src/maverick_backtest
       - ./packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
       - ./packages/india/src/maverick_india:/app/packages/india/src/maverick_india
-      - ./packages/server/src/maverick_server:/app/packages/server/src/maverick_server
       - ./packages/crypto/src/maverick_crypto:/app/packages/crypto/src/maverick_crypto
-      # Legacy maverick_mcp (required until migration complete)
-      - ./maverick_mcp:/app/maverick_mcp
-      # Other directories
+      # Alembic migrations
       - ./alembic:/app/alembic
-      - ./tests:/app/tests
+      # Environment file
       - ./.env:/app/.env
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     image: postgres:15-alpine
@@ -85,3 +83,4 @@ services:
 volumes:
   postgres-data:
   redis-data:
+

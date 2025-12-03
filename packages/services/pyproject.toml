@@ -1,0 +1,39 @@
+[project]
+name = "maverick-services"
+version = "0.1.0"
+description = "Shared domain services for MaverickMCP - used by MCP server and REST API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Internal dependencies
+    "maverick-schemas",
+    "maverick-core",
+    "maverick-data",
+    # Note: asyncio is part of Python stdlib, no need to install
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=4.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/maverick_services"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+
