@@ -1,7 +1,7 @@
 # Maverick-MCP Makefile
 # Central command interface for agent-friendly development
 
-.PHONY: help dev dev-sse dev-http dev-stdio stop test test-all test-watch test-specific test-parallel test-cov test-speed test-speed-quick test-speed-emergency test-speed-comparison test-strategies lint format typecheck clean tail-log backend check migrate setup redis-start redis-stop experiment experiment-once benchmark-parallel benchmark-speed docker-up docker-down docker-logs security-audit security-install setup-hooks
+.PHONY: help dev dev-sse dev-http dev-stdio stop test test-all test-watch test-specific test-parallel test-cov test-speed test-speed-quick test-speed-emergency test-speed-comparison test-strategies lint format typecheck clean tail-log backend check migrate setup redis-start redis-stop experiment experiment-once benchmark-parallel benchmark-speed docker-up docker-down docker-logs security-audit security-install setup-hooks api api-docker api-docker-down api-test api-test-cov generate-api-client
 
 # Default target
 help:
@@ -48,6 +48,11 @@ help:
 	@echo "  make docker-up    - Start with Docker"
 	@echo "  make docker-down  - Stop Docker services"
 	@echo "  make docker-logs  - View Docker logs"
+	@echo ""
+	@echo "  make api          - Start REST API server (dev mode)"
+	@echo "  make api-docker   - Start REST API with Docker"
+	@echo "  make api-test     - Run API tests"
+	@echo "  make api-test-cov - Run API tests with coverage"
 
 # Development commands
 dev:
@@ -242,6 +247,31 @@ docker-down:
 docker-logs:
 	@echo "Following Docker logs (Ctrl+C to stop)..."
 	@docker-compose logs -f
+
+# API commands (Phase 0+)
+api:
+	@echo "Starting REST API server..."
+	@uv run uvicorn maverick_api:app --host 0.0.0.0 --port 8000 --reload
+
+api-docker:
+	@echo "Starting REST API with Docker..."
+	@docker-compose -f docker-compose.api.yml up --build
+
+api-docker-down:
+	@echo "Stopping REST API Docker services..."
+	@docker-compose -f docker-compose.api.yml down
+
+api-test:
+	@echo "Running API tests..."
+	@uv run pytest packages/api/tests packages/services/tests packages/schemas/tests -v
+
+api-test-cov:
+	@echo "Running API tests with coverage..."
+	@uv run pytest packages/api/tests packages/services/tests packages/schemas/tests --cov=packages/api/src --cov=packages/services/src --cov=packages/schemas/src --cov-report=html
+
+generate-api-client:
+	@echo "Generating TypeScript API client..."
+	@./scripts/generate-api-client.sh
 
 # Security commands
 security-audit:

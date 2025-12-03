@@ -1,0 +1,9 @@
+# pnpm workspace configuration for JavaScript packages
+# These will be created in future phases
+
+packages:
+  # Web and mobile apps (Phase 2+)
+  - "apps/*"
+  # Shared JavaScript packages
+  - "packages-js/*"
+

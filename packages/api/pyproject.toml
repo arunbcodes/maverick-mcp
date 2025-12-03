@@ -1,0 +1,55 @@
+[project]
+name = "maverick-api"
+version = "0.1.0"
+description = "REST API layer for MaverickMCP - FastAPI with multi-strategy auth"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Internal dependencies
+    "maverick-schemas",
+    "maverick-services",
+    "maverick-core",
+    "maverick-data",
+    # FastAPI and web
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "starlette>=0.38.0",
+    "sse-starlette>=2.0.0",  # Server-Sent Events
+    # Authentication
+    "python-jose[cryptography]>=3.3.0",  # JWT
+    "passlib[bcrypt]>=1.7.4",  # Password hashing
+    # Configuration
+    "pydantic-settings>=2.0.0",
+    # Redis for rate limiting and sessions
+    "redis>=5.0.0",
+    # Validation
+    "email-validator>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.27.0",  # Async test client
+    "schemathesis>=3.0.0",  # Contract testing
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/maverick_api"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+

@@ -1,0 +1,69 @@
+# Dockerfile for Maverick API
+# Multi-stage build for smaller production image
+
+FROM python:3.12-slim as builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast dependency management
+RUN pip install uv
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependency files first for caching
+COPY pyproject.toml uv.lock ./
+COPY packages/schemas/pyproject.toml packages/schemas/
+COPY packages/core/pyproject.toml packages/core/
+COPY packages/data/pyproject.toml packages/data/
+COPY packages/services/pyproject.toml packages/services/
+COPY packages/api/pyproject.toml packages/api/
+COPY packages/server/pyproject.toml packages/server/
+COPY packages/backtest/pyproject.toml packages/backtest/
+COPY packages/agents/pyproject.toml packages/agents/
+COPY packages/india/pyproject.toml packages/india/
+COPY packages/crypto/pyproject.toml packages/crypto/
+
+# Install dependencies
+RUN uv sync --frozen --no-dev
+
+# --- Production stage ---
+FROM python:3.12-slim as production
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy virtual environment from builder
+COPY --from=builder /app/.venv /app/.venv
+
+# Copy source code
+COPY packages/ packages/
+COPY alembic/ alembic/
+COPY alembic.ini .
+
+# Set Python path
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/packages/schemas/src:/app/packages/core/src:/app/packages/data/src:/app/packages/services/src:/app/packages/api/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app/packages/crypto/src:/app"
+
+# Create non-root user
+RUN useradd -m -u 1000 maverick
+USER maverick
+
+# Expose API port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Default command
+CMD ["uvicorn", "maverick_api:app", "--host", "0.0.0.0", "--port", "8000"]
+
