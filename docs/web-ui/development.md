@@ -221,11 +221,14 @@ For real-time data:
 export function usePriceStream(tickers: string[]) {
   const [prices, setPrices] = useState<Record<string, PriceUpdate>>({});
 
+  // Memoize ticker string to avoid ESLint warning about join() in deps
+  const tickerKey = useMemo(() => tickers.join(','), [tickers]);
+
   useEffect(() => {
     if (tickers.length === 0) return;
 
     const eventSource = new EventSource(
-      `/api/v1/sse/prices?tickers=${tickers.join(',')}`
+      `/api/v1/sse/prices?tickers=${tickerKey}`
     );
 
     eventSource.addEventListener('price', (event) => {
@@ -234,7 +237,7 @@ export function usePriceStream(tickers: string[]) {
     });
 
     return () => eventSource.close();
-  }, [tickers.join(',')]);
+  }, [tickerKey, tickers.length]);
 
   return prices;
 }

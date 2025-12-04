@@ -161,6 +161,12 @@ export function usePriceStream(tickers: string[]) {
 
 ### Python
 
+Install the required library:
+
+```bash
+pip install httpx
+```
+
 ```python
 import httpx
 import json
