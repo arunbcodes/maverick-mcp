@@ -5,8 +5,8 @@ Argon2 is the winner of the Password Hashing Competition and is
 recommended for new applications.
 """
 
-from argon2 import PasswordHasher as Argon2Hasher
-from argon2.exceptions import VerifyMismatchError, InvalidHashError
+from argon2 import PasswordHasher as Argon2Hasher, Type
+from argon2.exceptions import VerifyMismatchError, InvalidHashError, VerificationError
 
 
 class PasswordHasher:
@@ -40,7 +40,7 @@ class PasswordHasher:
             parallelism=parallelism,
             hash_len=32,
             salt_len=16,
-            type=Argon2Hasher.Type.ID,  # Argon2id
+            type=Type.ID,  # Argon2id
         )
     
     def hash(self, password: str) -> str:
@@ -69,7 +69,7 @@ class PasswordHasher:
         try:
             self._hasher.verify(hash, password)
             return True
-        except (VerifyMismatchError, InvalidHashError):
+        except (VerifyMismatchError, InvalidHashError, VerificationError):
             return False
     
     def needs_rehash(self, hash: str) -> bool:
