@@ -239,3 +239,47 @@ make docker-full-up
 | postgres | 1.0 | 1GB |
 | redis | 0.5 | 512MB |
 
+## Build Optimization
+
+### Docker BuildKit (Recommended)
+
+Enable BuildKit for faster builds with better caching:
+
+```bash
+# Enable BuildKit
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# Build with cache
+docker compose -f docker/docker-compose.yml build
+```
+
+### Parallel Builds
+
+Build all images in parallel:
+
+```bash
+docker compose -f docker/docker-compose.yml build --parallel
+```
+
+### Build Cache Notes
+
+Both `api.Dockerfile` and `mcp.Dockerfile` compile TA-Lib from source (~2-3 min).
+Docker caches this layer, so subsequent builds are fast. To share cache between images:
+
+```bash
+# Build API first (caches TA-Lib layer)
+docker build -f docker/api.Dockerfile -t maverick-api:latest .
+
+# MCP build will be faster if same base layers cached
+docker build -f docker/mcp.Dockerfile -t maverick-mcp:latest .
+```
+
+For CI/CD, consider pre-building and pushing a base image:
+
+```bash
+# Build and push base image (optional)
+docker build -f docker/base.Dockerfile -t your-registry/maverick-base:latest .
+docker push your-registry/maverick-base:latest
+```
+

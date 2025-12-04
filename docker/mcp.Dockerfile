@@ -3,6 +3,9 @@
 #
 # Build: docker build -f docker/mcp.Dockerfile -t maverick-mcp:latest .
 # Run:   docker run -p 8003:8000 maverick-mcp:latest
+#        (maps host 8003 to container 8000)
+#
+# Uses base.Dockerfile for shared Python dependencies and TA-Lib
 
 # --- Build stage ---
 FROM python:3.12-slim AS builder
@@ -72,8 +75,8 @@ COPY alembic/ ./alembic/
 COPY scripts/ ./scripts/
 COPY alembic.ini pyproject.toml uv.lock README.md ./
 
-# Make entrypoint executable
-RUN chmod +x /app/scripts/docker-entrypoint.sh 2>/dev/null || true
+# Make entrypoint executable (if it exists)
+RUN if [ -f /app/scripts/docker-entrypoint.sh ]; then chmod +x /app/scripts/docker-entrypoint.sh; fi
 
 # Environment
 ENV PATH="/app/.venv/bin:$PATH" \
@@ -88,12 +91,13 @@ RUN groupadd -g ${APP_GID} ${APP_USER} \
 
 USER ${APP_USER}
 
+# Container listens on port 8000 internally
+# Map to any host port (e.g., 8003:8000 for MCP)
 EXPOSE 8000
 
-# Health check - MCP server responds differently
+# Health check - MCP server responds differently than REST API
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -s http://localhost:8000/ 2>&1 | grep -q "Not Found\|jsonrpc\|Method Not Allowed" || exit 1
 
 # Start MCP server with SSE transport
 CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
-
