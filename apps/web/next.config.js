@@ -3,6 +3,9 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
+  // Enable standalone output for Docker deployment
+  output: 'standalone',
+
   // API proxy to backend during development
   async rewrites() {
     return [
@@ -21,6 +24,7 @@ const nextConfig = {
   // Image optimization domains
   images: {
     domains: ['localhost'],
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 };
 
