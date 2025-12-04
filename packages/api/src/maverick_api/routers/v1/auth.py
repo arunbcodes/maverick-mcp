@@ -290,3 +290,155 @@ async def change_password(
         logger.error(f"Password change failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to change password")
 
+
+# --- API Key Management ---
+
+
+class CreateAPIKeyRequest(MaverickBaseModel):
+    """Request body for creating an API key."""
+    
+    name: str = Field(min_length=1, max_length=100, description="API key name")
+    expires_in_days: int | None = Field(
+        default=None,
+        ge=1,
+        le=365,
+        description="Expiration in days (optional)"
+    )
+
+
+class APIKeyInfo(MaverickBaseModel):
+    """API key information (without full key)."""
+    
+    key_id: str
+    key_prefix: str
+    name: str
+    tier: str
+    rate_limit: int | None = None
+    last_used_at: str | None = None
+    created_at: str
+    expires_at: str | None = None
+
+
+class APIKeyCreated(APIKeyInfo):
+    """API key creation response (includes full key, shown once)."""
+    
+    key: str = Field(description="Full API key (only shown once)")
+
+
+async def get_api_key_service(db: AsyncSession = Depends(get_db)):
+    """Get API key service with database session."""
+    from maverick_services.auth import APIKeyService
+    return APIKeyService(db=db)
+
+
+@router.post("/api-keys", response_model=APIResponse[APIKeyCreated])
+async def create_api_key(
+    data: CreateAPIKeyRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    api_key_service = Depends(get_api_key_service),
+):
+    """
+    Create a new API key.
+    
+    The full API key is only returned once. Store it securely.
+    """
+    try:
+        result = await api_key_service.create_key(
+            user_id=user.user_id,
+            name=data.name,
+            tier=str(user.tier),
+            expires_in_days=data.expires_in_days,
+        )
+        
+        return APIResponse(
+            data=APIKeyCreated(
+                key_id=result["key_id"],
+                key=result["key"],
+                key_prefix=result["key_prefix"],
+                name=result["name"],
+                tier=result["tier"],
+                created_at=result["created_at"],
+                expires_at=result["expires_at"],
+            ),
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+    except Exception as e:
+        logger.error(f"API key creation failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create API key")
+
+
+@router.get("/api-keys", response_model=APIResponse[list[APIKeyInfo]])
+async def list_api_keys(
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    api_key_service = Depends(get_api_key_service),
+):
+    """
+    List all API keys for the current user.
+    """
+    try:
+        keys = await api_key_service.list_keys(user_id=user.user_id)
+        
+        return APIResponse(
+            data=[
+                APIKeyInfo(
+                    key_id=key["key_id"],
+                    key_prefix=key["key_prefix"],
+                    name=key["name"],
+                    tier=key["tier"],
+                    rate_limit=key["rate_limit"],
+                    last_used_at=key["last_used_at"],
+                    created_at=key["created_at"],
+                    expires_at=key["expires_at"],
+                )
+                for key in keys
+            ],
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+    except Exception as e:
+        logger.error(f"API key listing failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list API keys")
+
+
+@router.delete("/api-keys/{key_id}")
+async def revoke_api_key(
+    key_id: str,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    api_key_service = Depends(get_api_key_service),
+):
+    """
+    Revoke an API key.
+    
+    The key will no longer be usable for authentication.
+    """
+    try:
+        from maverick_services.exceptions import AuthorizationError
+        
+        await api_key_service.revoke_key(
+            key_id=key_id,
+            user_id=user.user_id,
+        )
+        
+        return APIResponse(
+            data={"message": "API key revoked successfully"},
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except AuthorizationError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except Exception as e:
+        logger.error(f"API key revocation failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to revoke API key")
+
