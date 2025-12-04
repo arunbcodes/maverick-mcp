@@ -150,6 +150,16 @@ nav:
       - Claude Desktop Setup: getting-started/claude-desktop-setup.md
       - ChatGPT Setup: getting-started/chatgpt-setup.md
       - Cursor IDE Setup: getting-started/cursor-setup.md
+  - Web UI:
+      - Overview: web-ui/overview.md
+      - Features: web-ui/features.md
+      - Configuration: web-ui/configuration.md
+      - Development: web-ui/development.md
+  - REST API:
+      - Overview: api/rest-api.md
+      - Authentication: api/authentication.md
+      - SSE Streaming: api/sse-streaming.md
+      - Backtesting: api/backtesting.md
   - Features:
       - Overview: features/overview.md
       - Stock Analysis: features/stock-analysis.md
@@ -215,6 +225,16 @@ nav:
       - maverick-server: packages/maverick-server.md
       - maverick-crypto: packages/maverick-crypto.md
       - Migration Guide: packages/migration-guide.md
+  - Architecture:
+      - Full Stack Overview: architecture/full-stack.md
+      - ADRs:
+          - Overview: architecture/adr/README.md
+          - "001: API Versioning": architecture/adr/001-api-versioning.md
+          - "002: Authentication": architecture/adr/002-authentication-strategy.md
+          - "003: Shared Services": architecture/adr/003-shared-services-architecture.md
+          - "004: Rate Limiting": architecture/adr/004-rate-limiting-strategy.md
+          - "005: SSE vs WebSocket": architecture/adr/005-sse-vs-websocket.md
+          - "006: API/MCP Separation": architecture/adr/006-api-mcp-separation.md
   - Development:
       - Contributing: development/contributing.md
       - Architecture: development/architecture.md
