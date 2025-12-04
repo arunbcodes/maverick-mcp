@@ -4,7 +4,7 @@ Stock and market data models.
 Models for stock quotes, historical data, and market information.
 """
 
-from datetime import date, datetime
+from datetime import date as Date, datetime as DateTime
 from decimal import Decimal
 
 from pydantic import Field
@@ -20,7 +20,7 @@ class StockQuote(MaverickBaseModel):
     change: Decimal = Field(description="Price change from previous close")
     change_percent: Decimal = Field(description="Percentage change")
     volume: int = Field(description="Trading volume")
-    timestamp: datetime = Field(description="Quote timestamp")
+    timestamp: DateTime = Field(description="Quote timestamp")
     
     # Optional fields for detailed quotes
     open: Decimal | None = Field(default=None, description="Opening price")
@@ -65,7 +65,7 @@ class StockInfo(MaverickBaseModel):
 class OHLCV(MaverickBaseModel):
     """Single OHLCV (Open, High, Low, Close, Volume) data point."""
     
-    date: date = Field(description="Trading date")
+    date: Date = Field(description="Trading date")
     open: Decimal = Field(description="Opening price")
     high: Decimal = Field(description="High price")
     low: Decimal = Field(description="Low price")
@@ -81,8 +81,8 @@ class StockHistory(MaverickBaseModel):
     
     ticker: str = Field(description="Stock ticker symbol")
     data: list[OHLCV] = Field(description="Historical OHLCV data")
-    start_date: date = Field(description="Start date of data range")
-    end_date: date = Field(description="End date of data range")
+    start_date: Date = Field(description="Start date of data range")
+    end_date: Date = Field(description="End date of data range")
     data_points: int = Field(description="Number of data points")
     interval: str = Field(default="1d", description="Data interval")
 
