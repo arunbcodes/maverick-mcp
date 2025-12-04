@@ -16,6 +16,8 @@ dependencies = [
     "pandas-market-calendars>=5.1.0",
     "tiingo>=0.16.1",
     "msgpack>=1.0.7",
+    # Password hashing
+    "argon2-cffi>=23.1.0",
 ]
 
 [project.optional-dependencies]

@@ -4,6 +4,7 @@ Database Models.
 SQLAlchemy models for financial data storage and analysis.
 """
 
+from maverick_data.models.api_key import APIKey
 from maverick_data.models.backtest import (
     BacktestPortfolio,
     BacktestResult,
@@ -24,11 +25,16 @@ from maverick_data.models.screening import (
 )
 from maverick_data.models.stock import Stock
 from maverick_data.models.technical import TechnicalCache
+from maverick_data.models.user import User, UserTier
 
 __all__ = [
     # Base
     "Base",
     "TimestampMixin",
+    # Auth models
+    "User",
+    "UserTier",
+    "APIKey",
     # Core models
     "Stock",
     "PriceCache",

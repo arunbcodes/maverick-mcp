@@ -1,8 +1,8 @@
 """
 Alembic environment configuration for Maverick-MCP.
 
-This file configures Alembic to work with the existing Django database,
-managing only tables with the mcp_ prefix.
+This file configures Alembic to work with the Maverick-MCP database,
+managing tables across all packages.
 """
 
 import os
@@ -14,14 +14,17 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-# Add project root to Python path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root and package paths to Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "packages" / "core" / "src"))
+sys.path.insert(0, str(project_root / "packages" / "data" / "src"))
 
-# Import models
-from maverick_mcp.data.models import Base as DataBase
+# Import models from new package structure
+from maverick_data.models import Base
 
-# Use data models metadata (auth removed for personal version)
-combined_metadata = DataBase.metadata
+# Use data models metadata
+target_metadata = Base.metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -41,10 +44,7 @@ DATABASE_URL = os.getenv(
 # Override sqlalchemy.url in alembic.ini
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# Use the combined metadata from both Base objects
-target_metadata = combined_metadata
+# target_metadata is set above from maverick_data.models.Base
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -54,18 +54,28 @@ target_metadata = combined_metadata
 
 def include_object(object, name, type_, reflected, compare_to):
     """
-    Include only MCP-prefixed tables and stock-related tables.
+    Include tables managed by Maverick-MCP.
 
-    This ensures Alembic only manages tables that belong to Maverick-MCP,
-    not Django tables.
+    Includes:
+    - Auth tables: users, api_keys
+    - MCP-prefixed tables: mcp_*
+    - Stock tables: stocks_*
+    - Screening tables: maverick_stocks, etc.
     """
+    # Define all managed table prefixes and names
+    MANAGED_PREFIXES = ("mcp_", "stocks_", "users", "api_keys")
+    MANAGED_TABLES = {
+        "users",
+        "api_keys", 
+        "maverick_stocks",
+        "maverick_bear_stocks",
+        "supply_demand_breakouts",
+    }
+
     if type_ == "table":
-        # Include MCP tables and stock tables
         return (
-            name.startswith("mcp_")
-            or name.startswith("stocks_")
-            or name
-            in ["maverick_stocks", "maverick_bear_stocks", "supply_demand_breakouts"]
+            any(name.startswith(prefix) for prefix in MANAGED_PREFIXES)
+            or name in MANAGED_TABLES
         )
     elif type_ in [
         "index",
@@ -77,32 +87,17 @@ def include_object(object, name, type_, reflected, compare_to):
         if hasattr(object, "table") and object.table is not None:
             table_name = object.table.name
             return (
-                table_name.startswith("mcp_")
-                or table_name.startswith("stocks_")
-                or table_name
-                in [
-                    "maverick_stocks",
-                    "maverick_bear_stocks",
-                    "supply_demand_breakouts",
-                ]
+                any(table_name.startswith(prefix) for prefix in MANAGED_PREFIXES)
+                or table_name in MANAGED_TABLES
             )
-        # For reflected objects, check the table name in the name
-        return any(
-            name.startswith(prefix)
-            for prefix in [
-                "idx_mcp_",
-                "uq_mcp_",
-                "fk_mcp_",
-                "ck_mcp_",
-                "idx_stocks_",
-                "uq_stocks_",
-                "fk_stocks_",
-                "ck_stocks_",
-                "ck_pricecache_",
-                "ck_maverick_",
-                "ck_supply_demand_",
-            ]
-        )
+        # For reflected objects, check common prefixes
+        managed_index_prefixes = [
+            "idx_mcp_", "uq_mcp_", "fk_mcp_", "ck_mcp_",
+            "idx_stocks_", "uq_stocks_", "fk_stocks_", "ck_stocks_",
+            "idx_user_", "idx_api_key_", "uq_user_", "uq_api_key_",
+            "ck_pricecache_", "ck_maverick_", "ck_supply_demand_",
+        ]
+        return any(name.startswith(prefix) for prefix in managed_index_prefixes)
     return True
 
 

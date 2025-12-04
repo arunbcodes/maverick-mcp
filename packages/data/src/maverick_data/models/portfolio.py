@@ -21,25 +21,41 @@ from sqlalchemy.orm import Mapped, relationship
 
 from maverick_data.models.base import Base, TimestampMixin
 
+# Forward reference for type hints
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from maverick_data.models.user import User
+
 
 class UserPortfolio(TimestampMixin, Base):
     """
     User portfolio for tracking investment holdings.
 
-    Follows personal-use design with single user_id="default" for the personal
-    MaverickMCP server. Stores portfolio metadata and relationships to positions.
+    Supports both legacy mode (user_id as string) and new authenticated mode
+    (owner_id as foreign key to User).
 
     Attributes:
         id: Unique portfolio identifier (UUID)
-        user_id: User identifier (default: "default" for single-user)
+        user_id: Legacy user identifier (for backward compatibility)
+        owner_id: Foreign key to User (for authenticated users)
         name: Portfolio display name
         positions: Relationship to PortfolioPosition records
+        user: Relationship to User (when owner_id is set)
     """
 
     __tablename__ = "mcp_portfolios"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    # Legacy field for backward compatibility with MCP server
     user_id = Column(String(100), nullable=False, default="default", index=True)
+    # New field for authenticated users (nullable for migration)
+    owner_id = Column(
+        Uuid,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     name = Column(String(200), nullable=False, default="My Portfolio")
 
     # Relationships
@@ -49,10 +65,16 @@ class UserPortfolio(TimestampMixin, Base):
         cascade="all, delete-orphan",
         lazy="selectin",
     )
+    user: Mapped["User | None"] = relationship(
+        "User",
+        back_populates="portfolios",
+        foreign_keys=[owner_id],
+    )
 
     # Indexes for queries
     __table_args__ = (
         Index("idx_portfolio_user", "user_id"),
+        Index("idx_portfolio_owner", "owner_id"),
         UniqueConstraint("user_id", "name", name="uq_user_portfolio_name"),
     )
 
