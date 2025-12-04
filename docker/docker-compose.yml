@@ -1,0 +1,204 @@
+# Maverick Full Stack Development Environment
+# 
+# Services:
+#   - web:      Next.js UI (port 3000)
+#   - api:      FastAPI REST API (port 8000)
+#   - mcp:      MCP Server for Claude/Cursor (port 8003)
+#   - postgres: PostgreSQL database (port 5432)
+#   - redis:    Redis cache & sessions (port 6379)
+#
+# Usage:
+#   docker compose -f docker/docker-compose.yml up -d
+#   docker compose -f docker/docker-compose.yml logs -f
+#   docker compose -f docker/docker-compose.yml down
+
+services:
+  # --- Next.js Web UI ---
+  web:
+    build:
+      context: ..
+      dockerfile: docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    image: maverick-web:dev
+    container_name: maverick-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://api:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - maverick-net
+
+  # --- FastAPI REST API ---
+  api:
+    build:
+      context: ..
+      dockerfile: docker/api.Dockerfile
+    image: maverick-api:dev
+    container_name: maverick-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Application
+      - MAVERICK_ENVIRONMENT=development
+      - MAVERICK_DEBUG=true
+      # Database
+      - MAVERICK_DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/maverick_mcp
+      # Redis
+      - MAVERICK_REDIS_URL=redis://redis:6379
+      # Auth
+      - MAVERICK_JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-prod}
+      - MAVERICK_CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+      # External APIs
+      - MAVERICK_TIINGO_API_KEY=${TIINGO_API_KEY:-}
+      - MAVERICK_OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - MAVERICK_ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    volumes:
+      # Mount packages for hot-reload in development
+      - ../packages/schemas/src/maverick_schemas:/app/packages/schemas/src/maverick_schemas
+      - ../packages/core/src/maverick_core:/app/packages/core/src/maverick_core
+      - ../packages/data/src/maverick_data:/app/packages/data/src/maverick_data
+      - ../packages/services/src/maverick_services:/app/packages/services/src/maverick_services
+      - ../packages/api/src/maverick_api:/app/packages/api/src/maverick_api
+      - ../packages/server/src/maverick_server:/app/packages/server/src/maverick_server
+      - ../packages/backtest/src/maverick_backtest:/app/packages/backtest/src/maverick_backtest
+      - ../packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
+      - ../packages/india/src/maverick_india:/app/packages/india/src/maverick_india
+      - ../packages/crypto/src/maverick_crypto:/app/packages/crypto/src/maverick_crypto
+      - ../alembic:/app/alembic
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - maverick-net
+
+  # --- MCP Server for Claude/Cursor ---
+  mcp:
+    build:
+      context: ..
+      dockerfile: docker/mcp.Dockerfile
+    image: maverick-mcp:dev
+    container_name: maverick-mcp
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+    environment:
+      # Database
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/maverick_mcp
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # Server
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=info
+      - ENVIRONMENT=development
+      # External APIs
+      - TIINGO_API_KEY=${TIINGO_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - EXA_API_KEY=${EXA_API_KEY:-}
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+      - FRED_API_KEY=${FRED_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    volumes:
+      # Mount packages for hot-reload in development
+      - ../packages/schemas/src/maverick_schemas:/app/packages/schemas/src/maverick_schemas
+      - ../packages/core/src/maverick_core:/app/packages/core/src/maverick_core
+      - ../packages/data/src/maverick_data:/app/packages/data/src/maverick_data
+      - ../packages/services/src/maverick_services:/app/packages/services/src/maverick_services
+      - ../packages/api/src/maverick_api:/app/packages/api/src/maverick_api
+      - ../packages/server/src/maverick_server:/app/packages/server/src/maverick_server
+      - ../packages/backtest/src/maverick_backtest:/app/packages/backtest/src/maverick_backtest
+      - ../packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
+      - ../packages/india/src/maverick_india:/app/packages/india/src/maverick_india
+      - ../packages/crypto/src/maverick_crypto:/app/packages/crypto/src/maverick_crypto
+      - ../maverick_mcp:/app/maverick_mcp
+      - ../alembic:/app/alembic
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8000/ 2>&1 | grep -q 'Not Found\\|jsonrpc\\|Method Not Allowed'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - maverick-net
+
+  # --- PostgreSQL Database ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: maverick-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=maverick_mcp
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - maverick-net
+
+  # --- Redis Cache ---
+  redis:
+    image: redis:7-alpine
+    container_name: maverick-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - maverick-net
+
+volumes:
+  postgres-data:
+    name: maverick-postgres-data
+  redis-data:
+    name: maverick-redis-data
+
+networks:
+  maverick-net:
+    name: maverick-network
+    driver: bridge
+

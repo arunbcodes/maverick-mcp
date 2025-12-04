@@ -1,7 +1,7 @@
 # Maverick-MCP Makefile
 # Central command interface for agent-friendly development
 
-.PHONY: help dev dev-sse dev-http dev-stdio stop test test-all test-watch test-specific test-parallel test-cov test-speed test-speed-quick test-speed-emergency test-speed-comparison test-strategies lint format typecheck clean tail-log backend check migrate setup redis-start redis-stop experiment experiment-once benchmark-parallel benchmark-speed docker-up docker-down docker-logs security-audit security-install setup-hooks api api-docker api-docker-down api-test api-test-cov generate-api-client
+.PHONY: help dev dev-sse dev-http dev-stdio stop test test-all test-watch test-specific test-parallel test-cov test-speed test-speed-quick test-speed-emergency test-speed-comparison test-strategies lint format typecheck clean tail-log backend check migrate setup redis-start redis-stop experiment experiment-once benchmark-parallel benchmark-speed docker-up docker-down docker-logs security-audit security-install setup-hooks api api-docker api-docker-down api-test api-test-cov generate-api-client docker-full docker-full-build docker-full-up docker-full-down docker-full-logs docker-backend docker-web docker-prod docker-clean
 
 # Default target
 help:
@@ -45,9 +45,20 @@ help:
 	@echo "  make setup        - Initial project setup"
 	@echo "  make clean        - Clean up generated files"
 	@echo ""
-	@echo "  make docker-up    - Start with Docker"
-	@echo "  make docker-down  - Stop Docker services"
-	@echo "  make docker-logs  - View Docker logs"
+	@echo "  make docker-up    - Start MCP server with Docker (legacy)"
+	@echo "  make docker-down  - Stop Docker services (legacy)"
+	@echo "  make docker-logs  - View Docker logs (legacy)"
+	@echo ""
+	@echo "Full Stack Docker Commands:"
+	@echo "  make docker-full       - Start all services (web + api + mcp + db)"
+	@echo "  make docker-full-build - Build all Docker images"
+	@echo "  make docker-full-up    - Start all containers (detached)"
+	@echo "  make docker-full-down  - Stop all containers"
+	@echo "  make docker-full-logs  - Follow logs from all services"
+	@echo "  make docker-backend    - Start only backend (api + mcp + db)"
+	@echo "  make docker-web        - Start web UI only (requires backend)"
+	@echo "  make docker-prod       - Start in production mode"
+	@echo "  make docker-clean      - Remove all containers and volumes"
 	@echo ""
 	@echo "  make api          - Start REST API server (dev mode)"
 	@echo "  make api-docker   - Start REST API with Docker"
@@ -286,3 +297,60 @@ security-install:
 setup-hooks:
 	@echo "Setting up git hooks..."
 	@./scripts/setup_git_hooks.sh
+
+# =============================================================================
+# Full Stack Docker Commands
+# =============================================================================
+
+# Build all Docker images
+docker-full-build:
+	@echo "Building all Docker images..."
+	@docker compose -f docker/docker-compose.yml build
+
+# Start all services (interactive, shows logs)
+docker-full:
+	@echo "Starting full stack (web + api + mcp + postgres + redis)..."
+	@docker compose -f docker/docker-compose.yml up --build
+
+# Start all services (detached)
+docker-full-up:
+	@echo "Starting full stack (detached)..."
+	@docker compose -f docker/docker-compose.yml up -d --build
+
+# Stop all services
+docker-full-down:
+	@echo "Stopping full stack..."
+	@docker compose -f docker/docker-compose.yml down
+
+# Follow logs from all services
+docker-full-logs:
+	@echo "Following logs (Ctrl+C to stop)..."
+	@docker compose -f docker/docker-compose.yml logs -f
+
+# Start only backend services (for local web development)
+docker-backend:
+	@echo "Starting backend services (api + mcp + postgres + redis)..."
+	@docker compose -f docker/docker-compose.yml up -d postgres redis api mcp
+
+# Start web UI only (requires backend running)
+docker-web:
+	@echo "Starting web UI..."
+	@docker compose -f docker/docker-compose.yml up -d web
+
+# Start in production mode
+docker-prod:
+	@echo "Starting in production mode..."
+	@docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+
+# Remove all containers and volumes
+docker-clean:
+	@echo "Removing all containers and volumes..."
+	@docker compose -f docker/docker-compose.yml down -v --remove-orphans
+	@echo "Clean complete."
+
+# Shortcuts for full stack
+df: docker-full
+dfu: docker-full-up
+dfd: docker-full-down
+dfl: docker-full-logs
+db: docker-backend
