@@ -107,9 +107,11 @@ from maverick_schemas.research import (
 # Auth models
 from maverick_schemas.auth import (
     AuthenticatedUser,
-    TokenResponse,
+    RegisterRequest,
     LoginRequest,
+    TokenResponse,
     RefreshTokenRequest,
+    UserProfile,
     APIKeyInfo,
     APIKeyCreate,
     APIKeyResponse,
@@ -187,9 +189,11 @@ __all__ = [
     "EarningsSummary",
     # Auth
     "AuthenticatedUser",
-    "TokenResponse",
+    "RegisterRequest",
     "LoginRequest",
+    "TokenResponse",
     "RefreshTokenRequest",
+    "UserProfile",
     "APIKeyInfo",
     "APIKeyCreate",
     "APIKeyResponse",

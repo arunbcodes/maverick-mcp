@@ -15,8 +15,8 @@ class AuthenticatedUser(MaverickBaseModel):
     """Authenticated user context."""
     
     user_id: str = Field(description="Unique user identifier")
-    auth_method: AuthMethod = Field(description="Authentication method used")
-    tier: Tier = Field(default=Tier.FREE, description="Subscription tier")
+    auth_method: AuthMethod | str = Field(description="Authentication method used")
+    tier: Tier | str = Field(default=Tier.FREE, description="Subscription tier")
     
     # Rate limiting
     rate_limit: int = Field(default=100, description="Requests per minute allowed")
@@ -28,6 +28,16 @@ class AuthenticatedUser(MaverickBaseModel):
     # Session info
     session_id: str | None = Field(default=None, description="Session ID (for cookie auth)")
     token_id: str | None = Field(default=None, description="Token ID (for JWT auth)")
+
+
+class RegisterRequest(MaverickBaseModel):
+    """User registration request."""
+    
+    email: EmailStr = Field(description="User email")
+    password: str = Field(min_length=8, max_length=128, description="User password")
+    
+    # Optional
+    name: str | None = Field(default=None, max_length=100, description="Display name")
 
 
 class LoginRequest(MaverickBaseModel):
@@ -123,11 +133,24 @@ class TokenBudget(MaverickBaseModel):
     monthly_reset_at: datetime = Field(description="Monthly reset timestamp")
 
 
+class UserProfile(MaverickBaseModel):
+    """User profile response."""
+    
+    user_id: str = Field(description="User ID")
+    email: str = Field(description="User email")
+    tier: Tier | str = Field(description="Subscription tier")
+    email_verified: bool = Field(default=False, description="Email verification status")
+    created_at: str = Field(description="Account creation timestamp")
+    last_login_at: str | None = Field(default=None, description="Last login timestamp")
+
+
 __all__ = [
     "AuthenticatedUser",
+    "RegisterRequest",
     "LoginRequest",
     "TokenResponse",
     "RefreshTokenRequest",
+    "UserProfile",
     "APIKeyInfo",
     "APIKeyCreate",
     "APIKeyResponse",
