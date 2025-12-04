@@ -19,6 +19,7 @@ import { LoadingState, Skeleton } from '@/components/ui/loading';
 import { ErrorState, EmptyState } from '@/components/ui/error';
 import { PositionList } from '@/components/portfolio';
 import { AddPositionModal } from '@/components/portfolio/add-position-modal';
+import { EditPositionModal } from '@/components/portfolio/edit-position-modal';
 import { AllocationChart, PortfolioPerformanceChart } from '@/components/portfolio/charts';
 import {
   Plus,
@@ -35,6 +36,7 @@ import type { Position } from '@/lib/api/types';
 
 export default function PortfolioPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [positionToEdit, setPositionToEdit] = useState<Position | null>(null);
   const [positionToDelete, setPositionToDelete] = useState<string | null>(null);
 
   // Fetch data
@@ -84,10 +86,9 @@ export default function PortfolioPage() {
     }
   };
 
-  // Handle edit (placeholder - could open edit modal)
+  // Handle edit - open edit modal
   const handleEditPosition = (position: Position) => {
-    console.log('Edit position:', position);
-    // TODO: Open edit modal
+    setPositionToEdit(position);
   };
 
   // Mock performance data (would come from API)
@@ -303,6 +304,18 @@ export default function PortfolioPage() {
           refetchPortfolio();
         }}
       />
+
+      {/* Edit Position Modal */}
+      {positionToEdit && (
+        <EditPositionModal
+          position={positionToEdit}
+          isOpen={!!positionToEdit}
+          onClose={() => setPositionToEdit(null)}
+          onSuccess={() => {
+            refetchPortfolio();
+          }}
+        />
+      )}
     </div>
   );
 }
