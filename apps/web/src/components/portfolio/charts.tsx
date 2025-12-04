@@ -12,9 +12,10 @@ import {
   Cell,
   AreaChart,
   Area,
+  Legend,
 } from 'recharts';
 import { formatCurrency, formatPercent, cn } from '@/lib/utils';
-import type { Position, ChartDataPoint } from '@/lib/api/types';
+import type { Position, ChartDataPoint, PerformanceDataPoint } from '@/lib/api/types';
 
 // Color palette for charts
 const COLORS = [
@@ -28,17 +29,139 @@ const COLORS = [
   '#06b6d4', // cyan-500
 ];
 
-interface PortfolioPerformanceChartProps {
+// Legacy interface for backward compatibility
+interface LegacyChartProps {
   data: ChartDataPoint[];
   benchmark?: ChartDataPoint[];
   height?: number;
 }
 
+// New interface for API data
+interface PerformanceChartProps {
+  data: PerformanceDataPoint[];
+  showBenchmark?: boolean;
+  height?: number;
+  showReturns?: boolean; // Show cumulative returns instead of absolute values
+}
+
 export function PortfolioPerformanceChart({
+  data,
+  showBenchmark = true,
+  height = 300,
+  showReturns = false,
+}: PerformanceChartProps) {
+  if (!data || data.length === 0) {
+    return (
+      <div
+        className="flex items-center justify-center bg-slate-800/30 rounded-lg"
+        style={{ height }}
+      >
+        <p className="text-slate-500">No performance data available</p>
+      </div>
+    );
+  }
+
+  // Determine if overall trend is positive
+  const firstValue = data[0]?.portfolio_value ?? 0;
+  const lastValue = data[data.length - 1]?.portfolio_value ?? 0;
+  const isPositive = lastValue >= firstValue;
+  const primaryColor = isPositive ? '#22c55e' : '#ef4444';
+
+  // Prepare chart data
+  const chartData = data.map((d) => ({
+    date: d.date,
+    portfolio: showReturns ? d.cumulative_return : d.portfolio_value,
+    benchmark: showReturns ? d.benchmark_return : d.benchmark_value,
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={primaryColor} stopOpacity={0.3} />
+            <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="benchmarkGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#6b7280" stopOpacity={0.2} />
+            <stop offset="95%" stopColor="#6b7280" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <XAxis
+          dataKey="date"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#6b7280', fontSize: 12 }}
+          tickFormatter={(value) => {
+            const date = new Date(value);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          }}
+        />
+        <YAxis
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: '#6b7280', fontSize: 12 }}
+          tickFormatter={(value) =>
+            showReturns
+              ? `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
+              : `$${(value / 1000).toFixed(0)}k`
+          }
+          domain={['auto', 'auto']}
+        />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: '#1e293b',
+            border: '1px solid #334155',
+            borderRadius: '8px',
+          }}
+          labelStyle={{ color: '#94a3b8' }}
+          formatter={(value, name) => {
+            if (value === null || value === undefined) return ['-', name];
+            const numValue = typeof value === 'number' ? value : 0;
+            const formattedValue = showReturns
+              ? `${numValue >= 0 ? '+' : ''}${numValue.toFixed(2)}%`
+              : formatCurrency(numValue);
+            const label = name === 'portfolio' ? 'Portfolio' : 'S&P 500';
+            return [formattedValue, label];
+          }}
+          labelFormatter={(label) =>
+            new Date(label).toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          }
+        />
+        <Area
+          type="monotone"
+          dataKey="portfolio"
+          stroke={primaryColor}
+          strokeWidth={2}
+          fill="url(#portfolioGradient)"
+          name="portfolio"
+        />
+        {showBenchmark && (
+          <Area
+            type="monotone"
+            dataKey="benchmark"
+            stroke="#6b7280"
+            strokeWidth={1}
+            strokeDasharray="4 4"
+            fill="url(#benchmarkGradient)"
+            name="benchmark"
+          />
+        )}
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
+// Legacy component for backward compatibility with old data format
+export function LegacyPerformanceChart({
   data,
   benchmark,
   height = 300,
-}: PortfolioPerformanceChartProps) {
+}: LegacyChartProps) {
   if (!data || data.length === 0) {
     return (
       <div
@@ -54,13 +177,9 @@ export function PortfolioPerformanceChart({
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <defs>
-          <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="legacyPortfolioGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
             <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-          </linearGradient>
-          <linearGradient id="benchmarkGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#6b7280" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#6b7280" stopOpacity={0} />
           </linearGradient>
         </defs>
         <XAxis
@@ -87,10 +206,7 @@ export function PortfolioPerformanceChart({
             borderRadius: '8px',
           }}
           labelStyle={{ color: '#94a3b8' }}
-          formatter={(value: number, name: string) => [
-            formatCurrency(value),
-            name === 'value' ? 'Portfolio' : 'S&P 500',
-          ]}
+          formatter={(value: number) => [formatCurrency(value), 'Portfolio']}
           labelFormatter={(label) =>
             new Date(label).toLocaleDateString('en-US', {
               month: 'long',
@@ -104,19 +220,8 @@ export function PortfolioPerformanceChart({
           dataKey="value"
           stroke="#22c55e"
           strokeWidth={2}
-          fill="url(#portfolioGradient)"
+          fill="url(#legacyPortfolioGradient)"
         />
-        {benchmark && (
-          <Area
-            type="monotone"
-            data={benchmark}
-            dataKey="value"
-            stroke="#6b7280"
-            strokeWidth={1}
-            strokeDasharray="4 4"
-            fill="url(#benchmarkGradient)"
-          />
-        )}
       </AreaChart>
     </ResponsiveContainer>
   );

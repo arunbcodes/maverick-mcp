@@ -9,6 +9,8 @@ import type {
   Portfolio,
   Position,
   PortfolioSummary,
+  PortfolioPerformanceChart,
+  PerformancePeriod,
   AddPositionRequest,
   UpdatePositionRequest,
 } from '../types';
@@ -21,6 +23,7 @@ export const portfolioKeys = {
   summary: () => [...portfolioKeys.all, 'summary'] as const,
   positions: () => [...portfolioKeys.all, 'positions'] as const,
   position: (id: string) => [...portfolioKeys.all, 'position', id] as const,
+  performance: (period: string) => [...portfolioKeys.all, 'performance', period] as const,
 };
 
 /**
@@ -202,5 +205,30 @@ export function useOptimisticPositionUpdate() {
       queryClient.invalidateQueries({ queryKey: portfolioKeys.positions() });
     },
   };
+}
+
+/**
+ * Get portfolio performance chart data
+ */
+export function usePortfolioPerformance(
+  period: PerformancePeriod = '90d',
+  options?: { enabled?: boolean; benchmark?: string }
+) {
+  return useQuery({
+    queryKey: portfolioKeys.performance(period),
+    queryFn: async () => {
+      const params = new URLSearchParams({ period });
+      if (options?.benchmark) {
+        params.set('benchmark', options.benchmark);
+      }
+      const response = await api.get<APIResponse<PortfolioPerformanceChart>>(
+        `/portfolio/performance?${params}`
+      );
+      return response.data;
+    },
+    enabled: options?.enabled !== false,
+    staleTime: 5 * 60 * 1000, // 5 minutes - performance data doesn't change rapidly
+    refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
+  });
 }
 

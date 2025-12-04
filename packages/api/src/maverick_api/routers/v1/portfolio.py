@@ -6,6 +6,7 @@ Provides portfolio tracking, position management, and P&L calculation.
 
 from datetime import datetime, UTC
 from decimal import Decimal
+from typing import Literal
 
 from fastapi import APIRouter, Depends, Query
 
@@ -15,10 +16,12 @@ from maverick_api.dependencies import (
     get_request_id,
 )
 from maverick_schemas.auth import AuthenticatedUser
-from maverick_schemas.portfolio import Portfolio, Position, PositionCreate
+from maverick_schemas.portfolio import Portfolio, Position, PositionCreate, PortfolioPerformanceChart
 from maverick_schemas.responses import APIResponse, ResponseMeta
 
 router = APIRouter()
+
+PerformancePeriod = Literal["7d", "30d", "90d", "1y", "ytd", "all"]
 
 
 @router.get("", response_model=APIResponse[Portfolio])
@@ -96,6 +99,35 @@ async def remove_position(
 
     return APIResponse(
         data={"message": message, "remaining": result.model_dump() if result else None},
+        meta=ResponseMeta(
+            request_id=request_id,
+            timestamp=datetime.now(UTC),
+        ),
+    )
+
+
+@router.get("/performance", response_model=APIResponse[PortfolioPerformanceChart])
+async def get_portfolio_performance(
+    period: PerformancePeriod = Query("90d", description="Performance period"),
+    benchmark: str = Query("SPY", description="Benchmark ticker for comparison"),
+    request_id: str = Depends(get_request_id),
+    service=Depends(get_portfolio_service),
+    user: AuthenticatedUser = Depends(get_current_user),
+):
+    """
+    Get portfolio performance with time series data for charting.
+
+    Returns daily portfolio values, returns, and benchmark comparison.
+    Supports periods: 7d, 30d, 90d, 1y, ytd, all.
+    """
+    performance = await service.get_performance(
+        user_id=user.user_id,
+        period=period,
+        benchmark=benchmark,
+    )
+
+    return APIResponse(
+        data=performance,
         meta=ResponseMeta(
             request_id=request_id,
             timestamp=datetime.now(UTC),
