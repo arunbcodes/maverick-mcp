@@ -77,3 +77,4 @@ site/
 
 # Cloudflare tunnel binary
 cloudflared
+coverage_services/
