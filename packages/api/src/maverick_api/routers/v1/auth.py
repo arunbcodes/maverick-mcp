@@ -10,6 +10,8 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from pydantic import Field
+
 from maverick_schemas.auth import (
     RegisterRequest,
     LoginRequest,
@@ -17,6 +19,7 @@ from maverick_schemas.auth import (
     RefreshTokenRequest,
     UserProfile,
 )
+from maverick_schemas.base import MaverickBaseModel
 from maverick_schemas.responses import APIResponse, ResponseMeta
 from maverick_services import UserService, AuthenticationError, ConflictError, NotFoundError
 from maverick_api.dependencies import get_db, get_current_user, get_request_id, get_redis
@@ -108,10 +111,10 @@ async def login(
             password=data.password,
         )
         
-        # Generate JWT tokens
-        tokens = jwt_strategy.create_tokens(
+        # Generate JWT tokens (returns TokenResponse object)
+        token_response = jwt_strategy.create_tokens(
             user_id=user.user_id,
-            tier=str(user.tier),
+            tier=user.tier,
         )
         
         # Also set session cookie for web clients
@@ -119,15 +122,6 @@ async def login(
             response=response,
             user_id=user.user_id,
             tier=str(user.tier),
-        )
-        
-        token_response = TokenResponse(
-            access_token=tokens["access_token"],
-            refresh_token=tokens["refresh_token"],
-            token_type=tokens["token_type"],
-            expires_in=tokens["expires_in"],
-            user_id=user.user_id,
-            tier=user.tier,
         )
         
         return APIResponse(
@@ -158,26 +152,8 @@ async def refresh_tokens(
     user are invalidated (potential token theft).
     """
     try:
-        tokens = await jwt_strategy.refresh_tokens(data.refresh_token)
-        
-        # Note: We don't have user info from refresh, so we decode the new token
-        # to get user_id and tier
-        from jose import jwt
-        settings = get_settings()
-        payload = jwt.decode(
-            tokens["access_token"],
-            settings.jwt_secret,
-            algorithms=["HS256"],
-        )
-        
-        token_response = TokenResponse(
-            access_token=tokens["access_token"],
-            refresh_token=tokens["refresh_token"],
-            token_type=tokens["token_type"],
-            expires_in=tokens["expires_in"],
-            user_id=payload["sub"],
-            tier=payload.get("tier", "free"),
-        )
+        # refresh_tokens returns TokenResponse object directly
+        token_response = await jwt_strategy.refresh_tokens(data.refresh_token)
         
         return APIResponse(
             data=token_response,
@@ -273,10 +249,16 @@ async def get_current_user_profile(
         raise HTTPException(status_code=500, detail="Failed to get profile")
 
 
+class ChangePasswordRequest(MaverickBaseModel):
+    """Request body for password change."""
+    
+    current_password: str = Field(min_length=1, description="Current password")
+    new_password: str = Field(min_length=8, max_length=128, description="New password")
+
+
 @router.put("/password")
 async def change_password(
-    current_password: str,
-    new_password: str,
+    data: ChangePasswordRequest,
     request_id: str = Depends(get_request_id),
     user: AuthenticatedUser = Depends(get_current_user),
     user_service: UserService = Depends(get_user_service),
@@ -289,8 +271,8 @@ async def change_password(
     try:
         await user_service.update_password(
             user_id=user.user_id,
-            current_password=current_password,
-            new_password=new_password,
+            current_password=data.current_password,
+            new_password=data.new_password,
         )
         
         return APIResponse(

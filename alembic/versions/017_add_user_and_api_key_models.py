@@ -15,8 +15,9 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
+# Note: This migration has multiple parent branches. Using tuple for merge.
 revision = "017_add_user_apikey"
-down_revision = None  # Will be set dynamically based on existing heads
+down_revision = ("016_add_news_article_model", "015_add_conference_call_models")
 branch_labels = None
 depends_on = None
 
