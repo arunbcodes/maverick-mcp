@@ -2,21 +2,63 @@
 
 Get Maverick MCP up and running in minutes!
 
-## Prerequisites
+## Choose Your Setup
 
-Before you begin, ensure you have:
+=== "🐳 Docker (Recommended)"
 
-- **Python 3.12+** installed
-- **[uv](https://docs.astral.sh/uv/)** package manager (recommended) or pip
-- **Git** for cloning the repository
-- **Tiingo API key** (free tier available at [tiingo.com](https://tiingo.com))
+    The fastest way to get started with the full stack (Web UI + API + MCP).
 
-### Optional (Recommended)
-- **OpenRouter API key** for AI features ([openrouter.ai](https://openrouter.ai))
-- **OpenAI API key** for embeddings/RAG ([platform.openai.com](https://platform.openai.com))
-- **Redis** for enhanced caching performance
+    ### Prerequisites
+    - **Docker** and **Docker Compose** installed
+    - **Tiingo API key** (free at [tiingo.com](https://tiingo.com))
 
-## Installation
+    ### Steps
+
+    ```bash
+    # 1. Clone repository
+    git clone https://github.com/arunbcodes/maverick-mcp.git
+    cd maverick-mcp
+
+    # 2. Configure environment
+    cp docker/env.example docker/.env
+    # Edit docker/.env and add your TIINGO_API_KEY
+
+    # 3. Start all services
+    make docker-full-up
+
+    # 4. Access the dashboard
+    open http://localhost:3000
+    ```
+
+    **Services Running:**
+
+    | Service | URL | Description |
+    |---------|-----|-------------|
+    | Web Dashboard | http://localhost:3000 | Main UI |
+    | REST API | http://localhost:8000 | API endpoints |
+    | API Docs | http://localhost:8000/docs | Swagger UI |
+    | MCP Server | http://localhost:8003 | For Claude/Cursor |
+
+    For more details, see the [Docker Guide](../deployment/docker.md).
+
+=== "🐍 Local Python"
+
+    For development or when you don't need the Web UI.
+
+    ### Prerequisites
+    - **Python 3.12+** installed
+    - **[uv](https://docs.astral.sh/uv/)** package manager (recommended) or pip
+    - **Git** for cloning the repository
+    - **Tiingo API key** (free tier available at [tiingo.com](https://tiingo.com))
+
+    ### Optional (Recommended)
+    - **OpenRouter API key** for AI features ([openrouter.ai](https://openrouter.ai))
+    - **OpenAI API key** for embeddings/RAG ([platform.openai.com](https://platform.openai.com))
+    - **Redis** for enhanced caching performance
+
+---
+
+## Local Python Installation
 
 ### Step 1: Clone the Repository
 
