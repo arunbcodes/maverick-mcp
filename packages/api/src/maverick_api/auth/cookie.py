@@ -155,6 +155,16 @@ class CookieAuthStrategy(AuthStrategy):
         response.delete_cookie(self.SESSION_COOKIE_NAME, path="/")
         response.delete_cookie(self.CSRF_COOKIE_NAME, path="/")
 
+    async def invalidate_session(self, session_id: str) -> None:
+        """
+        Invalidate a session by ID.
+
+        Args:
+            session_id: Session ID to invalidate
+        """
+        if self._redis and session_id:
+            await self._redis.delete(f"session:{session_id}")
+
     async def _validate_session(self, session_id: str) -> AuthenticatedUser | None:
         """Validate session and return user if valid."""
         if not self._redis:
