@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import {
   useMaverickStocks,
   useMaverickBearStocks,
@@ -470,19 +471,24 @@ function ScreenerRow({ result }: { result: ScreeningResult }) {
     <tr className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
       {/* Ticker */}
       <td className="py-3 px-2">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600/20 flex items-center justify-center">
+        <Link
+          href={`/stocks/${result.ticker}`}
+          className="flex items-center space-x-3 group"
+        >
+          <div className="w-8 h-8 rounded-lg bg-emerald-600/20 flex items-center justify-center group-hover:bg-emerald-600/30 transition-colors">
             <span className="text-emerald-400 font-semibold text-xs">
               {result.ticker.slice(0, 2)}
             </span>
           </div>
           <div>
-            <p className="text-white font-medium">{result.ticker}</p>
+            <p className="text-white font-medium group-hover:text-emerald-400 transition-colors">
+              {result.ticker}
+            </p>
             <p className="text-xs text-slate-500 truncate max-w-[150px]">
               {result.name}
             </p>
           </div>
-        </div>
+        </Link>
       </td>
       {/* Price */}
       <td className="py-3 px-2 text-right text-white">
