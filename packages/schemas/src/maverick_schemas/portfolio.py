@@ -82,6 +82,17 @@ class PortfolioSummary(MaverickBaseModel):
     last_updated: datetime = Field(description="Last calculation timestamp")
 
 
+class PerformanceDataPoint(MaverickBaseModel):
+    """Single data point in performance time series."""
+    
+    date: date = Field(description="Date")
+    portfolio_value: Decimal = Field(description="Portfolio value")
+    daily_return: Decimal | None = Field(default=None, description="Daily return %")
+    cumulative_return: Decimal | None = Field(default=None, description="Cumulative return %")
+    benchmark_value: Decimal | None = Field(default=None, description="Benchmark value")
+    benchmark_return: Decimal | None = Field(default=None, description="Benchmark cumulative return %")
+
+
 class PortfolioPerformance(MaverickBaseModel):
     """Portfolio performance over time."""
     
@@ -103,6 +114,29 @@ class PortfolioPerformance(MaverickBaseModel):
     # Time series (for charts)
     daily_returns: list[Decimal] | None = Field(default=None, description="Daily returns")
     cumulative_returns: list[Decimal] | None = Field(default=None, description="Cumulative returns")
+
+
+class PortfolioPerformanceChart(MaverickBaseModel):
+    """Portfolio performance data for charting."""
+    
+    period: str = Field(description="Performance period (7d, 30d, 90d, 1y)")
+    start_date: date = Field(description="Start date")
+    end_date: date = Field(description="End date")
+    
+    # Summary metrics
+    total_return: Decimal = Field(description="Total return %")
+    total_return_value: Decimal = Field(description="Total return value")
+    benchmark_return: Decimal | None = Field(default=None, description="Benchmark return %")
+    alpha: Decimal | None = Field(default=None, description="Alpha vs benchmark")
+    
+    # Risk metrics
+    volatility: Decimal | None = Field(default=None, description="Annualized volatility %")
+    sharpe_ratio: Decimal | None = Field(default=None, description="Sharpe ratio")
+    max_drawdown: Decimal | None = Field(default=None, description="Maximum drawdown %")
+    max_drawdown_date: date | None = Field(default=None, description="Date of max drawdown")
+    
+    # Time series for charting
+    data: list[PerformanceDataPoint] = Field(description="Time series data")
 
 
 class Portfolio(MaverickBaseModel):
@@ -169,7 +203,9 @@ __all__ = [
     "PositionCreate",
     "PositionUpdate",
     "PortfolioSummary",
+    "PerformanceDataPoint",
     "PortfolioPerformance",
+    "PortfolioPerformanceChart",
     "Portfolio",
     "PortfolioAllocation",
     "CorrelationMatrix",

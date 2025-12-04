@@ -202,6 +202,34 @@ export interface PortfolioSummary {
   worst_performers: Position[];
 }
 
+// --- Portfolio Performance Types ---
+
+export type PerformancePeriod = '7d' | '30d' | '90d' | '1y' | 'ytd' | 'all';
+
+export interface PerformanceDataPoint {
+  date: string;
+  portfolio_value: number;
+  daily_return: number | null;
+  cumulative_return: number | null;
+  benchmark_value: number | null;
+  benchmark_return: number | null;
+}
+
+export interface PortfolioPerformanceChart {
+  period: string;
+  start_date: string;
+  end_date: string;
+  total_return: number;
+  total_return_value: number;
+  benchmark_return: number | null;
+  alpha: number | null;
+  volatility: number | null;
+  sharpe_ratio: number | null;
+  max_drawdown: number | null;
+  max_drawdown_date: string | null;
+  data: PerformanceDataPoint[];
+}
+
 // --- Technical Analysis Types ---
 
 export interface TechnicalIndicators {

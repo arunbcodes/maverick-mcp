@@ -26,6 +26,7 @@ export {
   useRemovePosition,
   useBatchUpdatePositions,
   useOptimisticPositionUpdate,
+  usePortfolioPerformance,
 } from './use-portfolio';
 
 // Screening hooks

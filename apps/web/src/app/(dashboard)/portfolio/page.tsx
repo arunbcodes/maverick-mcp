@@ -6,6 +6,7 @@ import {
   usePositions,
   useRemovePosition,
   usePriceStream,
+  usePortfolioPerformance,
 } from '@/lib/api/hooks';
 import {
   Card,
@@ -32,12 +33,13 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { formatCurrency, formatPercent, cn } from '@/lib/utils';
-import type { Position } from '@/lib/api/types';
+import type { Position, PerformancePeriod } from '@/lib/api/types';
 
 export default function PortfolioPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [positionToEdit, setPositionToEdit] = useState<Position | null>(null);
   const [positionToDelete, setPositionToDelete] = useState<string | null>(null);
+  const [performancePeriod, setPerformancePeriod] = useState<'7d' | '30d' | '90d' | '1y'>('90d');
 
   // Fetch data
   const {
@@ -46,6 +48,12 @@ export default function PortfolioPage() {
     isError: portfolioError,
     refetch: refetchPortfolio,
   } = usePortfolio();
+
+  // Fetch performance data
+  const {
+    data: performanceData,
+    isLoading: performanceLoading,
+  } = usePortfolioPerformance(performancePeriod);
 
   const {
     data: positions,
@@ -90,30 +98,6 @@ export default function PortfolioPage() {
   const handleEditPosition = (position: Position) => {
     setPositionToEdit(position);
   };
-
-  // Mock performance data (would come from API)
-  const performanceData = useMemo(() => {
-    const data = [];
-    const now = new Date();
-    let value = totalCost || 100000;
-    
-    for (let i = 90; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      value = value * (1 + (Math.random() * 0.04 - 0.02));
-      data.push({
-        date: date.toISOString().split('T')[0],
-        value: Math.round(value),
-      });
-    }
-    
-    // Ensure last value matches current portfolio value
-    if (data.length > 0 && totalValue) {
-      data[data.length - 1].value = totalValue;
-    }
-    
-    return data;
-  }, [totalCost, totalValue]);
 
   if (portfolioError) {
     return (
@@ -191,17 +175,52 @@ export default function PortfolioPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Performance Chart */}
         <Card className="lg:col-span-2 bg-slate-900/50 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-white">Performance</CardTitle>
-            <CardDescription className="text-slate-400">
-              Portfolio value over time
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-white">Performance</CardTitle>
+              <CardDescription className="text-slate-400">
+                {performanceData?.data ? (
+                  <>
+                    {performanceData.total_return >= 0 ? '+' : ''}
+                    {performanceData.total_return.toFixed(2)}% return
+                    {performanceData.alpha !== null && (
+                      <span className="ml-2 text-slate-500">
+                        (α: {performanceData.alpha >= 0 ? '+' : ''}{performanceData.alpha.toFixed(2)}%)
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  'Portfolio value over time'
+                )}
+              </CardDescription>
+            </div>
+            {/* Period Toggle */}
+            <div className="flex space-x-1">
+              {(['7d', '30d', '90d', '1y'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setPerformancePeriod(period)}
+                  className={cn(
+                    'px-3 py-1 text-xs rounded-md transition-colors',
+                    performancePeriod === period
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                  )}
+                >
+                  {period.toUpperCase()}
+                </button>
+              ))}
+            </div>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isLoading || performanceLoading ? (
               <Skeleton className="h-[300px] w-full" />
-            ) : positions && positions.length > 0 ? (
-              <PortfolioPerformanceChart data={performanceData} height={300} />
+            ) : positions && positions.length > 0 && performanceData?.data ? (
+              <PortfolioPerformanceChart
+                data={performanceData.data}
+                showBenchmark={true}
+                height={300}
+              />
             ) : (
               <div className="flex items-center justify-center h-[300px]">
                 <p className="text-slate-500">Add positions to see performance</p>
