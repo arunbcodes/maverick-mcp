@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useParams, useRouter, notFound } from 'next/navigation';
 import {
   useStockQuote,
   useStockInfo,
@@ -19,31 +18,26 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LoadingState, Skeleton } from '@/components/ui/loading';
+import { Skeleton } from '@/components/ui/loading';
 import { ErrorState } from '@/components/ui/error';
 import {
   ArrowLeft,
   TrendingUp,
   TrendingDown,
   Plus,
-  ExternalLink,
   Activity,
   BarChart3,
   Target,
-  Clock,
   X,
   Check,
 } from 'lucide-react';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   AreaChart,
   Area,
-  ReferenceLine,
 } from 'recharts';
 import { formatCurrency, formatPercent, formatCompactNumber, cn } from '@/lib/utils';
 
@@ -52,7 +46,13 @@ type Period = '1W' | '1M' | '3M' | '1Y' | 'ALL';
 export default function StockDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const ticker = (params.ticker as string).toUpperCase();
+  
+  // Runtime validation for ticker param
+  const tickerParam = params.ticker;
+  if (!tickerParam || typeof tickerParam !== 'string') {
+    notFound();
+  }
+  const ticker = tickerParam.toUpperCase();
   
   const [period, setPeriod] = useState<Period>('3M');
   const [showAddModal, setShowAddModal] = useState(false);
