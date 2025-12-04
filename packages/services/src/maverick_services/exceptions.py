@@ -87,8 +87,64 @@ class ResearchError(ServiceError):
     status_code = 500
 
 
+# --- Generic exceptions for services ---
+
+
+class ServiceException(ServiceError):
+    """Generic service exception with status code."""
+
+    def __init__(self, message: str, status_code: int = 500, error_code: str = "SERVICE_ERROR", **kwargs):
+        super().__init__(message, **kwargs)
+        self.status_code = status_code
+        self.error_code = error_code
+
+
+class NotFoundError(ServiceError):
+    """Raised when a resource is not found."""
+
+    error_code = "NOT_FOUND"
+    status_code = 404
+
+
+class ConflictError(ServiceError):
+    """Raised when there's a conflict (e.g., duplicate email)."""
+
+    error_code = "CONFLICT"
+    status_code = 409
+
+
+class AuthenticationError(ServiceError):
+    """Raised when authentication fails."""
+
+    error_code = "AUTHENTICATION_FAILED"
+    status_code = 401
+
+
+class AuthorizationError(ServiceError):
+    """Raised when user lacks permission."""
+
+    error_code = "FORBIDDEN"
+    status_code = 403
+
+
+class ValidationError(ServiceError):
+    """Raised when validation fails."""
+
+    error_code = "VALIDATION_ERROR"
+    status_code = 422
+
+
 __all__ = [
+    # Base
     "ServiceError",
+    "ServiceException",
+    # Generic errors
+    "NotFoundError",
+    "ConflictError",
+    "AuthenticationError",
+    "AuthorizationError",
+    "ValidationError",
+    # Domain-specific errors
     "StockNotFoundError",
     "InsufficientDataError",
     "PortfolioNotFoundError",

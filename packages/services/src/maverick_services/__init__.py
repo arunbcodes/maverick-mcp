@@ -14,8 +14,15 @@ from maverick_services.stock_service import StockService
 from maverick_services.technical_service import TechnicalService
 from maverick_services.portfolio_service import PortfolioService
 from maverick_services.screening_service import ScreeningService
+from maverick_services.auth import UserService, PasswordHasher
 from maverick_services.exceptions import (
     ServiceError,
+    ServiceException,
+    NotFoundError,
+    ConflictError,
+    AuthenticationError,
+    AuthorizationError,
+    ValidationError,
     StockNotFoundError,
     InsufficientDataError,
     PortfolioNotFoundError,
@@ -28,8 +35,18 @@ __all__ = [
     "TechnicalService",
     "PortfolioService",
     "ScreeningService",
-    # Exceptions
+    "UserService",
+    "PasswordHasher",
+    # Base exceptions
     "ServiceError",
+    "ServiceException",
+    # Generic exceptions
+    "NotFoundError",
+    "ConflictError",
+    "AuthenticationError",
+    "AuthorizationError",
+    "ValidationError",
+    # Domain-specific exceptions
     "StockNotFoundError",
     "InsufficientDataError",
     "PortfolioNotFoundError",
