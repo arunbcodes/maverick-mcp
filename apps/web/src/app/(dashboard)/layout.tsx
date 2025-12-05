@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { useAuth } from '@/lib/auth/auth-context';
 import { DemoBanner } from '@/components/ui/demo-banner';
+import { AlertBell } from '@/components/alerts';
 import { Button } from '@/components/ui/button';
 import {
   TrendingUp,
@@ -126,6 +127,11 @@ export default function DashboardLayout({
           {/* Demo banner for demo users */}
           <DemoBanner />
           
+          {/* Top header bar (desktop) */}
+          <header className="sticky top-0 z-30 hidden lg:flex items-center justify-end h-16 px-6 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+            <AlertBell />
+          </header>
+
           {/* Mobile header */}
           <header className="sticky top-0 z-30 flex items-center h-16 px-4 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 lg:hidden">
             <button
@@ -137,7 +143,7 @@ export default function DashboardLayout({
             <div className="flex-1 flex justify-center">
               <TrendingUp className="h-8 w-8 text-emerald-400" />
             </div>
-            <div className="w-6" /> {/* Spacer for balance */}
+            <AlertBell />
           </header>
 
           {/* Page content */}

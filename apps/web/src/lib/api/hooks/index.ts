@@ -69,3 +69,27 @@ export {
   useLazyInvestmentThesis,
 } from './use-ai-screening';
 
+// Alert hooks
+export {
+  alertKeys,
+  useAlertRules,
+  useAlerts,
+  useUnreadAlertCount,
+  useAlertPresets,
+  useCreateAlertRule,
+  useUpdateAlertRule,
+  useDeleteAlertRule,
+  useToggleAlertRule,
+  useEnablePreset,
+  useMarkAlertRead,
+  useMarkAllAlertsRead,
+  useDismissAlert,
+  useAlertStream,
+  type Alert,
+  type AlertRule,
+  type AlertType,
+  type AlertPriority,
+  type AlertStatus,
+  type PresetRule,
+} from './use-alerts';
+
