@@ -8,3 +8,9 @@ export {
   InlineExplanation,
 } from './stock-explanation';
 
+export {
+  PersonaSelector,
+  PersonaBadge,
+  getPersonaConfig,
+} from './persona-selector';
+

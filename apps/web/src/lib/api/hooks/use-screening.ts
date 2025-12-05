@@ -9,27 +9,37 @@ import type {
   ScreeningResponse,
   ScreeningFilters,
   ScreeningResult,
+  InvestorPersona,
 } from '../types';
 
 // Query Keys
 export const screeningKeys = {
   all: ['screening'] as const,
-  maverick: (limit?: number) => [...screeningKeys.all, 'maverick', limit] as const,
-  maverickBear: (limit?: number) => [...screeningKeys.all, 'maverick-bear', limit] as const,
-  breakouts: (limit?: number) => [...screeningKeys.all, 'breakouts', limit] as const,
+  maverick: (limit?: number, persona?: InvestorPersona | null) =>
+    [...screeningKeys.all, 'maverick', limit, persona] as const,
+  maverickBear: (limit?: number, persona?: InvestorPersona | null) =>
+    [...screeningKeys.all, 'maverick-bear', limit, persona] as const,
+  breakouts: (limit?: number, persona?: InvestorPersona | null) =>
+    [...screeningKeys.all, 'breakouts', limit, persona] as const,
   filtered: (filters: ScreeningFilters) => [...screeningKeys.all, 'filtered', filters] as const,
   allStrategies: () => [...screeningKeys.all, 'all-strategies'] as const,
+  riskScore: (ticker: string) => [...screeningKeys.all, 'risk-score', ticker] as const,
 };
 
 /**
  * Get Maverick (bullish) stock picks
  */
-export function useMaverickStocks(limit: number = 20, options?: { enabled?: boolean }) {
+export function useMaverickStocks(
+  limit: number = 20,
+  options?: { enabled?: boolean; persona?: InvestorPersona | null }
+) {
   return useQuery({
-    queryKey: screeningKeys.maverick(limit),
+    queryKey: screeningKeys.maverick(limit, options?.persona),
     queryFn: async () => {
+      const params = new URLSearchParams({ limit: limit.toString() });
+      if (options?.persona) params.set('persona', options.persona);
       const response = await api.get<APIResponse<ScreeningResponse>>(
-        `/screening/maverick?limit=${limit}`
+        `/screening/maverick?${params.toString()}`
       );
       return response.data;
     },
@@ -41,12 +51,17 @@ export function useMaverickStocks(limit: number = 20, options?: { enabled?: bool
 /**
  * Get Maverick Bear (bearish) stock picks
  */
-export function useMaverickBearStocks(limit: number = 20, options?: { enabled?: boolean }) {
+export function useMaverickBearStocks(
+  limit: number = 20,
+  options?: { enabled?: boolean; persona?: InvestorPersona | null }
+) {
   return useQuery({
-    queryKey: screeningKeys.maverickBear(limit),
+    queryKey: screeningKeys.maverickBear(limit, options?.persona),
     queryFn: async () => {
+      const params = new URLSearchParams({ limit: limit.toString() });
+      if (options?.persona) params.set('persona', options.persona);
       const response = await api.get<APIResponse<ScreeningResponse>>(
-        `/screening/maverick-bear?limit=${limit}`
+        `/screening/bearish?${params.toString()}`
       );
       return response.data;
     },
@@ -58,17 +73,44 @@ export function useMaverickBearStocks(limit: number = 20, options?: { enabled?: 
 /**
  * Get supply/demand breakout stocks
  */
-export function useBreakoutStocks(limit: number = 20, options?: { enabled?: boolean }) {
+export function useBreakoutStocks(
+  limit: number = 20,
+  options?: { enabled?: boolean; persona?: InvestorPersona | null }
+) {
   return useQuery({
-    queryKey: screeningKeys.breakouts(limit),
+    queryKey: screeningKeys.breakouts(limit, options?.persona),
     queryFn: async () => {
+      const params = new URLSearchParams({ limit: limit.toString() });
+      if (options?.persona) params.set('persona', options.persona);
       const response = await api.get<APIResponse<ScreeningResponse>>(
-        `/screening/breakouts?limit=${limit}`
+        `/screening/breakouts?${params.toString()}`
       );
       return response.data;
     },
     enabled: options?.enabled,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Get risk score for a stock
+ */
+export function useStockRiskScore(ticker: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: screeningKeys.riskScore(ticker),
+    queryFn: async () => {
+      const response = await api.get<
+        APIResponse<{
+          ticker: string;
+          risk_score: number;
+          risk_level: string;
+          factors: string[];
+        }>
+      >(`/screening/risk-score/${ticker}`);
+      return response.data;
+    },
+    enabled: options?.enabled !== false && !!ticker,
+    staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
 

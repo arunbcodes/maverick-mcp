@@ -39,6 +39,7 @@ export {
   useFilteredScreening,
   useScreeningByStrategy,
   useAvailableSectors,
+  useStockRiskScore,
 } from './use-screening';
 
 // SSE hooks
