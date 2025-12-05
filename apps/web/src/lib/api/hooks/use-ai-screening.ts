@@ -10,6 +10,7 @@ import type {
   BatchExplanationRequest,
   AIUsageStats,
   InvestorPersona,
+  InvestmentThesis,
 } from '../types';
 
 // Query Keys
@@ -20,6 +21,8 @@ export const aiScreeningKeys = {
   batch: (tickers: string[]) =>
     [...aiScreeningKeys.all, 'batch', tickers.join(',')] as const,
   usage: () => [...aiScreeningKeys.all, 'usage'] as const,
+  thesis: (ticker: string, persona?: InvestorPersona | null) =>
+    [...aiScreeningKeys.all, 'thesis', ticker, persona] as const,
 };
 
 /**
@@ -163,5 +166,71 @@ export function useStockExplanationWithStatus(
     // Query state
     isFetched: query.isFetched || lazyFetch.isSuccess,
   };
+}
+
+// ================================
+// Investment Thesis Hooks
+// ================================
+
+/**
+ * Get investment thesis for a stock
+ */
+export function useInvestmentThesis(
+  ticker: string,
+  options?: {
+    persona?: InvestorPersona | null;
+    forceRefresh?: boolean;
+    enabled?: boolean;
+  }
+) {
+  return useQuery({
+    queryKey: aiScreeningKeys.thesis(ticker, options?.persona),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (options?.persona) params.set('persona', options.persona);
+      if (options?.forceRefresh) params.set('force_refresh', 'true');
+      const queryString = params.toString();
+      const url = `/ai-screening/thesis/${ticker}${queryString ? `?${queryString}` : ''}`;
+      const response = await api.get<APIResponse<InvestmentThesis>>(url);
+      return response.data;
+    },
+    enabled: options?.enabled !== false && !!ticker,
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours - matches backend cache
+    gcTime: 6 * 60 * 60 * 1000,
+  });
+}
+
+/**
+ * Lazy fetch thesis (doesn't auto-fetch)
+ */
+export function useLazyInvestmentThesis() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({
+      ticker,
+      persona,
+      forceRefresh,
+    }: {
+      ticker: string;
+      persona?: InvestorPersona | null;
+      forceRefresh?: boolean;
+    }) => {
+      const params = new URLSearchParams();
+      if (persona) params.set('persona', persona);
+      if (forceRefresh) params.set('force_refresh', 'true');
+      const queryString = params.toString();
+      const url = `/ai-screening/thesis/${ticker}${queryString ? `?${queryString}` : ''}`;
+      const response = await api.get<APIResponse<InvestmentThesis>>(url);
+      return response.data;
+    },
+    onSuccess: (data, variables) => {
+      // Cache the result
+      queryClient.setQueryData(
+        aiScreeningKeys.thesis(variables.ticker, variables.persona),
+        data
+      );
+    },
+  });
 }
 
