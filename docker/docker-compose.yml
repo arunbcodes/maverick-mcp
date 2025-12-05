@@ -119,6 +119,8 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - EXA_API_KEY=${EXA_API_KEY:-}
       - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+      # Auto-seed demo data on first startup
+      - SEED_DEMO_DATA=${SEED_DEMO_DATA:-true}
       - FRED_API_KEY=${FRED_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
