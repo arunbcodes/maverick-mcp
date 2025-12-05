@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { APIRequestError } from '@/lib/api/client';
+import { DemoLoginButton } from '@/components/auth/demo-login-button';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -111,6 +112,18 @@ export default function LoginPage() {
           >
             Sign In
           </Button>
+          
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-700" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-slate-900 px-2 text-slate-500">or</span>
+            </div>
+          </div>
+          
+          <DemoLoginButton />
+          
           <p className="text-sm text-slate-400 text-center">
             Don&apos;t have an account?{' '}
             <Link
