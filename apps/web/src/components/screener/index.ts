@@ -14,3 +14,5 @@ export {
   getPersonaConfig,
 } from './persona-selector';
 
+export { NLSearchBar } from './nl-search-bar';
+

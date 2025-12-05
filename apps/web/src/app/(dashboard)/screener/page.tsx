@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency, formatPercent, formatCompactNumber, cn } from '@/lib/utils';
 import type { ScreeningResult, ScreeningFilters, InvestorPersona } from '@/lib/api/types';
-import { StockExplanationButton, PersonaSelector, PersonaBadge } from '@/components/screener';
+import { StockExplanationButton, PersonaSelector, PersonaBadge, NLSearchBar } from '@/components/screener';
 import { RiskBadge } from '@/components/ui/risk-meter';
 
 type Strategy = 'maverick' | 'maverick-bear' | 'breakouts';
@@ -232,15 +232,42 @@ export default function ScreenerPage() {
         })}
       </div>
 
+      {/* AI Search */}
+      <Card className="bg-slate-900/50 border-slate-800">
+        <CardContent className="pt-6">
+          <NLSearchBar
+            onStrategyChange={(strategy) => {
+              // Map NL strategy to our strategy type
+              const strategyMap: Record<string, Strategy> = {
+                maverick: 'maverick',
+                maverick_bear: 'maverick-bear',
+                supply_demand_breakout: 'breakouts',
+              };
+              if (strategyMap[strategy]) {
+                setActiveStrategy(strategyMap[strategy]);
+              }
+            }}
+            onFiltersExtracted={(extractedFilters) => {
+              // Apply extracted filters
+              setFilters({
+                min_price: extractedFilters.min_price ? Number(extractedFilters.min_price) : undefined,
+                max_price: extractedFilters.max_price ? Number(extractedFilters.max_price) : undefined,
+                min_momentum_score: extractedFilters.min_momentum_score ? Number(extractedFilters.min_momentum_score) : undefined,
+              });
+            }}
+          />
+        </CardContent>
+      </Card>
+
       {/* Search & Filters */}
       <Card className="bg-slate-900/50 border-slate-800">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
+            {/* Traditional Search */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <Input
-                placeholder="Search by ticker or name..."
+                placeholder="Filter by ticker or name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-slate-800 border-slate-700 text-white"
