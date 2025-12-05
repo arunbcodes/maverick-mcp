@@ -5,6 +5,35 @@ echo "=================================================="
 echo "Maverick MCP - Docker Entrypoint"
 echo "=================================================="
 
+# Function to run database migrations
+run_migrations() {
+    echo ""
+    echo "Running database migrations..."
+    
+    # Try alembic migrations if available
+    if [ -f "/app/alembic.ini" ]; then
+        if command -v alembic &> /dev/null; then
+            alembic upgrade head && echo "✅ Migrations completed!" || echo "⚠️  Migration failed (continuing)"
+        else
+            echo "⚠️  Alembic not available, skipping migrations"
+        fi
+    else
+        echo "⚠️  No alembic.ini found, skipping migrations"
+    fi
+}
+
+# Function to seed demo user
+seed_demo_user() {
+    echo ""
+    echo "Checking for demo user..."
+    
+    if [ -f "/app/scripts/seed_demo_data.py" ]; then
+        python /app/scripts/seed_demo_data.py && echo "✅ Demo data seeded!" || echo "⚠️  Demo seeding failed (continuing)"
+    else
+        echo "⚠️  Demo seed script not found, skipping"
+    fi
+}
+
 # Function to check if database is seeded
 check_database_seeded() {
     echo "Checking if database is seeded..." >&2
@@ -81,6 +110,9 @@ main() {
     echo "Waiting for database to be ready..."
     sleep 2
 
+    # Run migrations first
+    run_migrations
+
     # Check if database needs seeding
     stock_count=$(check_database_seeded)
 
@@ -94,6 +126,11 @@ main() {
         echo "✅ Database already seeded ($stock_count stocks)"
         echo "=================================================="
         echo ""
+    fi
+
+    # Seed demo user if SEED_DEMO_DATA is set
+    if [ "${SEED_DEMO_DATA:-false}" = "true" ]; then
+        seed_demo_user
     fi
 
     # Start the MCP server with passed arguments

@@ -195,6 +195,24 @@ seed-demo:
 	@echo "Seeding demo user and portfolio data..."
 	@uv run python scripts/seed_demo_data.py
 
+create-admin:
+	@echo "Creating admin user..."
+	@uv run python scripts/create_admin.py $(ARGS)
+
+reset-db:
+	@echo "⚠️  WARNING: This will reset the database!"
+	@read -p "Are you sure? (y/N) " confirm && [ "$$confirm" = "y" ] || exit 1
+	@echo "Resetting database..."
+	@./scripts/run-migrations.sh downgrade base
+	@./scripts/run-migrations.sh upgrade
+	@echo "Database reset complete."
+
+backup-db:
+	@echo "Creating database backup..."
+	@mkdir -p backups
+	@pg_dump -U postgres -h localhost maverick_mcp > backups/maverick_$$(date +%Y%m%d_%H%M%S).sql
+	@echo "Backup saved to backups/"
+
 setup:
 	@echo "Setting up Maverick-MCP..."
 	@if [ ! -f .env ]; then \
