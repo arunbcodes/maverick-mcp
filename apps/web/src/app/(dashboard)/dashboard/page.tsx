@@ -7,6 +7,7 @@ import {
   usePositions,
   usePriceStream,
 } from '@/lib/api/hooks';
+import { WelcomeModal } from '@/components/onboarding/welcome-modal';
 import {
   Card,
   CardContent,
@@ -96,12 +97,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">
-            Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}
+    <>
+      {/* Welcome Modal for new users */}
+      <WelcomeModal />
+      
+      <div className="space-y-8">
+        {/* Welcome Section */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : user?.email ? `, ${user.email.split('@')[0]}` : ''}
           </h1>
           <p className="text-slate-400 mt-1">
             Here&apos;s what&apos;s happening with your portfolio today.
@@ -315,7 +320,8 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }
 
