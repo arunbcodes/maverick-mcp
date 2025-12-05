@@ -29,10 +29,12 @@ import {
   ArrowDown,
   ChevronDown,
   Sparkles,
+  User,
 } from 'lucide-react';
 import { formatCurrency, formatPercent, formatCompactNumber, cn } from '@/lib/utils';
-import type { ScreeningResult, ScreeningFilters } from '@/lib/api/types';
-import { StockExplanationButton } from '@/components/screener';
+import type { ScreeningResult, ScreeningFilters, InvestorPersona } from '@/lib/api/types';
+import { StockExplanationButton, PersonaSelector, PersonaBadge } from '@/components/screener';
+import { RiskBadge } from '@/components/ui/risk-meter';
 
 type Strategy = 'maverick' | 'maverick-bear' | 'breakouts';
 type SortField = 'ticker' | 'price' | 'change_percent' | 'score' | 'volume';
@@ -69,11 +71,21 @@ export default function ScreenerPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<ScreeningFilters>({});
+  const [persona, setPersona] = useState<InvestorPersona | null>(null);
 
-  // Fetch data based on strategy
-  const maverickQuery = useMaverickStocks(50, { enabled: activeStrategy === 'maverick' });
-  const bearQuery = useMaverickBearStocks(50, { enabled: activeStrategy === 'maverick-bear' });
-  const breakoutQuery = useBreakoutStocks(50, { enabled: activeStrategy === 'breakouts' });
+  // Fetch data based on strategy and persona
+  const maverickQuery = useMaverickStocks(50, { 
+    enabled: activeStrategy === 'maverick',
+    persona,
+  });
+  const bearQuery = useMaverickBearStocks(50, { 
+    enabled: activeStrategy === 'maverick-bear',
+    persona,
+  });
+  const breakoutQuery = useBreakoutStocks(50, { 
+    enabled: activeStrategy === 'breakouts',
+    persona,
+  });
 
   // Get current query based on strategy
   const currentQuery = useMemo(() => {
@@ -159,11 +171,27 @@ export default function ScreenerPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">Stock Screener</h1>
-        <p className="text-slate-400 mt-1">
-          Find stocks matching Maverick&apos;s AI-powered screening criteria
-        </p>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            Stock Screener
+            {persona && <PersonaBadge persona={persona} />}
+          </h1>
+          <p className="text-slate-400 mt-1">
+            Find stocks matching Maverick&apos;s AI-powered screening criteria
+          </p>
+        </div>
+        
+        {/* Persona Selector */}
+        <Card className="bg-slate-900/50 border-slate-800 w-full md:w-auto">
+          <CardContent className="p-4">
+            <PersonaSelector 
+              value={persona}
+              onChange={setPersona}
+              showDescription={false}
+            />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Strategy Tabs */}
