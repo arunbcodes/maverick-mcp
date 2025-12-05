@@ -1,7 +1,7 @@
 """
 AI-Enhanced Screening Endpoints.
 
-Provides AI-generated explanations for screening results.
+Provides AI-generated explanations and natural language search for screening results.
 """
 
 from datetime import datetime, UTC
@@ -22,6 +22,11 @@ from maverick_services import (
     StockExplanation,
     InvestorPersona,
     ConfidenceLevel,
+    NLScreeningService,
+    ParsedQuery,
+    QuerySuggestion,
+    EXAMPLE_QUERIES,
+    get_nl_screening_service,
 )
 from maverick_api.dependencies import get_db, get_current_user, get_request_id, get_redis
 
@@ -318,4 +323,182 @@ async def _get_screening_data(
         logger.warning(f"Failed to fetch screening data for {ticker}: {e}")
     
     return {}
+
+
+# ============================================
+# Natural Language Search Endpoints
+# ============================================
+
+
+class NLSearchRequest(MaverickBaseModel):
+    """Natural language search request."""
+    
+    query: str = Field(min_length=3, max_length=500, description="Natural language query")
+    persona: str | None = Field(default=None, description="Investor persona context")
+
+
+class NLRefineRequest(MaverickBaseModel):
+    """Request to refine an existing query."""
+    
+    current_query: str = Field(description="Current query")
+    refinement: str = Field(description="Refinement to apply")
+
+
+class ParsedQueryResponse(MaverickBaseModel):
+    """Response with parsed query and interpretation."""
+    
+    original_query: str = Field(description="Original query")
+    interpreted_as: str = Field(description="Human-readable interpretation")
+    intent: str = Field(description="Detected intent")
+    strategy: str = Field(description="Suggested screening strategy")
+    confidence: float = Field(description="Parsing confidence 0-1")
+    
+    # Extracted criteria
+    sectors: list[str] = Field(default_factory=list)
+    tickers: list[str] = Field(default_factory=list)
+    
+    # Conditions
+    rsi_condition: str | None = Field(default=None)
+    sma_condition: str | None = Field(default=None)
+    volume_condition: str | None = Field(default=None)
+    
+    # Filter summary
+    filters: dict = Field(default_factory=dict, description="Extracted filter criteria")
+    
+    # Persona suggestion
+    suggested_persona: str | None = Field(default=None)
+
+
+class SuggestionResponse(MaverickBaseModel):
+    """Query suggestion."""
+    
+    query: str
+    description: str
+    category: str
+
+
+def _parsed_to_response(parsed: ParsedQuery) -> ParsedQueryResponse:
+    """Convert ParsedQuery to API response."""
+    return ParsedQueryResponse(
+        original_query=parsed.original_query,
+        interpreted_as=parsed.interpreted_as,
+        intent=parsed.intent.value,
+        strategy=parsed.strategy,
+        confidence=parsed.confidence,
+        sectors=parsed.sectors,
+        tickers=parsed.tickers,
+        rsi_condition=parsed.rsi_condition,
+        sma_condition=parsed.sma_condition,
+        volume_condition=parsed.volume_condition,
+        filters={
+            "min_price": str(parsed.filters.min_price) if parsed.filters.min_price else None,
+            "max_price": str(parsed.filters.max_price) if parsed.filters.max_price else None,
+            "min_rsi": str(parsed.filters.min_rsi) if parsed.filters.min_rsi else None,
+            "max_rsi": str(parsed.filters.max_rsi) if parsed.filters.max_rsi else None,
+            "above_sma_50": parsed.filters.above_sma_50,
+            "above_sma_200": parsed.filters.above_sma_200,
+            "sectors": parsed.filters.sectors,
+        },
+        suggested_persona=parsed.suggested_persona.value if parsed.suggested_persona else None,
+    )
+
+
+async def get_nl_service() -> NLScreeningService:
+    """Get NL screening service."""
+    return get_nl_screening_service(use_llm=True)
+
+
+@router.post("/search", response_model=APIResponse[ParsedQueryResponse])
+async def natural_language_search(
+    data: NLSearchRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    nl_service: NLScreeningService = Depends(get_nl_service),
+):
+    """
+    Search for stocks using natural language.
+    
+    Examples:
+    - "Find tech stocks with strong momentum"
+    - "Show me oversold stocks with RSI below 30"
+    - "Healthcare stocks above 50 and 200 day moving average"
+    - "High volume stocks under $50"
+    
+    Returns the interpreted query and extracted screening criteria.
+    Use the returned criteria with the regular screening endpoints.
+    """
+    try:
+        parsed = await nl_service.parse_query(data.query)
+        
+        return APIResponse(
+            data=_parsed_to_response(parsed),
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+    except Exception as e:
+        logger.error(f"NL search failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to parse query")
+
+
+@router.post("/search/refine", response_model=APIResponse[ParsedQueryResponse])
+async def refine_search(
+    data: NLRefineRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    nl_service: NLScreeningService = Depends(get_nl_service),
+):
+    """
+    Refine an existing search with additional criteria.
+    
+    Examples:
+    - Current: "Find tech stocks", Refinement: "Add healthcare too"
+    - Current: "Oversold stocks", Refinement: "Only above $20"
+    
+    Combines the current query with the refinement.
+    """
+    try:
+        parsed = await nl_service.refine_query(data.current_query, data.refinement)
+        
+        return APIResponse(
+            data=_parsed_to_response(parsed),
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+    except Exception as e:
+        logger.error(f"Query refinement failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to refine query")
+
+
+@router.get("/search/suggestions", response_model=APIResponse[list[SuggestionResponse]])
+async def get_search_suggestions(
+    q: str = Query(default="", description="Partial query for filtering"),
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    nl_service: NLScreeningService = Depends(get_nl_service),
+):
+    """
+    Get search query suggestions for autocomplete.
+    
+    Returns example queries that match the partial input.
+    """
+    suggestions = nl_service.get_suggestions(q)
+    
+    return APIResponse(
+        data=[
+            SuggestionResponse(
+                query=s.query,
+                description=s.description,
+                category=s.category,
+            )
+            for s in suggestions
+        ],
+        meta=ResponseMeta(
+            request_id=request_id,
+            timestamp=datetime.now(UTC),
+        ),
+    )
 

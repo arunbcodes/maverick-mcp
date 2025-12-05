@@ -27,6 +27,14 @@ from maverick_services.ai_screening_service import (
     ConfidenceLevel,
     get_ai_screening_service,
 )
+from maverick_services.nl_screening_service import (
+    NLScreeningService,
+    ParsedQuery,
+    QueryIntent,
+    QuerySuggestion,
+    EXAMPLE_QUERIES,
+    get_nl_screening_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -56,6 +64,13 @@ __all__ = [
     "InvestorPersona",
     "ConfidenceLevel",
     "get_ai_screening_service",
+    # Natural Language Services
+    "NLScreeningService",
+    "ParsedQuery",
+    "QueryIntent",
+    "QuerySuggestion",
+    "EXAMPLE_QUERIES",
+    "get_nl_screening_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",
