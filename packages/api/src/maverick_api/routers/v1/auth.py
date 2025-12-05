@@ -345,6 +345,63 @@ async def reset_password(
         raise HTTPException(status_code=500, detail="Failed to reset password")
 
 
+# Demo user credentials (should match seed script)
+DEMO_USER_EMAIL = "demo@maverick.example"
+DEMO_USER_PASSWORD = "demo123456"
+
+
+@router.post("/demo-login", response_model=APIResponse[TokenResponse])
+async def demo_login(
+    response: Response,
+    request_id: str = Depends(get_request_id),
+    user_service: UserService = Depends(get_user_service),
+    jwt_strategy: JWTAuthStrategy = Depends(get_jwt_strategy),
+    cookie_strategy: CookieAuthStrategy = Depends(get_cookie_strategy),
+):
+    """
+    Login as the demo user.
+    
+    One-click access to explore the app without creating an account.
+    Demo user has read-only access with sample portfolio data.
+    """
+    try:
+        # Authenticate demo user
+        user = await user_service.authenticate(
+            email=DEMO_USER_EMAIL,
+            password=DEMO_USER_PASSWORD,
+        )
+        
+        # Generate JWT tokens
+        token_response = jwt_strategy.create_tokens(
+            user_id=user.user_id,
+            tier=user.tier,
+        )
+        
+        # Set session cookie
+        await cookie_strategy.create_session(
+            response=response,
+            user_id=user.user_id,
+            tier=str(user.tier),
+        )
+        
+        return APIResponse(
+            data=token_response,
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+    except AuthenticationError:
+        # Demo user doesn't exist - needs seeding
+        raise HTTPException(
+            status_code=503,
+            detail="Demo mode not available. Please run seed script.",
+        )
+    except Exception as e:
+        logger.error(f"Demo login failed: {e}")
+        raise HTTPException(status_code=500, detail="Demo login failed")
+
+
 class ChangePasswordRequest(MaverickBaseModel):
     """Request body for password change."""
     

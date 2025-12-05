@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { useAuth } from '@/lib/auth/auth-context';
+import { DemoBanner } from '@/components/ui/demo-banner';
 import { Button } from '@/components/ui/button';
 import {
   TrendingUp,
@@ -93,15 +94,19 @@ export default function DashboardLayout({
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-emerald-600/20 flex items-center justify-center">
                 <span className="text-emerald-400 font-medium">
-                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                  {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
-                  {user?.email}
+                  {user?.name || user?.email}
                 </p>
-                <p className="text-xs text-slate-400 capitalize">
-                  {user?.tier} tier
+                <p className="text-xs text-slate-400">
+                  {user?.is_demo_user ? (
+                    <span className="text-amber-400">Demo User</span>
+                  ) : (
+                    <span className="capitalize">{user?.tier} tier</span>
+                  )}
                 </p>
               </div>
             </div>
@@ -118,6 +123,9 @@ export default function DashboardLayout({
 
         {/* Main content */}
         <div className="lg:pl-64">
+          {/* Demo banner for demo users */}
+          <DemoBanner />
+          
           {/* Mobile header */}
           <header className="sticky top-0 z-30 flex items-center h-16 px-4 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 lg:hidden">
             <button

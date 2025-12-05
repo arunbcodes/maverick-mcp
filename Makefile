@@ -191,6 +191,10 @@ migrate:
 	@echo "Running database migrations..."
 	@./scripts/run-migrations.sh upgrade
 
+seed-demo:
+	@echo "Seeding demo user and portfolio data..."
+	@uv run python scripts/seed_demo_data.py
+
 setup:
 	@echo "Setting up Maverick-MCP..."
 	@if [ ! -f .env ]; then \
