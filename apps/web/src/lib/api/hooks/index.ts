@@ -56,3 +56,13 @@ export {
   useRevokeAPIKey,
 } from './use-api-keys';
 
+// AI Screening hooks
+export {
+  aiScreeningKeys,
+  useStockExplanation,
+  useLazyStockExplanation,
+  useBatchExplanations,
+  useAIUsageStats,
+  useStockExplanationWithStatus,
+} from './use-ai-screening';
+
