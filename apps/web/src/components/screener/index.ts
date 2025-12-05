@@ -16,3 +16,8 @@ export {
 
 export { NLSearchBar } from './nl-search-bar';
 
+export {
+  ThesisModal,
+  GenerateThesisButton,
+} from './thesis-modal';
+

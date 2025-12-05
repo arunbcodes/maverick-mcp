@@ -35,6 +35,14 @@ from maverick_services.nl_screening_service import (
     EXAMPLE_QUERIES,
     get_nl_screening_service,
 )
+from maverick_services.thesis_service import (
+    ThesisGeneratorService,
+    InvestmentThesis,
+    ThesisSection,
+    ThesisRating,
+    RiskLevel,
+    get_thesis_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -71,6 +79,13 @@ __all__ = [
     "QuerySuggestion",
     "EXAMPLE_QUERIES",
     "get_nl_screening_service",
+    # Thesis Services
+    "ThesisGeneratorService",
+    "InvestmentThesis",
+    "ThesisSection",
+    "ThesisRating",
+    "RiskLevel",
+    "get_thesis_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",

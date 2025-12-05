@@ -65,5 +65,7 @@ export {
   useBatchExplanations,
   useAIUsageStats,
   useStockExplanationWithStatus,
+  useInvestmentThesis,
+  useLazyInvestmentThesis,
 } from './use-ai-screening';
 

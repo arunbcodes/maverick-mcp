@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/loading';
 import { ErrorState } from '@/components/ui/error';
+import { GenerateThesisButton } from '@/components/screener';
 import {
   ArrowLeft,
   TrendingUp,
@@ -174,6 +175,9 @@ export default function StockDetailPage() {
               </>
             )}
           </div>
+
+          {/* Investment Thesis */}
+          <GenerateThesisButton ticker={ticker} />
 
           {/* Add to Portfolio */}
           <Button

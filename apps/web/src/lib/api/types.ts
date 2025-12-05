@@ -373,3 +373,48 @@ export interface AIUsageStats {
   remaining: number;
 }
 
+// --- Investment Thesis Types ---
+
+export type ThesisRating = 'strong_buy' | 'buy' | 'hold' | 'sell' | 'strong_sell';
+
+export type RiskLevel = 'low' | 'moderate' | 'high' | 'very_high';
+
+export interface ThesisSection {
+  title: string;
+  content: string;
+  bullet_points: string[];
+}
+
+export interface InvestmentThesis {
+  ticker: string;
+  company_name: string | null;
+  generated_at: string;
+  persona: InvestorPersona | null;
+  
+  // Summary
+  summary: string;
+  rating: ThesisRating;
+  risk_level: RiskLevel;
+  confidence: number;
+  
+  // Sections
+  technical_setup: ThesisSection;
+  fundamental_story: ThesisSection;
+  catalysts: ThesisSection;
+  risks: ThesisSection;
+  
+  // Price targets
+  current_price: string | null;
+  price_target: string | null;
+  stop_loss: string | null;
+  upside_percent: number | null;
+  
+  // Additional
+  peer_comparison: string[];
+  data_sources: string[];
+  
+  // Meta
+  cached: boolean;
+  model_used: string | null;
+}
+
