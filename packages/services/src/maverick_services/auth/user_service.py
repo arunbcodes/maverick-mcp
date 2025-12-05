@@ -323,4 +323,81 @@ class UserService:
         logger.info(f"User deactivated: {user.email}")
         
         return True
+    
+    async def complete_onboarding(self, user_id: UUID | str) -> bool:
+        """
+        Mark user onboarding as complete.
+        
+        Args:
+            user_id: User UUID
+            
+        Returns:
+            True on success
+            
+        Raises:
+            NotFoundError: If user not found
+        """
+        from maverick_data.models import User
+        
+        if isinstance(user_id, str):
+            user_id = UUID(user_id)
+        
+        result = await self._db.execute(
+            select(User).where(User.id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise NotFoundError(f"User {user_id} not found")
+        
+        user.onboarding_completed = True
+        user.updated_at = datetime.now(UTC)
+        
+        await self._db.commit()
+        
+        logger.info(f"User completed onboarding: {user.email}")
+        
+        return True
+    
+    async def update_profile(
+        self,
+        user_id: UUID | str,
+        name: str | None = None,
+    ) -> dict:
+        """
+        Update user profile.
+        
+        Args:
+            user_id: User UUID
+            name: Optional new display name
+            
+        Returns:
+            Updated user profile dict
+            
+        Raises:
+            NotFoundError: If user not found
+        """
+        from maverick_data.models import User
+        
+        if isinstance(user_id, str):
+            user_id = UUID(user_id)
+        
+        result = await self._db.execute(
+            select(User).where(User.id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        
+        if not user:
+            raise NotFoundError(f"User {user_id} not found")
+        
+        if name is not None:
+            user.name = name
+        
+        user.updated_at = datetime.now(UTC)
+        
+        await self._db.commit()
+        
+        logger.info(f"User profile updated: {user.email}")
+        
+        return await self.get_by_id(user_id)
 
