@@ -18,10 +18,14 @@ from maverick_schemas.auth import (
     TokenResponse,
     RefreshTokenRequest,
     UserProfile,
+    PasswordResetRequest,
+    PasswordResetConfirm,
+    MessageResponse,
 )
 from maverick_schemas.base import MaverickBaseModel
 from maverick_schemas.responses import APIResponse, ResponseMeta
-from maverick_services import UserService, AuthenticationError, ConflictError, NotFoundError
+from maverick_services import UserService, AuthenticationError, ConflictError, NotFoundError, ValidationError
+from maverick_services.auth import PasswordResetService
 from maverick_api.dependencies import get_db, get_current_user, get_request_id, get_redis
 from maverick_api.auth.jwt import JWTAuthStrategy
 from maverick_api.auth.cookie import CookieAuthStrategy
@@ -36,6 +40,11 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 async def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
     """Get user service with database session."""
     return UserService(db=db)
+
+
+async def get_password_reset_service(db: AsyncSession = Depends(get_db)) -> PasswordResetService:
+    """Get password reset service with database session."""
+    return PasswordResetService(db=db)
 
 
 async def get_jwt_strategy(request: Request) -> JWTAuthStrategy:
@@ -73,6 +82,7 @@ async def register(
         result = await user_service.register(
             email=data.email,
             password=data.password,
+            name=data.name,
         )
         
         return APIResponse(
@@ -229,8 +239,11 @@ async def get_current_user_profile(
         user_profile = UserProfile(
             user_id=profile["user_id"],
             email=profile["email"],
+            name=profile.get("name"),
             tier=profile["tier"],
             email_verified=profile["email_verified"],
+            onboarding_completed=profile.get("onboarding_completed", False),
+            is_demo_user=profile.get("is_demo_user", False),
             created_at=profile["created_at"],
             last_login_at=profile["last_login_at"],
         )
@@ -247,6 +260,89 @@ async def get_current_user_profile(
     except Exception as e:
         logger.error(f"Get profile failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to get profile")
+
+
+# --- Password Reset Endpoints ---
+
+
+@router.post("/forgot-password", response_model=APIResponse[MessageResponse])
+async def forgot_password(
+    data: PasswordResetRequest,
+    request_id: str = Depends(get_request_id),
+    reset_service: PasswordResetService = Depends(get_password_reset_service),
+):
+    """
+    Request a password reset.
+    
+    Sends a password reset email to the user. Always returns success
+    to prevent user enumeration.
+    
+    In development, the reset token is included in the response
+    (remove in production).
+    """
+    try:
+        result = await reset_service.request_reset(email=data.email)
+        
+        # In production, remove _dev_token from response
+        message = result.get("message", "If an account exists, a reset link has been sent.")
+        
+        # Log dev token for testing (remove in production)
+        if "_dev_token" in result:
+            logger.info(f"[DEV] Reset token for {data.email}: {result['_dev_token']}")
+        
+        return APIResponse(
+            data=MessageResponse(message=message),
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+                # Include dev token in meta for testing
+                extra={"_dev_token": result.get("_dev_token")} if "_dev_token" in result else None,
+            ),
+        )
+    except Exception as e:
+        logger.error(f"Password reset request failed: {e}")
+        # Always return success to prevent user enumeration
+        return APIResponse(
+            data=MessageResponse(message="If an account exists, a reset link has been sent."),
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+
+
+@router.post("/reset-password", response_model=APIResponse[MessageResponse])
+async def reset_password(
+    data: PasswordResetConfirm,
+    request_id: str = Depends(get_request_id),
+    reset_service: PasswordResetService = Depends(get_password_reset_service),
+):
+    """
+    Reset password using a token.
+    
+    Validates the reset token and sets the new password.
+    Tokens are single-use and expire after 1 hour.
+    """
+    try:
+        result = await reset_service.reset_password(
+            token=data.token,
+            new_password=data.new_password,
+        )
+        
+        return APIResponse(
+            data=MessageResponse(message=result["message"]),
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+            ),
+        )
+    except ValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Password reset failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to reset password")
 
 
 class ChangePasswordRequest(MaverickBaseModel):

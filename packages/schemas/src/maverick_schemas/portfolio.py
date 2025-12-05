@@ -4,7 +4,8 @@ Portfolio and position models.
 Models for tracking positions, portfolio performance, and P&L.
 """
 
-from datetime import date, datetime
+import datetime as dt
+from datetime import datetime
 from decimal import Decimal
 
 from pydantic import Field
@@ -36,7 +37,7 @@ class Position(MaverickBaseModel):
     status: PositionStatus = Field(default=PositionStatus.OPEN, description="Position status")
     
     # Dates
-    first_purchase_date: date | None = Field(default=None, description="First purchase date")
+    first_purchase_date: dt.date | None = Field(default=None, description="First purchase date")
     last_updated: datetime | None = Field(default=None, description="Last update timestamp")
     
     # Notes
@@ -49,7 +50,7 @@ class PositionCreate(MaverickBaseModel):
     ticker: str = Field(description="Stock ticker symbol")
     shares: Decimal = Field(gt=0, description="Number of shares")
     purchase_price: Decimal = Field(gt=0, description="Purchase price per share")
-    purchase_date: date | None = Field(default=None, description="Purchase date")
+    purchase_date: dt.date | None = Field(default=None, description="Purchase date")
     notes: str | None = Field(default=None, description="Optional notes")
 
 
@@ -85,7 +86,7 @@ class PortfolioSummary(MaverickBaseModel):
 class PerformanceDataPoint(MaverickBaseModel):
     """Single data point in performance time series."""
     
-    date: date = Field(description="Date")
+    date: dt.date = Field(description="Date")
     portfolio_value: Decimal = Field(description="Portfolio value")
     daily_return: Decimal | None = Field(default=None, description="Daily return %")
     cumulative_return: Decimal | None = Field(default=None, description="Cumulative return %")
@@ -120,8 +121,8 @@ class PortfolioPerformanceChart(MaverickBaseModel):
     """Portfolio performance data for charting."""
     
     period: str = Field(description="Performance period (7d, 30d, 90d, 1y)")
-    start_date: date = Field(description="Start date")
-    end_date: date = Field(description="End date")
+    start_date: dt.date = Field(description="Start date")
+    end_date: dt.date = Field(description="End date")
     
     # Summary metrics
     total_return: Decimal = Field(description="Total return %")
@@ -133,7 +134,7 @@ class PortfolioPerformanceChart(MaverickBaseModel):
     volatility: Decimal | None = Field(default=None, description="Annualized volatility %")
     sharpe_ratio: Decimal | None = Field(default=None, description="Sharpe ratio")
     max_drawdown: Decimal | None = Field(default=None, description="Maximum drawdown %")
-    max_drawdown_date: date | None = Field(default=None, description="Date of max drawdown")
+    max_drawdown_date: dt.date | None = Field(default=None, description="Date of max drawdown")
     
     # Time series for charting
     data: list[PerformanceDataPoint] = Field(description="Time series data")

@@ -138,10 +138,39 @@ class UserProfile(MaverickBaseModel):
     
     user_id: str = Field(description="User ID")
     email: str = Field(description="User email")
+    name: str | None = Field(default=None, description="Display name")
     tier: Tier | str = Field(description="Subscription tier")
     email_verified: bool = Field(default=False, description="Email verification status")
+    onboarding_completed: bool = Field(default=False, description="Onboarding status")
+    is_demo_user: bool = Field(default=False, description="Demo account flag")
     created_at: str = Field(description="Account creation timestamp")
     last_login_at: str | None = Field(default=None, description="Last login timestamp")
+
+
+class PasswordResetRequest(MaverickBaseModel):
+    """Request to reset password."""
+    
+    email: EmailStr = Field(description="User email")
+
+
+class PasswordResetConfirm(MaverickBaseModel):
+    """Confirm password reset with token."""
+    
+    token: str = Field(min_length=32, description="Reset token from email")
+    new_password: str = Field(min_length=8, max_length=128, description="New password")
+
+
+class PasswordChangeRequest(MaverickBaseModel):
+    """Request to change password (when logged in)."""
+    
+    current_password: str = Field(description="Current password")
+    new_password: str = Field(min_length=8, max_length=128, description="New password")
+
+
+class MessageResponse(MaverickBaseModel):
+    """Simple message response."""
+    
+    message: str = Field(description="Response message")
 
 
 __all__ = [
@@ -155,5 +184,9 @@ __all__ = [
     "APIKeyCreate",
     "APIKeyResponse",
     "TokenBudget",
+    "PasswordResetRequest",
+    "PasswordResetConfirm",
+    "PasswordChangeRequest",
+    "MessageResponse",
 ]
 

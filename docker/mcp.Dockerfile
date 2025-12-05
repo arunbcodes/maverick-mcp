@@ -65,9 +65,6 @@ WORKDIR /app
 # Copy virtual environment
 COPY --from=builder /build/.venv /app/.venv
 
-# Install uv for runtime (needed for "uv run")
-RUN pip install --no-cache-dir uv
-
 # Copy source code
 COPY packages/ ./packages/
 COPY maverick_mcp/ ./maverick_mcp/
@@ -99,5 +96,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -s http://localhost:8000/ 2>&1 | grep -q "Not Found\|jsonrpc\|Method Not Allowed" || exit 1
 
-# Start MCP server with SSE transport
-CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+# Start MCP server with SSE transport (use python -m to avoid shebang path issues)
+CMD ["/app/.venv/bin/python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]

@@ -36,9 +36,13 @@ class User(TimestampMixin, Base):
         id: Unique user identifier (UUID)
         email: User email address (unique, indexed)
         password_hash: Argon2 hash of user password
+        name: Optional display name
         tier: Subscription tier (free, pro, enterprise)
         email_verified: Whether email has been verified
         is_active: Whether account is active (soft delete)
+        is_demo_user: Whether this is the demo account
+        is_admin: Whether user has admin privileges
+        onboarding_completed: Whether user completed onboarding
         last_login_at: Timestamp of last successful login
     """
 
@@ -47,11 +51,15 @@ class User(TimestampMixin, Base):
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
+    name = Column(String(100), nullable=True)
 
     # Account status
     tier = Column(String(20), nullable=False, default=UserTier.FREE.value)
     email_verified = Column(Boolean, nullable=False, default=False)
     is_active = Column(Boolean, nullable=False, default=True)
+    is_demo_user = Column(Boolean, nullable=False, default=False)
+    is_admin = Column(Boolean, nullable=False, default=False)
+    onboarding_completed = Column(Boolean, nullable=False, default=False)
 
     # Security audit
     last_login_at = Column(DateTime(timezone=True), nullable=True)
