@@ -54,6 +54,7 @@ class UserService:
         email: str,
         password: str,
         tier: str = "free",
+        name: str | None = None,
     ) -> dict:
         """
         Register a new user.
@@ -62,9 +63,10 @@ class UserService:
             email: User email address
             password: Plain text password
             tier: Subscription tier (default: free)
+            name: Optional display name
             
         Returns:
-            Dict with user_id and email
+            Dict with user_id, email, and name
             
         Raises:
             ConflictError: If email already exists
@@ -90,6 +92,7 @@ class UserService:
             email=email,
             password_hash=password_hash,
             tier=tier,
+            name=name,
         )
         
         self._db.add(user)
@@ -103,6 +106,7 @@ class UserService:
             return {
                 "user_id": str(user.id),
                 "email": user.email,
+                "name": user.name,
                 "tier": user.tier,
             }
         except Exception as e:
@@ -198,8 +202,11 @@ class UserService:
         return {
             "user_id": str(user.id),
             "email": user.email,
+            "name": user.name,
             "tier": user.tier,
             "email_verified": user.email_verified,
+            "is_demo_user": user.is_demo_user,
+            "onboarding_completed": user.onboarding_completed,
             "created_at": user.created_at.isoformat(),
             "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
         }

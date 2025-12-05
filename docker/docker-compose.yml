@@ -61,7 +61,7 @@ services:
       - MAVERICK_REDIS_URL=redis://redis:6379
       # Auth
       - MAVERICK_JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-prod}
-      - MAVERICK_CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+      - MAVERICK_CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
       # External APIs
       - MAVERICK_TIINGO_API_KEY=${TIINGO_API_KEY:-}
       - MAVERICK_OPENAI_API_KEY=${OPENAI_API_KEY:-}

@@ -86,5 +86,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start API server
-CMD ["uvicorn", "maverick_api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start API server (use python -m to avoid shebang path issues)
+CMD ["/app/.venv/bin/python", "-m", "uvicorn", "maverick_api:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -16,6 +16,7 @@ from maverick_data.models.base import Base, TimestampMixin
 from maverick_data.models.concall import CompanyIRMapping, ConferenceCall
 from maverick_data.models.exchange_rate import ExchangeRate
 from maverick_data.models.news import NewsArticle
+from maverick_data.models.password_reset import PasswordResetToken
 from maverick_data.models.portfolio import PortfolioPosition, UserPortfolio
 from maverick_data.models.price_cache import PriceCache
 from maverick_data.models.screening import (
@@ -35,6 +36,7 @@ __all__ = [
     "User",
     "UserTier",
     "APIKey",
+    "PasswordResetToken",
     # Core models
     "Stock",
     "PriceCache",
