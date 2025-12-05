@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
   
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -43,7 +44,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await register(email, password);
+      await register(email, password, name || undefined);
       router.push('/dashboard');
     } catch (err) {
       if (err instanceof APIRequestError) {
@@ -75,6 +76,23 @@ export default function RegisterPage() {
               {error}
             </div>
           )}
+          <div className="space-y-2">
+            <label
+              htmlFor="name"
+              className="text-sm font-medium text-slate-300"
+            >
+              Name <span className="text-slate-500">(optional)</span>
+            </label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={100}
+              className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+            />
+          </div>
           <div className="space-y-2">
             <label
               htmlFor="email"

@@ -13,8 +13,11 @@ import { api, setTokens, clearTokens, getAccessToken } from '@/lib/api/client';
 interface User {
   user_id: string;
   email: string;
+  name?: string;
   tier: string;
   email_verified?: boolean;
+  onboarding_completed?: boolean;
+  is_demo_user?: boolean;
 }
 
 interface AuthContextType {
@@ -22,7 +25,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -50,14 +53,18 @@ interface LoginResponse {
 interface RegisterResponse {
   user_id: string;
   email: string;
+  name?: string;
   tier: string;
 }
 
 interface UserProfileResponse {
   user_id: string;
   email: string;
+  name?: string;
   tier: string;
   email_verified: boolean;
+  onboarding_completed: boolean;
+  is_demo_user: boolean;
   created_at: string;
   last_login_at: string | null;
 }
@@ -81,8 +88,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser({
         user_id: response.data.user_id,
         email: response.data.email,
+        name: response.data.name,
         tier: response.data.tier,
         email_verified: response.data.email_verified,
+        onboarding_completed: response.data.onboarding_completed,
+        is_demo_user: response.data.is_demo_user,
       });
     } catch {
       clearTokens();
@@ -113,15 +123,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser({
       user_id: profileResponse.data.user_id,
       email: profileResponse.data.email,
+      name: profileResponse.data.name,
       tier: profileResponse.data.tier,
       email_verified: profileResponse.data.email_verified,
+      onboarding_completed: profileResponse.data.onboarding_completed,
+      is_demo_user: profileResponse.data.is_demo_user,
     });
   }, []);
 
-  const register = useCallback(async (email: string, password: string) => {
+  const register = useCallback(async (email: string, password: string, name?: string) => {
     await api.post<APIResponse<RegisterResponse>>(
       '/auth/register',
-      { email, password },
+      { email, password, name },
       { skipAuth: true }
     );
     
