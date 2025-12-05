@@ -6,7 +6,7 @@ All endpoints are prefixed with /api/v1
 
 from fastapi import APIRouter
 
-from maverick_api.routers.v1 import auth, users, stocks, technical, portfolio, screening, sse, ai_screening
+from maverick_api.routers.v1 import auth, users, stocks, technical, portfolio, screening, sse, ai_screening, alerts
 
 router = APIRouter()
 
@@ -18,6 +18,7 @@ router.include_router(technical.router, prefix="/technical", tags=["Technical An
 router.include_router(portfolio.router, prefix="/portfolio", tags=["Portfolio"])
 router.include_router(screening.router, prefix="/screening", tags=["Screening"])
 router.include_router(ai_screening.router, tags=["AI Screening"])
+router.include_router(alerts.router, tags=["Alerts"])
 router.include_router(sse.router, prefix="/sse", tags=["Real-time"])
 
 __all__ = ["router"]

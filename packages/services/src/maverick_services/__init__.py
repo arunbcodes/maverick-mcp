@@ -43,6 +43,16 @@ from maverick_services.thesis_service import (
     RiskLevel,
     get_thesis_service,
 )
+from maverick_services.alert_service import (
+    AlertService,
+    Alert,
+    AlertRule,
+    AlertType,
+    AlertPriority,
+    AlertStatus,
+    get_alert_service,
+    PRESET_RULES,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -86,6 +96,15 @@ __all__ = [
     "ThesisRating",
     "RiskLevel",
     "get_thesis_service",
+    # Alert Services
+    "AlertService",
+    "Alert",
+    "AlertRule",
+    "AlertType",
+    "AlertPriority",
+    "AlertStatus",
+    "get_alert_service",
+    "PRESET_RULES",
     # Base exceptions
     "ServiceError",
     "ServiceException",
