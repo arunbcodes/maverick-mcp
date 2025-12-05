@@ -15,6 +15,14 @@ from maverick_services.technical_service import TechnicalService
 from maverick_services.portfolio_service import PortfolioService
 from maverick_services.screening_service import ScreeningService
 from maverick_services.auth import UserService, PasswordHasher
+from maverick_services.ai_screening_service import (
+    AIScreeningService,
+    ExplanationRequest,
+    StockExplanation,
+    InvestorPersona,
+    ConfidenceLevel,
+    get_ai_screening_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -37,6 +45,13 @@ __all__ = [
     "ScreeningService",
     "UserService",
     "PasswordHasher",
+    # AI Services
+    "AIScreeningService",
+    "ExplanationRequest",
+    "StockExplanation",
+    "InvestorPersona",
+    "ConfidenceLevel",
+    "get_ai_screening_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",

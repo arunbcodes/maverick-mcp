@@ -6,7 +6,6 @@ import {
   useMaverickStocks,
   useMaverickBearStocks,
   useBreakoutStocks,
-  useFilteredScreening,
 } from '@/lib/api/hooks';
 import {
   Card,
@@ -17,7 +16,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LoadingState, Skeleton } from '@/components/ui/loading';
+import { Skeleton } from '@/components/ui/loading';
 import { ErrorState, EmptyState } from '@/components/ui/error';
 import {
   Search,
@@ -28,11 +27,12 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  ExternalLink,
   ChevronDown,
+  Sparkles,
 } from 'lucide-react';
 import { formatCurrency, formatPercent, formatCompactNumber, cn } from '@/lib/utils';
 import type { ScreeningResult, ScreeningFilters } from '@/lib/api/types';
+import { StockExplanationButton } from '@/components/screener';
 
 type Strategy = 'maverick' | 'maverick-bear' | 'breakouts';
 type SortField = 'ticker' | 'price' | 'change_percent' | 'score' | 'volume';
@@ -408,11 +408,21 @@ export default function ScreenerPage() {
                     <th className="py-3 px-2 text-right text-xs font-medium text-slate-500 uppercase">
                       Signals
                     </th>
+                    <th className="py-3 px-2 text-right text-xs font-medium text-slate-500 uppercase">
+                      <span className="inline-flex items-center gap-1">
+                        <Sparkles className="h-3 w-3" />
+                        AI
+                      </span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredResults.map((result) => (
-                    <ScreenerRow key={result.ticker} result={result} />
+                    <ScreenerRow 
+                      key={result.ticker} 
+                      result={result} 
+                      strategy={activeStrategy}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -464,79 +474,91 @@ function SortableHeader({
   );
 }
 
-function ScreenerRow({ result }: { result: ScreeningResult }) {
+function ScreenerRow({ result, strategy }: { result: ScreeningResult; strategy: Strategy }) {
   const isPositive = result.change_percent >= 0;
 
+  // Map frontend strategy to backend strategy name
+  const backendStrategy = strategy === 'maverick-bear' ? 'maverick_bear' : strategy;
+
   return (
-    <tr className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-      {/* Ticker */}
-      <td className="py-3 px-2">
-        <Link
-          href={`/stocks/${result.ticker}`}
-          className="flex items-center space-x-3 group"
-        >
-          <div className="w-8 h-8 rounded-lg bg-emerald-600/20 flex items-center justify-center group-hover:bg-emerald-600/30 transition-colors">
-            <span className="text-emerald-400 font-semibold text-xs">
-              {result.ticker.slice(0, 2)}
-            </span>
+    <>
+      <tr className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+        {/* Ticker */}
+        <td className="py-3 px-2">
+          <Link
+            href={`/stocks/${result.ticker}`}
+            className="flex items-center space-x-3 group"
+          >
+            <div className="w-8 h-8 rounded-lg bg-emerald-600/20 flex items-center justify-center group-hover:bg-emerald-600/30 transition-colors">
+              <span className="text-emerald-400 font-semibold text-xs">
+                {result.ticker.slice(0, 2)}
+              </span>
+            </div>
+            <div>
+              <p className="text-white font-medium group-hover:text-emerald-400 transition-colors">
+                {result.ticker}
+              </p>
+              <p className="text-xs text-slate-500 truncate max-w-[150px]">
+                {result.name}
+              </p>
+            </div>
+          </Link>
+        </td>
+        {/* Price */}
+        <td className="py-3 px-2 text-right text-white">
+          {formatCurrency(result.price)}
+        </td>
+        {/* Change */}
+        <td className="py-3 px-2 text-right">
+          <span
+            className={cn(
+              'inline-flex items-center',
+              isPositive ? 'text-emerald-400' : 'text-red-400'
+            )}
+          >
+            {isPositive ? (
+              <ArrowUp className="h-3 w-3 mr-1" />
+            ) : (
+              <ArrowDown className="h-3 w-3 mr-1" />
+            )}
+            {formatPercent(result.change_percent)}
+          </span>
+        </td>
+        {/* Volume */}
+        <td className="py-3 px-2 text-right text-slate-400 hidden md:table-cell">
+          {formatCompactNumber(result.volume)}
+        </td>
+        {/* Score */}
+        <td className="py-3 px-2 text-right">
+          <ScoreBadge score={result.score} />
+        </td>
+        {/* Signals + AI Explain */}
+        <td className="py-3 px-2 text-right">
+          <div className="flex flex-wrap justify-end gap-1 items-center">
+            {result.signals.slice(0, 2).map((signal, i) => (
+              <span
+                key={i}
+                className="px-2 py-0.5 text-xs rounded-full bg-slate-800 text-slate-400"
+              >
+                {signal}
+              </span>
+            ))}
+            {result.signals.length > 2 && (
+              <span className="px-2 py-0.5 text-xs rounded-full bg-slate-800 text-slate-500">
+                +{result.signals.length - 2}
+              </span>
+            )}
           </div>
-          <div>
-            <p className="text-white font-medium group-hover:text-emerald-400 transition-colors">
-              {result.ticker}
-            </p>
-            <p className="text-xs text-slate-500 truncate max-w-[150px]">
-              {result.name}
-            </p>
-          </div>
-        </Link>
-      </td>
-      {/* Price */}
-      <td className="py-3 px-2 text-right text-white">
-        {formatCurrency(result.price)}
-      </td>
-      {/* Change */}
-      <td className="py-3 px-2 text-right">
-        <span
-          className={cn(
-            'inline-flex items-center',
-            isPositive ? 'text-emerald-400' : 'text-red-400'
-          )}
-        >
-          {isPositive ? (
-            <ArrowUp className="h-3 w-3 mr-1" />
-          ) : (
-            <ArrowDown className="h-3 w-3 mr-1" />
-          )}
-          {formatPercent(result.change_percent)}
-        </span>
-      </td>
-      {/* Volume */}
-      <td className="py-3 px-2 text-right text-slate-400 hidden md:table-cell">
-        {formatCompactNumber(result.volume)}
-      </td>
-      {/* Score */}
-      <td className="py-3 px-2 text-right">
-        <ScoreBadge score={result.score} />
-      </td>
-      {/* Signals */}
-      <td className="py-3 px-2 text-right">
-        <div className="flex flex-wrap justify-end gap-1">
-          {result.signals.slice(0, 2).map((signal, i) => (
-            <span
-              key={i}
-              className="px-2 py-0.5 text-xs rounded-full bg-slate-800 text-slate-400"
-            >
-              {signal}
-            </span>
-          ))}
-          {result.signals.length > 2 && (
-            <span className="px-2 py-0.5 text-xs rounded-full bg-slate-800 text-slate-500">
-              +{result.signals.length - 2}
-            </span>
-          )}
-        </div>
-      </td>
-    </tr>
+        </td>
+        {/* AI Explain Button */}
+        <td className="py-3 px-2 text-right">
+          <StockExplanationButton 
+            ticker={result.ticker} 
+            strategy={backendStrategy}
+          />
+        </td>
+      </tr>
+    </>
   );
 }
 

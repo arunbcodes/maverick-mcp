@@ -338,3 +338,38 @@ export interface PortfolioChartData {
   benchmark?: ChartDataPoint[];
 }
 
+// --- AI Screening Types ---
+
+export type InvestorPersona = 'conservative' | 'moderate' | 'aggressive';
+
+export type ConfidenceLevel = 'high' | 'medium' | 'low';
+
+export interface StockExplanation {
+  ticker: string;
+  strategy: string;
+  summary: string;
+  technical_setup: string;
+  key_signals: string[];
+  support_resistance: string | null;
+  risk_factors: string[];
+  confidence: ConfidenceLevel;
+  persona: InvestorPersona | null;
+  generated_at: string;
+  cached: boolean;
+  model_used: string | null;
+}
+
+export interface BatchExplanationRequest {
+  tickers: string[];
+  strategy?: string;
+  persona?: InvestorPersona;
+}
+
+export interface AIUsageStats {
+  user_id: string;
+  date: string;
+  explanations_used: number;
+  explanations_limit: number;
+  remaining: number;
+}
+
