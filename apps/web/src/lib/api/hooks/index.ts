@@ -137,3 +137,29 @@ export {
   type FilterFieldMeta,
 } from './use-custom-screeners';
 
+// Thesis Tracking hooks
+export {
+  thesisKeys,
+  useTheses,
+  useThesis,
+  useThesisForTicker,
+  useCreateThesis,
+  useUpdateThesis,
+  useCloseThesis,
+  useDeleteThesis,
+  useAddMilestone,
+  useUpdateMilestone,
+  useAddDecision,
+  useUpdateDecisionOutcome,
+  useWinLossAnalysis,
+  type InvestmentThesis,
+  type ThesisSummary,
+  type Milestone,
+  type Decision,
+  type ThesisStatus,
+  type MilestoneStatus,
+  type MilestoneType,
+  type DecisionType,
+  type WinLossAnalysis,
+} from './use-thesis-tracking';
+
