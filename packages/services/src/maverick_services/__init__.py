@@ -108,6 +108,17 @@ from maverick_services.diversification_service import (
     GICS_SECTORS,
     SP500_SECTOR_WEIGHTS,
 )
+from maverick_services.risk_metrics_service import (
+    RiskMetricsService,
+    VaRResult,
+    BetaResult,
+    VolatilityResult,
+    StressTestResult,
+    RiskMetricsSummary,
+    StressScenario,
+    STRESS_SCENARIOS,
+    get_risk_metrics_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -209,6 +220,16 @@ __all__ = [
     "get_diversification_service",
     "GICS_SECTORS",
     "SP500_SECTOR_WEIGHTS",
+    # Risk Metrics Services
+    "RiskMetricsService",
+    "VaRResult",
+    "BetaResult",
+    "VolatilityResult",
+    "StressTestResult",
+    "RiskMetricsSummary",
+    "StressScenario",
+    "STRESS_SCENARIOS",
+    "get_risk_metrics_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",

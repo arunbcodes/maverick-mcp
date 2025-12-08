@@ -20,6 +20,10 @@ from maverick_services import (
     get_correlation_service,
     DiversificationService,
     get_diversification_service,
+    RiskMetricsService,
+    StressScenario,
+    STRESS_SCENARIOS,
+    get_risk_metrics_service,
     GICS_SECTORS,
     SP500_SECTOR_WEIGHTS,
 )
@@ -95,6 +99,11 @@ async def get_correlation_service_dep(
 def get_diversification_service_dep() -> DiversificationService:
     """Get diversification service instance."""
     return get_diversification_service()
+
+
+def get_risk_metrics_service_dep() -> RiskMetricsService:
+    """Get risk metrics service instance."""
+    return get_risk_metrics_service()
 
 
 # ============================================
@@ -716,6 +725,308 @@ async def get_sector_rebalance_suggestions(
     
     return APIResponse(
         data=suggestions,
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
+
+
+# ============================================
+# Advanced Risk Metrics Endpoints
+# ============================================
+
+
+class RiskMetricsRequest(MaverickBaseModel):
+    """Request for risk metrics calculation."""
+    
+    portfolio_returns: list[float] = Field(min_length=20)
+    benchmark_returns: list[float] | None = Field(default=None)
+    portfolio_value: float = Field(gt=0)
+    var_method: str = Field(default="historical")
+
+
+class VaRResponse(MaverickBaseModel):
+    """VaR calculation response."""
+    
+    var_95: float
+    var_99: float
+    cvar_95: float
+    cvar_99: float
+    method: str
+    period_days: int
+    portfolio_value: float
+    var_95_amount: float
+    var_99_amount: float
+    cvar_95_amount: float
+    cvar_99_amount: float
+
+
+class BetaResponse(MaverickBaseModel):
+    """Beta calculation response."""
+    
+    beta: float
+    alpha: float
+    r_squared: float
+    correlation: float
+    interpretation: str
+
+
+class VolatilityResponse(MaverickBaseModel):
+    """Volatility metrics response."""
+    
+    daily_volatility: float
+    annualized_volatility: float
+    downside_volatility: float
+    upside_volatility: float
+    volatility_skew: float
+    max_daily_loss: float
+    max_daily_gain: float
+
+
+class StressTestResponse(MaverickBaseModel):
+    """Stress test result response."""
+    
+    scenario: str
+    scenario_name: str
+    description: str
+    market_return: float
+    estimated_portfolio_loss: float
+    estimated_loss_amount: float
+    recovery_estimate_days: int | None = None
+
+
+class RiskMetricsSummaryResponse(MaverickBaseModel):
+    """Complete risk metrics response."""
+    
+    var: VaRResponse
+    beta: BetaResponse
+    volatility: VolatilityResponse
+    stress_tests: list[StressTestResponse]
+    risk_score: float
+    risk_level: str
+    calculated_at: str
+
+
+@router.post("/metrics/var", response_model=APIResponse[VaRResponse])
+async def calculate_var(
+    data: RiskMetricsRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    risk_service: RiskMetricsService = Depends(get_risk_metrics_service_dep),
+):
+    """
+    Calculate Value at Risk (VaR) and Conditional VaR.
+    
+    VaR represents the maximum expected loss at a given confidence level.
+    CVaR (Expected Shortfall) is the expected loss beyond VaR.
+    """
+    try:
+        result = risk_service.calculate_var(
+            returns=data.portfolio_returns,
+            portfolio_value=data.portfolio_value,
+            method=data.var_method,
+        )
+        
+        return APIResponse(
+            data=VaRResponse(**result.to_dict()),
+            meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/metrics/beta", response_model=APIResponse[BetaResponse])
+async def calculate_beta(
+    data: RiskMetricsRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    risk_service: RiskMetricsService = Depends(get_risk_metrics_service_dep),
+):
+    """
+    Calculate portfolio beta relative to benchmark.
+    
+    Beta measures systematic risk relative to the market.
+    """
+    if not data.benchmark_returns:
+        # Use sample benchmark returns for demo
+        data.benchmark_returns = risk_service.generate_benchmark_returns(
+            len(data.portfolio_returns)
+        ).tolist()
+    
+    try:
+        result = risk_service.calculate_beta(
+            portfolio_returns=data.portfolio_returns,
+            benchmark_returns=data.benchmark_returns,
+        )
+        
+        return APIResponse(
+            data=BetaResponse(**result.to_dict()),
+            meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/metrics/volatility", response_model=APIResponse[VolatilityResponse])
+async def calculate_volatility(
+    data: RiskMetricsRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    risk_service: RiskMetricsService = Depends(get_risk_metrics_service_dep),
+):
+    """
+    Calculate comprehensive volatility metrics.
+    
+    Includes daily, annualized, downside, and upside volatility.
+    """
+    try:
+        result = risk_service.calculate_volatility(returns=data.portfolio_returns)
+        
+        return APIResponse(
+            data=VolatilityResponse(**result.to_dict()),
+            meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+class StressTestRequest(MaverickBaseModel):
+    """Request for stress testing."""
+    
+    portfolio_beta: float = Field(ge=-2, le=5)
+    portfolio_value: float = Field(gt=0)
+    scenarios: list[str] | None = Field(default=None)
+
+
+@router.post("/metrics/stress-test", response_model=APIResponse[list[StressTestResponse]])
+async def run_stress_tests(
+    data: StressTestRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    risk_service: RiskMetricsService = Depends(get_risk_metrics_service_dep),
+):
+    """
+    Run stress tests for various market scenarios.
+    
+    Available scenarios:
+    - market_drop_10: 10% correction
+    - market_drop_20: Bear market
+    - market_drop_30: Severe crash
+    - financial_crisis_2008: 2008 crisis simulation
+    - covid_crash_2020: COVID crash
+    - tech_bubble_2000: Dot-com bubble
+    - flash_crash: Flash crash
+    """
+    try:
+        scenarios = None
+        if data.scenarios:
+            scenarios = [StressScenario(s) for s in data.scenarios]
+        
+        results = risk_service.run_stress_tests(
+            portfolio_beta=data.portfolio_beta,
+            portfolio_value=data.portfolio_value,
+            scenarios=scenarios,
+        )
+        
+        return APIResponse(
+            data=[StressTestResponse(**r.to_dict()) for r in results],
+            meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+class CustomStressRequest(MaverickBaseModel):
+    """Request for custom stress test."""
+    
+    portfolio_beta: float = Field(ge=-2, le=5)
+    portfolio_value: float = Field(gt=0)
+    market_drop_percent: float = Field(gt=0, le=100)
+    scenario_name: str = Field(default="Custom Scenario")
+
+
+@router.post("/metrics/stress-test/custom", response_model=APIResponse[StressTestResponse])
+async def run_custom_stress_test(
+    data: CustomStressRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    risk_service: RiskMetricsService = Depends(get_risk_metrics_service_dep),
+):
+    """
+    Run a custom stress test with user-specified market drop.
+    """
+    result = risk_service.custom_stress_test(
+        portfolio_beta=data.portfolio_beta,
+        portfolio_value=data.portfolio_value,
+        market_drop_percent=data.market_drop_percent,
+        scenario_name=data.scenario_name,
+    )
+    
+    return APIResponse(
+        data=StressTestResponse(**result.to_dict()),
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
+
+
+@router.post("/metrics/full", response_model=APIResponse[RiskMetricsSummaryResponse])
+async def calculate_full_risk_metrics(
+    data: RiskMetricsRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    risk_service: RiskMetricsService = Depends(get_risk_metrics_service_dep),
+):
+    """
+    Calculate all risk metrics in one call.
+    
+    Returns VaR, Beta, Volatility, Stress Tests, and composite Risk Score.
+    """
+    if not data.benchmark_returns:
+        data.benchmark_returns = risk_service.generate_benchmark_returns(
+            len(data.portfolio_returns)
+        ).tolist()
+    
+    try:
+        result = risk_service.calculate_full_risk_metrics(
+            portfolio_returns=data.portfolio_returns,
+            benchmark_returns=data.benchmark_returns,
+            portfolio_value=data.portfolio_value,
+            var_method=data.var_method,
+        )
+        
+        return APIResponse(
+            data=RiskMetricsSummaryResponse(
+                var=VaRResponse(**result.var.to_dict()),
+                beta=BetaResponse(**result.beta.to_dict()),
+                volatility=VolatilityResponse(**result.volatility.to_dict()),
+                stress_tests=[StressTestResponse(**s.to_dict()) for s in result.stress_tests],
+                risk_score=result.risk_score,
+                risk_level=result.risk_level,
+                calculated_at=result.calculated_at.isoformat(),
+            ),
+            meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/metrics/scenarios")
+async def get_available_scenarios(
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+):
+    """
+    Get list of available stress test scenarios.
+    """
+    scenarios = []
+    for scenario, params in STRESS_SCENARIOS.items():
+        scenarios.append({
+            "id": scenario.value,
+            "name": params["name"],
+            "description": params["description"],
+            "market_return": params["market_return"],
+            "duration_days": params["duration_days"],
+        })
+    
+    return APIResponse(
+        data=scenarios,
         meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
     )
 

@@ -10,4 +10,5 @@ export {
   SectorExposureTable,
   SectorRebalanceCard,
 } from './sector-exposure';
+export { RiskMetricsCard, StressTestCard } from './risk-metrics';
 
