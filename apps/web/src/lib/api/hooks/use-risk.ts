@@ -635,3 +635,315 @@ export const SECTOR_COLORS: Record<string, string> = {
   'Materials': '#f43f5e',
 };
 
+
+// ============================================
+// Risk Metrics Types
+// ============================================
+
+export interface VaRResult {
+  var_95: number;
+  var_99: number;
+  cvar_95: number;
+  cvar_99: number;
+  method: string;
+  period_days: number;
+  portfolio_value: number;
+  var_95_amount: number;
+  var_99_amount: number;
+  cvar_95_amount: number;
+  cvar_99_amount: number;
+}
+
+export interface BetaResult {
+  beta: number;
+  alpha: number;
+  r_squared: number;
+  correlation: number;
+  interpretation: string;
+}
+
+export interface VolatilityResult {
+  daily_volatility: number;
+  annualized_volatility: number;
+  downside_volatility: number;
+  upside_volatility: number;
+  volatility_skew: number;
+  max_daily_loss: number;
+  max_daily_gain: number;
+}
+
+export interface StressTestResult {
+  scenario: string;
+  scenario_name: string;
+  description: string;
+  market_return: number;
+  estimated_portfolio_loss: number;
+  estimated_loss_amount: number;
+  recovery_estimate_days: number | null;
+}
+
+export type RiskLevel = 'low' | 'moderate' | 'high' | 'very_high';
+
+export interface RiskMetricsSummary {
+  var: VaRResult;
+  beta: BetaResult;
+  volatility: VolatilityResult;
+  stress_tests: StressTestResult[];
+  risk_score: number;
+  risk_level: RiskLevel;
+  calculated_at: string;
+}
+
+export interface StressScenarioInfo {
+  id: string;
+  name: string;
+  description: string;
+  market_return: number;
+  duration_days: number;
+}
+
+// ============================================
+// Risk Metrics Hooks
+// ============================================
+
+/**
+ * Calculate Value at Risk
+ */
+export function useCalculateVaR() {
+  return useMutation({
+    mutationFn: async ({
+      portfolioReturns,
+      portfolioValue,
+      method = 'historical',
+    }: {
+      portfolioReturns: number[];
+      portfolioValue: number;
+      method?: string;
+    }) => {
+      const response = await api.post<APIResponse<VaRResult>>(
+        '/risk/metrics/var',
+        {
+          portfolio_returns: portfolioReturns,
+          portfolio_value: portfolioValue,
+          var_method: method,
+        }
+      );
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Calculate Beta
+ */
+export function useCalculateBeta() {
+  return useMutation({
+    mutationFn: async ({
+      portfolioReturns,
+      benchmarkReturns,
+      portfolioValue,
+    }: {
+      portfolioReturns: number[];
+      benchmarkReturns?: number[];
+      portfolioValue: number;
+    }) => {
+      const response = await api.post<APIResponse<BetaResult>>(
+        '/risk/metrics/beta',
+        {
+          portfolio_returns: portfolioReturns,
+          benchmark_returns: benchmarkReturns,
+          portfolio_value: portfolioValue,
+        }
+      );
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Calculate Volatility
+ */
+export function useCalculateVolatility() {
+  return useMutation({
+    mutationFn: async ({
+      portfolioReturns,
+      portfolioValue,
+    }: {
+      portfolioReturns: number[];
+      portfolioValue: number;
+    }) => {
+      const response = await api.post<APIResponse<VolatilityResult>>(
+        '/risk/metrics/volatility',
+        {
+          portfolio_returns: portfolioReturns,
+          portfolio_value: portfolioValue,
+        }
+      );
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Run stress tests
+ */
+export function useRunStressTests() {
+  return useMutation({
+    mutationFn: async ({
+      portfolioBeta,
+      portfolioValue,
+      scenarios,
+    }: {
+      portfolioBeta: number;
+      portfolioValue: number;
+      scenarios?: string[];
+    }) => {
+      const response = await api.post<APIResponse<StressTestResult[]>>(
+        '/risk/metrics/stress-test',
+        {
+          portfolio_beta: portfolioBeta,
+          portfolio_value: portfolioValue,
+          scenarios,
+        }
+      );
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Run custom stress test
+ */
+export function useRunCustomStressTest() {
+  return useMutation({
+    mutationFn: async ({
+      portfolioBeta,
+      portfolioValue,
+      marketDropPercent,
+      scenarioName,
+    }: {
+      portfolioBeta: number;
+      portfolioValue: number;
+      marketDropPercent: number;
+      scenarioName?: string;
+    }) => {
+      const response = await api.post<APIResponse<StressTestResult>>(
+        '/risk/metrics/stress-test/custom',
+        {
+          portfolio_beta: portfolioBeta,
+          portfolio_value: portfolioValue,
+          market_drop_percent: marketDropPercent,
+          scenario_name: scenarioName,
+        }
+      );
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Calculate full risk metrics
+ */
+export function useCalculateFullRiskMetrics() {
+  return useMutation({
+    mutationFn: async ({
+      portfolioReturns,
+      benchmarkReturns,
+      portfolioValue,
+      varMethod = 'historical',
+    }: {
+      portfolioReturns: number[];
+      benchmarkReturns?: number[];
+      portfolioValue: number;
+      varMethod?: string;
+    }) => {
+      const response = await api.post<APIResponse<RiskMetricsSummary>>(
+        '/risk/metrics/full',
+        {
+          portfolio_returns: portfolioReturns,
+          benchmark_returns: benchmarkReturns,
+          portfolio_value: portfolioValue,
+          var_method: varMethod,
+        }
+      );
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Get available stress scenarios
+ */
+export function useStressScenarios() {
+  return useQuery({
+    queryKey: [...riskKeys.metrics(), 'scenarios'],
+    queryFn: async () => {
+      const response = await api.get<APIResponse<StressScenarioInfo[]>>(
+        '/risk/metrics/scenarios'
+      );
+      return response.data;
+    },
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+}
+
+// ============================================
+// Risk Metrics Utilities
+// ============================================
+
+/**
+ * Get color for risk level
+ */
+export function getRiskLevelColor(level: RiskLevel): string {
+  switch (level) {
+    case 'low': return 'text-emerald-400';
+    case 'moderate': return 'text-yellow-400';
+    case 'high': return 'text-orange-400';
+    case 'very_high': return 'text-red-400';
+    default: return 'text-slate-400';
+  }
+}
+
+/**
+ * Get badge color for risk level
+ */
+export function getRiskLevelBadge(level: RiskLevel): string {
+  switch (level) {
+    case 'low': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    case 'moderate': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    case 'high': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+    case 'very_high': return 'bg-red-500/20 text-red-400 border-red-500/30';
+    default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+  }
+}
+
+/**
+ * Format percentage for display
+ */
+export function formatPercent(value: number, decimals: number = 2): string {
+  return `${(value * 100).toFixed(decimals)}%`;
+}
+
+/**
+ * Format currency amount
+ */
+export function formatAmount(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+/**
+ * Get beta interpretation color
+ */
+export function getBetaColor(beta: number): string {
+  if (beta >= 1.5) return 'text-red-400';
+  if (beta >= 1.2) return 'text-orange-400';
+  if (beta >= 0.8) return 'text-yellow-400';
+  if (beta >= 0.5) return 'text-emerald-400';
+  return 'text-blue-400';
+}
+

@@ -182,6 +182,14 @@ export {
   useSectorExposure,
   useSectorComparison,
   useSectorRebalance,
+  // Risk Metrics
+  useCalculateVaR,
+  useCalculateBeta,
+  useCalculateVolatility,
+  useRunStressTests,
+  useRunCustomStressTest,
+  useCalculateFullRiskMetrics,
+  useStressScenarios,
   // Utilities
   getCorrelationColor,
   getCorrelationBgColor,
@@ -192,6 +200,11 @@ export {
   getSectorStatusColor,
   getSectorStatusBadge,
   getRebalanceActionColor,
+  getRiskLevelColor,
+  getRiskLevelBadge,
+  getBetaColor,
+  formatPercent,
+  formatAmount,
   SECTOR_COLORS,
   // Types
   type CorrelationMatrix,
@@ -211,5 +224,12 @@ export {
   type SectorRebalanceSuggestion,
   type RebalanceAction,
   type RebalancePriority,
+  type VaRResult,
+  type BetaResult,
+  type VolatilityResult,
+  type StressTestResult,
+  type RiskMetricsSummary,
+  type RiskLevel,
+  type StressScenarioInfo,
 } from './use-risk';
 
