@@ -89,6 +89,14 @@ from maverick_services.thesis_tracking_service import (
     DecisionType,
     get_thesis_tracking_service,
 )
+from maverick_services.correlation_service import (
+    CorrelationService,
+    CorrelationMatrix,
+    PairCorrelation,
+    CorrelationStats,
+    CorrelationPeriod,
+    get_correlation_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -173,6 +181,13 @@ __all__ = [
     "MilestoneType",
     "DecisionType",
     "get_thesis_tracking_service",
+    # Correlation Services
+    "CorrelationService",
+    "CorrelationMatrix",
+    "PairCorrelation",
+    "CorrelationStats",
+    "CorrelationPeriod",
+    "get_correlation_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",

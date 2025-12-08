@@ -163,3 +163,22 @@ export {
   type WinLossAnalysis,
 } from './use-thesis-tracking';
 
+// Risk Analytics hooks
+export {
+  riskKeys,
+  useCorrelationMatrix,
+  useCalculateCorrelationMatrix,
+  usePairCorrelation,
+  useMultiPeriodCorrelation,
+  useRollingCorrelation,
+  useHighCorrelationPairs,
+  getCorrelationColor,
+  getCorrelationBgColor,
+  getCorrelationTextColor,
+  type CorrelationMatrix,
+  type CorrelationStats,
+  type PairCorrelation,
+  type HighCorrelationPair,
+  type RollingCorrelationPoint,
+} from './use-risk';
+
