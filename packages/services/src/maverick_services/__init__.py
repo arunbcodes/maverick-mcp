@@ -97,6 +97,17 @@ from maverick_services.correlation_service import (
     CorrelationPeriod,
     get_correlation_service,
 )
+from maverick_services.diversification_service import (
+    DiversificationService,
+    DiversificationScore,
+    DiversificationBreakdown,
+    DiversificationLevel,
+    PositionConcentration,
+    SectorConcentration,
+    get_diversification_service,
+    GICS_SECTORS,
+    SP500_SECTOR_WEIGHTS,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -188,6 +199,16 @@ __all__ = [
     "CorrelationStats",
     "CorrelationPeriod",
     "get_correlation_service",
+    # Diversification Services
+    "DiversificationService",
+    "DiversificationScore",
+    "DiversificationBreakdown",
+    "DiversificationLevel",
+    "PositionConcentration",
+    "SectorConcentration",
+    "get_diversification_service",
+    "GICS_SECTORS",
+    "SP500_SECTOR_WEIGHTS",
     # Base exceptions
     "ServiceError",
     "ServiceException",

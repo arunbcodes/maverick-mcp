@@ -257,3 +257,201 @@ export function getCorrelationTextColor(correlation: number): string {
   return 'text-emerald-400';
 }
 
+
+// ============================================
+// Diversification Types
+// ============================================
+
+export interface PositionConcentration {
+  ticker: string;
+  weight: number;
+  is_overconcentrated: boolean;
+}
+
+export interface SectorConcentration {
+  sector: string;
+  weight: number;
+  benchmark_weight: number;
+  deviation: number;
+  is_overweight: boolean;
+  is_underweight: boolean;
+}
+
+export interface DiversificationBreakdown {
+  position_score: number;
+  sector_score: number;
+  correlation_score: number;
+  concentration_score: number;
+  weights: {
+    position: number;
+    sector: number;
+    correlation: number;
+    concentration: number;
+  };
+}
+
+export type DiversificationLevel = 'excellent' | 'good' | 'moderate' | 'poor' | 'very_poor';
+
+export interface DiversificationScore {
+  score: number;
+  level: DiversificationLevel;
+  hhi: number;
+  hhi_normalized: number;
+  effective_positions: number;
+  position_count: number;
+  largest_position: PositionConcentration | null;
+  overconcentrated_count: number;
+  sector_count: number;
+  avg_correlation: number | null;
+  breakdown: DiversificationBreakdown;
+  recommendations: string[];
+  calculated_at: string;
+}
+
+export interface SectorBenchmarks {
+  sectors: string[];
+  weights: Record<string, number>;
+}
+
+// ============================================
+// Diversification Hooks
+// ============================================
+
+/**
+ * Calculate diversification score
+ */
+export function useDiversificationScore(
+  positions: { ticker: string; market_value: number; sector?: string }[],
+  sectorMap?: Record<string, string>,
+  avgCorrelation?: number,
+  options?: { enabled?: boolean }
+) {
+  return useQuery({
+    queryKey: [...riskKeys.diversification(), positions.map(p => p.ticker).join(',')],
+    queryFn: async () => {
+      const response = await api.post<APIResponse<DiversificationScore>>(
+        '/risk/diversification/score',
+        {
+          positions,
+          sector_map: sectorMap,
+          avg_correlation: avgCorrelation,
+        }
+      );
+      return response.data;
+    },
+    enabled: options?.enabled !== false && positions.length > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
+ * Calculate diversification score (manual trigger)
+ */
+export function useCalculateDiversification() {
+  return useMutation({
+    mutationFn: async ({
+      positions,
+      sectorMap,
+      avgCorrelation,
+    }: {
+      positions: { ticker: string; market_value: number; sector?: string }[];
+      sectorMap?: Record<string, string>;
+      avgCorrelation?: number;
+    }) => {
+      const response = await api.post<APIResponse<DiversificationScore>>(
+        '/risk/diversification/score',
+        {
+          positions,
+          sector_map: sectorMap,
+          avg_correlation: avgCorrelation,
+        }
+      );
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Get sector breakdown
+ */
+export function useSectorBreakdown(
+  positions: { ticker: string; market_value: number; sector?: string }[],
+  sectorMap?: Record<string, string>,
+  options?: { enabled?: boolean }
+) {
+  return useQuery({
+    queryKey: [...riskKeys.sectors(), positions.map(p => p.ticker).join(',')],
+    queryFn: async () => {
+      const response = await api.post<APIResponse<SectorConcentration[]>>(
+        '/risk/diversification/sectors',
+        {
+          positions,
+          sector_map: sectorMap,
+        }
+      );
+      return response.data;
+    },
+    enabled: options?.enabled !== false && positions.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Get S&P 500 sector benchmarks
+ */
+export function useSectorBenchmarks() {
+  return useQuery({
+    queryKey: [...riskKeys.sectors(), 'benchmarks'],
+    queryFn: async () => {
+      const response = await api.get<APIResponse<SectorBenchmarks>>(
+        '/risk/diversification/sectors/benchmark'
+      );
+      return response.data;
+    },
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+}
+
+// ============================================
+// Diversification Utilities
+// ============================================
+
+/**
+ * Get color for diversification level
+ */
+export function getDiversificationLevelColor(level: DiversificationLevel): string {
+  switch (level) {
+    case 'excellent': return 'text-emerald-400';
+    case 'good': return 'text-green-400';
+    case 'moderate': return 'text-yellow-400';
+    case 'poor': return 'text-orange-400';
+    case 'very_poor': return 'text-red-400';
+    default: return 'text-slate-400';
+  }
+}
+
+/**
+ * Get badge color for diversification level
+ */
+export function getDiversificationBadgeColor(level: DiversificationLevel): string {
+  switch (level) {
+    case 'excellent': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    case 'good': return 'bg-green-500/20 text-green-400 border-green-500/30';
+    case 'moderate': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    case 'poor': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+    case 'very_poor': return 'bg-red-500/20 text-red-400 border-red-500/30';
+    default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+  }
+}
+
+/**
+ * Get score color based on numeric value
+ */
+export function getScoreColor(score: number): string {
+  if (score >= 80) return 'text-emerald-400';
+  if (score >= 60) return 'text-green-400';
+  if (score >= 40) return 'text-yellow-400';
+  if (score >= 20) return 'text-orange-400';
+  return 'text-red-400';
+}
+
