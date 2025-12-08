@@ -233,3 +233,6 @@ export {
   type StressScenarioInfo,
 } from './use-risk';
 
+// Export all risk components
+export * from './use-risk';
+

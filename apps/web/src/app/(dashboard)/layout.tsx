@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  Shield,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'Portfolio', href: '/portfolio', icon: Briefcase },
   { name: 'Watchlist', href: '/watchlist', icon: Eye },
   { name: 'Screener', href: '/screener', icon: Search },
+  { name: 'Risk', href: '/risk', icon: Shield },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
