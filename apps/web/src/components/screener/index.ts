@@ -21,3 +21,8 @@ export {
   GenerateThesisButton,
 } from './thesis-modal';
 
+export {
+  FilterBuilder,
+  FilterSummary,
+} from './filter-builder';
+

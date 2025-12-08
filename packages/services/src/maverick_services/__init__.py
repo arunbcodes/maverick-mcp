@@ -59,6 +59,17 @@ from maverick_services.watchlist_service import (
     WatchlistItem,
     get_watchlist_service,
 )
+from maverick_services.custom_screener_service import (
+    CustomScreenerService,
+    CustomScreener,
+    FilterCondition,
+    FilterField,
+    FilterOperator,
+    ScreenerResult,
+    get_custom_screener_service,
+    PRESET_SCREENERS,
+    FILTER_FIELD_METADATA,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -116,6 +127,16 @@ __all__ = [
     "Watchlist",
     "WatchlistItem",
     "get_watchlist_service",
+    # Custom Screener Services
+    "CustomScreenerService",
+    "CustomScreener",
+    "FilterCondition",
+    "FilterField",
+    "FilterOperator",
+    "ScreenerResult",
+    "get_custom_screener_service",
+    "PRESET_SCREENERS",
+    "FILTER_FIELD_METADATA",
     # Base exceptions
     "ServiceError",
     "ServiceException",
