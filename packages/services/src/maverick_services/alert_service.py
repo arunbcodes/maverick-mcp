@@ -44,6 +44,14 @@ class AlertType(Enum):
     POSITION_LOSS = "position_loss"
     STOP_LOSS_HIT = "stop_loss_hit"
     PRICE_TARGET_HIT = "price_target_hit"
+    
+    # Risk alerts (Phase 7E)
+    HIGH_CORRELATION = "high_correlation"  # Holdings become highly correlated
+    LOW_DIVERSIFICATION = "low_diversification"  # Score drops below threshold
+    CONCENTRATION_WARNING = "concentration_warning"  # Position exceeds threshold
+    SECTOR_DRIFT = "sector_drift"  # Sector allocation drifts from target
+    VAR_BREACH = "var_breach"  # VaR exceeds threshold
+    BETA_HIGH = "beta_high"  # Portfolio beta exceeds threshold
 
 
 class AlertPriority(Enum):
