@@ -484,3 +484,238 @@ async def get_sector_benchmarks(
         meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
     )
 
+
+# ============================================
+# Sector Exposure Endpoints
+# ============================================
+
+
+class SectorExposureItem(MaverickBaseModel):
+    """Sector exposure data."""
+    
+    sector: str
+    weight: float  # Portfolio weight %
+    benchmark_weight: float  # S&P 500 weight %
+    deviation: float  # Difference from benchmark
+    status: str  # "overweight", "underweight", "neutral"
+    recommendation: str | None = None
+
+
+class SectorExposureResponse(MaverickBaseModel):
+    """Sector exposure analysis response."""
+    
+    sectors: list[SectorExposureItem]
+    total_weight: float
+    covered_sectors: int
+    total_sectors: int
+    overweight_count: int
+    underweight_count: int
+
+
+@router.post("/sectors/exposure", response_model=APIResponse[SectorExposureResponse])
+async def get_sector_exposure(
+    data: DiversificationRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    div_service: DiversificationService = Depends(get_diversification_service_dep),
+):
+    """
+    Get detailed sector exposure analysis with benchmark comparison.
+    
+    Returns sector weights vs S&P 500 benchmark with recommendations.
+    """
+    result = div_service.calculate_diversification_score(
+        positions=data.positions,
+        sector_map=data.sector_map,
+    )
+    
+    sector_items = []
+    overweight_count = 0
+    underweight_count = 0
+    
+    for s in result.sector_breakdown:
+        # Determine status
+        if s.weight == 0 and s.benchmark_weight > 3:
+            status = "missing"
+            recommendation = f"Consider adding {s.sector} exposure ({s.benchmark_weight:.1f}% benchmark)"
+        elif s.deviation > 10:
+            status = "overweight"
+            overweight_count += 1
+            recommendation = f"Consider reducing ({s.weight:.1f}% vs {s.benchmark_weight:.1f}% benchmark)"
+        elif s.deviation < -5 and s.benchmark_weight > 3:
+            status = "underweight"
+            underweight_count += 1
+            recommendation = f"Consider increasing ({s.weight:.1f}% vs {s.benchmark_weight:.1f}% benchmark)"
+        else:
+            status = "neutral"
+            recommendation = None
+        
+        sector_items.append(SectorExposureItem(
+            sector=s.sector,
+            weight=round(s.weight, 2),
+            benchmark_weight=round(s.benchmark_weight, 2),
+            deviation=round(s.deviation, 2),
+            status=status,
+            recommendation=recommendation,
+        ))
+    
+    # Sort by weight descending
+    sector_items.sort(key=lambda x: x.weight, reverse=True)
+    
+    return APIResponse(
+        data=SectorExposureResponse(
+            sectors=sector_items,
+            total_weight=sum(s.weight for s in sector_items),
+            covered_sectors=sum(1 for s in sector_items if s.weight > 0),
+            total_sectors=11,
+            overweight_count=overweight_count,
+            underweight_count=underweight_count,
+        ),
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
+
+
+class SectorComparisonItem(MaverickBaseModel):
+    """Single sector comparison."""
+    
+    sector: str
+    portfolio_weight: float
+    benchmark_weight: float
+
+
+@router.post("/sectors/comparison", response_model=APIResponse[list[SectorComparisonItem]])
+async def get_sector_comparison(
+    data: DiversificationRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    div_service: DiversificationService = Depends(get_diversification_service_dep),
+):
+    """
+    Get sector weight comparison for bar chart visualization.
+    
+    Returns portfolio weights alongside benchmark weights for all sectors.
+    """
+    result = div_service.calculate_diversification_score(
+        positions=data.positions,
+        sector_map=data.sector_map,
+    )
+    
+    comparison = []
+    for s in result.sector_breakdown:
+        if s.sector != "Unknown":  # Skip unknown sector
+            comparison.append(SectorComparisonItem(
+                sector=s.sector,
+                portfolio_weight=round(s.weight, 2),
+                benchmark_weight=round(s.benchmark_weight, 2),
+            ))
+    
+    # Sort by benchmark weight descending
+    comparison.sort(key=lambda x: x.benchmark_weight, reverse=True)
+    
+    return APIResponse(
+        data=comparison,
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
+
+
+class SectorRebalanceSuggestion(MaverickBaseModel):
+    """Rebalancing suggestion for a sector."""
+    
+    sector: str
+    current_weight: float
+    target_weight: float
+    action: str  # "buy", "sell", "hold"
+    change_needed: float  # Percentage points to change
+    priority: str  # "high", "medium", "low"
+
+
+@router.post("/sectors/rebalance", response_model=APIResponse[list[SectorRebalanceSuggestion]])
+async def get_sector_rebalance_suggestions(
+    data: DiversificationRequest,
+    target_profile: str = Query(default="balanced", description="Target: balanced, aggressive, defensive"),
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    div_service: DiversificationService = Depends(get_diversification_service_dep),
+):
+    """
+    Get sector rebalancing suggestions based on target profile.
+    
+    Profiles:
+    - balanced: Match S&P 500 weights
+    - aggressive: Overweight Tech, Communication, Consumer Disc
+    - defensive: Overweight Utilities, Consumer Staples, Healthcare
+    """
+    result = div_service.calculate_diversification_score(
+        positions=data.positions,
+        sector_map=data.sector_map,
+    )
+    
+    # Define target weights based on profile
+    if target_profile == "aggressive":
+        target_weights = {
+            "Technology": 35.0,
+            "Healthcare": 12.0,
+            "Financials": 10.0,
+            "Consumer Discretionary": 12.0,
+            "Communication Services": 12.0,
+            "Industrials": 7.0,
+            "Consumer Staples": 4.0,
+            "Energy": 3.0,
+            "Utilities": 1.5,
+            "Real Estate": 2.0,
+            "Materials": 1.5,
+        }
+    elif target_profile == "defensive":
+        target_weights = {
+            "Technology": 20.0,
+            "Healthcare": 18.0,
+            "Financials": 14.0,
+            "Consumer Discretionary": 7.0,
+            "Communication Services": 6.0,
+            "Industrials": 10.0,
+            "Consumer Staples": 12.0,
+            "Energy": 5.0,
+            "Utilities": 5.0,
+            "Real Estate": 2.0,
+            "Materials": 1.0,
+        }
+    else:  # balanced
+        target_weights = SP500_SECTOR_WEIGHTS.copy()
+    
+    suggestions = []
+    for s in result.sector_breakdown:
+        if s.sector == "Unknown":
+            continue
+        
+        target = target_weights.get(s.sector, 0)
+        change = target - s.weight
+        
+        # Determine action and priority
+        if abs(change) < 2:
+            action = "hold"
+            priority = "low"
+        elif change > 0:
+            action = "buy"
+            priority = "high" if change > 5 else "medium"
+        else:
+            action = "sell"
+            priority = "high" if abs(change) > 5 else "medium"
+        
+        suggestions.append(SectorRebalanceSuggestion(
+            sector=s.sector,
+            current_weight=round(s.weight, 2),
+            target_weight=round(target, 2),
+            action=action,
+            change_needed=round(change, 2),
+            priority=priority,
+        ))
+    
+    # Sort by priority and change magnitude
+    priority_order = {"high": 0, "medium": 1, "low": 2}
+    suggestions.sort(key=lambda x: (priority_order[x.priority], -abs(x.change_needed)))
+    
+    return APIResponse(
+        data=suggestions,
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
+
