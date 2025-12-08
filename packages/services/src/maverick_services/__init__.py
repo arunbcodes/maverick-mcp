@@ -70,6 +70,14 @@ from maverick_services.custom_screener_service import (
     PRESET_SCREENERS,
     FILTER_FIELD_METADATA,
 )
+from maverick_services.export_service import (
+    ExportService,
+    ExportFormat,
+    ExportType,
+    ExportConfig,
+    ExportResult,
+    get_export_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -137,6 +145,13 @@ __all__ = [
     "get_custom_screener_service",
     "PRESET_SCREENERS",
     "FILTER_FIELD_METADATA",
+    # Export Services
+    "ExportService",
+    "ExportFormat",
+    "ExportType",
+    "ExportConfig",
+    "ExportResult",
+    "get_export_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",
