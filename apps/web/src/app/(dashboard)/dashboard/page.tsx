@@ -21,6 +21,10 @@ import { ErrorState, EmptyState } from '@/components/ui/error';
 import { PositionList } from '@/components/portfolio';
 import { AllocationChart } from '@/components/portfolio/charts';
 import {
+  RecentAlertsWidget,
+  WatchlistWidget,
+} from '@/components/dashboard';
+import {
   TrendingUp,
   TrendingDown,
   DollarSign,
@@ -32,6 +36,8 @@ import {
   Settings,
   Wifi,
   WifiOff,
+  Eye,
+  Bell,
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency, formatPercent, cn } from '@/lib/utils';
@@ -283,6 +289,12 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Alerts & Watchlist Row */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <RecentAlertsWidget />
+        <WatchlistWidget />
+      </div>
+
       {/* Quick Actions */}
       <Card className="bg-slate-900/50 border-slate-800">
         <CardHeader>
@@ -306,10 +318,10 @@ export default function DashboardPage() {
               description="Find opportunities"
             />
             <QuickActionButton
-              href="/portfolio"
-              icon={<BarChart3 className="h-5 w-5" />}
-              title="View Analytics"
-              description="Portfolio insights"
+              href="/watchlist"
+              icon={<Eye className="h-5 w-5" />}
+              title="Watchlist"
+              description="Track stocks"
             />
             <QuickActionButton
               href="/settings"
