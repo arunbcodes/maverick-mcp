@@ -53,6 +53,12 @@ from maverick_services.alert_service import (
     get_alert_service,
     PRESET_RULES,
 )
+from maverick_services.watchlist_service import (
+    WatchlistService,
+    Watchlist,
+    WatchlistItem,
+    get_watchlist_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -105,6 +111,11 @@ __all__ = [
     "AlertStatus",
     "get_alert_service",
     "PRESET_RULES",
+    # Watchlist Services
+    "WatchlistService",
+    "Watchlist",
+    "WatchlistItem",
+    "get_watchlist_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",
