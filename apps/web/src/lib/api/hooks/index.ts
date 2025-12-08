@@ -166,22 +166,34 @@ export {
 // Risk Analytics hooks
 export {
   riskKeys,
+  // Correlation
   useCorrelationMatrix,
   useCalculateCorrelationMatrix,
   usePairCorrelation,
   useMultiPeriodCorrelation,
   useRollingCorrelation,
   useHighCorrelationPairs,
+  // Diversification
   useDiversificationScore,
   useCalculateDiversification,
   useSectorBreakdown,
   useSectorBenchmarks,
+  // Sector Exposure
+  useSectorExposure,
+  useSectorComparison,
+  useSectorRebalance,
+  // Utilities
   getCorrelationColor,
   getCorrelationBgColor,
   getCorrelationTextColor,
   getDiversificationLevelColor,
   getDiversificationBadgeColor,
   getScoreColor,
+  getSectorStatusColor,
+  getSectorStatusBadge,
+  getRebalanceActionColor,
+  SECTOR_COLORS,
+  // Types
   type CorrelationMatrix,
   type CorrelationStats,
   type PairCorrelation,
@@ -193,5 +205,11 @@ export {
   type SectorConcentration,
   type PositionConcentration,
   type SectorBenchmarks,
+  type SectorExposure,
+  type SectorExposureItem,
+  type SectorComparison,
+  type SectorRebalanceSuggestion,
+  type RebalanceAction,
+  type RebalancePriority,
 } from './use-risk';
 

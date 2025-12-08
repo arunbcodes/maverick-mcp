@@ -455,3 +455,183 @@ export function getScoreColor(score: number): string {
   return 'text-red-400';
 }
 
+
+// ============================================
+// Sector Exposure Types
+// ============================================
+
+export interface SectorExposureItem {
+  sector: string;
+  weight: number;
+  benchmark_weight: number;
+  deviation: number;
+  status: 'overweight' | 'underweight' | 'neutral' | 'missing';
+  recommendation: string | null;
+}
+
+export interface SectorExposure {
+  sectors: SectorExposureItem[];
+  total_weight: number;
+  covered_sectors: number;
+  total_sectors: number;
+  overweight_count: number;
+  underweight_count: number;
+}
+
+export interface SectorComparison {
+  sector: string;
+  portfolio_weight: number;
+  benchmark_weight: number;
+}
+
+export type RebalanceAction = 'buy' | 'sell' | 'hold';
+export type RebalancePriority = 'high' | 'medium' | 'low';
+
+export interface SectorRebalanceSuggestion {
+  sector: string;
+  current_weight: number;
+  target_weight: number;
+  action: RebalanceAction;
+  change_needed: number;
+  priority: RebalancePriority;
+}
+
+// ============================================
+// Sector Exposure Hooks
+// ============================================
+
+/**
+ * Get sector exposure analysis
+ */
+export function useSectorExposure(
+  positions: { ticker: string; market_value: number; sector?: string }[],
+  sectorMap?: Record<string, string>,
+  options?: { enabled?: boolean }
+) {
+  return useQuery({
+    queryKey: [...riskKeys.sectors(), 'exposure', positions.map(p => p.ticker).join(',')],
+    queryFn: async () => {
+      const response = await api.post<APIResponse<SectorExposure>>(
+        '/risk/sectors/exposure',
+        {
+          positions,
+          sector_map: sectorMap,
+        }
+      );
+      return response.data;
+    },
+    enabled: options?.enabled !== false && positions.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Get sector comparison for chart
+ */
+export function useSectorComparison(
+  positions: { ticker: string; market_value: number; sector?: string }[],
+  sectorMap?: Record<string, string>,
+  options?: { enabled?: boolean }
+) {
+  return useQuery({
+    queryKey: [...riskKeys.sectors(), 'comparison', positions.map(p => p.ticker).join(',')],
+    queryFn: async () => {
+      const response = await api.post<APIResponse<SectorComparison[]>>(
+        '/risk/sectors/comparison',
+        {
+          positions,
+          sector_map: sectorMap,
+        }
+      );
+      return response.data;
+    },
+    enabled: options?.enabled !== false && positions.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Get sector rebalance suggestions
+ */
+export function useSectorRebalance(
+  positions: { ticker: string; market_value: number; sector?: string }[],
+  targetProfile: 'balanced' | 'aggressive' | 'defensive' = 'balanced',
+  sectorMap?: Record<string, string>,
+  options?: { enabled?: boolean }
+) {
+  return useQuery({
+    queryKey: [...riskKeys.sectors(), 'rebalance', targetProfile, positions.map(p => p.ticker).join(',')],
+    queryFn: async () => {
+      const response = await api.post<APIResponse<SectorRebalanceSuggestion[]>>(
+        `/risk/sectors/rebalance?target_profile=${targetProfile}`,
+        {
+          positions,
+          sector_map: sectorMap,
+        }
+      );
+      return response.data;
+    },
+    enabled: options?.enabled !== false && positions.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ============================================
+// Sector Utilities
+// ============================================
+
+/**
+ * Get color for sector status
+ */
+export function getSectorStatusColor(status: SectorExposureItem['status']): string {
+  switch (status) {
+    case 'overweight': return 'text-amber-400';
+    case 'underweight': return 'text-blue-400';
+    case 'missing': return 'text-red-400';
+    case 'neutral': return 'text-emerald-400';
+    default: return 'text-slate-400';
+  }
+}
+
+/**
+ * Get badge color for sector status
+ */
+export function getSectorStatusBadge(status: SectorExposureItem['status']): string {
+  switch (status) {
+    case 'overweight': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+    case 'underweight': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    case 'missing': return 'bg-red-500/20 text-red-400 border-red-500/30';
+    case 'neutral': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+  }
+}
+
+/**
+ * Get color for rebalance action
+ */
+export function getRebalanceActionColor(action: RebalanceAction): string {
+  switch (action) {
+    case 'buy': return 'text-emerald-400';
+    case 'sell': return 'text-red-400';
+    case 'hold': return 'text-slate-400';
+    default: return 'text-slate-400';
+  }
+}
+
+/**
+ * Sector color palette for charts
+ */
+export const SECTOR_COLORS: Record<string, string> = {
+  'Technology': '#8b5cf6',
+  'Healthcare': '#22c55e',
+  'Financials': '#3b82f6',
+  'Consumer Discretionary': '#f97316',
+  'Communication Services': '#ec4899',
+  'Industrials': '#6366f1',
+  'Consumer Staples': '#84cc16',
+  'Energy': '#eab308',
+  'Utilities': '#14b8a6',
+  'Real Estate': '#a855f7',
+  'Materials': '#f43f5e',
+};
+
