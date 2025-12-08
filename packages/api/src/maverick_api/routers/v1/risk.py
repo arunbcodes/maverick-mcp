@@ -18,6 +18,10 @@ from maverick_services import (
     CorrelationService,
     CorrelationPeriod,
     get_correlation_service,
+    DiversificationService,
+    get_diversification_service,
+    GICS_SECTORS,
+    SP500_SECTOR_WEIGHTS,
 )
 from maverick_api.dependencies import get_current_user, get_request_id, get_redis
 
@@ -86,6 +90,11 @@ async def get_correlation_service_dep(
 ) -> CorrelationService:
     """Get correlation service instance."""
     return get_correlation_service(redis_client=redis)
+
+
+def get_diversification_service_dep() -> DiversificationService:
+    """Get diversification service instance."""
+    return get_diversification_service()
 
 
 # ============================================
@@ -308,4 +317,170 @@ def _interpret_correlation(corr: float) -> str:
         return f"Weakly {direction} correlated - good diversification"
     else:
         return "Very low correlation - excellent diversification"
+
+
+# ============================================
+# Diversification Endpoints
+# ============================================
+
+
+class DiversificationRequest(MaverickBaseModel):
+    """Request for diversification analysis."""
+    
+    positions: list[dict] = Field(description="Portfolio positions with ticker, market_value")
+    sector_map: dict[str, str] | None = Field(default=None, description="Optional ticker->sector mapping")
+    avg_correlation: float | None = Field(default=None, ge=-1, le=1)
+
+
+class PositionConcentrationResponse(MaverickBaseModel):
+    """Position concentration data."""
+    
+    ticker: str
+    weight: float
+    is_overconcentrated: bool
+
+
+class SectorConcentrationResponse(MaverickBaseModel):
+    """Sector concentration data."""
+    
+    sector: str
+    weight: float
+    benchmark_weight: float
+    deviation: float
+    is_overweight: bool
+    is_underweight: bool
+
+
+class DiversificationBreakdownResponse(MaverickBaseModel):
+    """Score breakdown."""
+    
+    position_score: float
+    sector_score: float
+    correlation_score: float
+    concentration_score: float
+    weights: dict
+
+
+class DiversificationResponse(MaverickBaseModel):
+    """Diversification analysis response."""
+    
+    score: float
+    level: str
+    hhi: float
+    hhi_normalized: float
+    effective_positions: float
+    position_count: int
+    largest_position: PositionConcentrationResponse | None = None
+    overconcentrated_count: int
+    sector_count: int
+    avg_correlation: float | None = None
+    breakdown: DiversificationBreakdownResponse
+    recommendations: list[str]
+    calculated_at: str
+
+
+@router.post("/diversification/score", response_model=APIResponse[DiversificationResponse])
+async def calculate_diversification_score(
+    data: DiversificationRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    div_service: DiversificationService = Depends(get_diversification_service_dep),
+):
+    """
+    Calculate portfolio diversification score.
+    
+    Returns:
+    - Overall score (0-100)
+    - HHI concentration index
+    - Effective number of positions
+    - Position and sector concentration analysis
+    - Actionable recommendations
+    """
+    result = div_service.calculate_diversification_score(
+        positions=data.positions,
+        sector_map=data.sector_map,
+        avg_correlation=data.avg_correlation,
+    )
+    
+    return APIResponse(
+        data=DiversificationResponse(
+            score=round(result.score, 1),
+            level=result.level.value,
+            hhi=round(result.hhi, 2),
+            hhi_normalized=round(result.hhi_normalized, 1),
+            effective_positions=round(result.effective_positions, 1),
+            position_count=result.position_count,
+            largest_position=PositionConcentrationResponse(
+                ticker=result.largest_position.ticker,
+                weight=round(result.largest_position.weight, 2),
+                is_overconcentrated=result.largest_position.is_overconcentrated,
+            ) if result.largest_position else None,
+            overconcentrated_count=len(result.overconcentrated_positions),
+            sector_count=result.sector_count,
+            avg_correlation=round(result.avg_correlation, 3) if result.avg_correlation else None,
+            breakdown=DiversificationBreakdownResponse(
+                position_score=round(result.breakdown.position_score, 1),
+                sector_score=round(result.breakdown.sector_score, 1),
+                correlation_score=round(result.breakdown.correlation_score, 1),
+                concentration_score=round(result.breakdown.concentration_score, 1),
+                weights={
+                    "position": result.breakdown.position_weight,
+                    "sector": result.breakdown.sector_weight,
+                    "correlation": result.breakdown.correlation_weight,
+                    "concentration": result.breakdown.concentration_weight,
+                },
+            ),
+            recommendations=result.recommendations,
+            calculated_at=result.calculated_at.isoformat(),
+        ),
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
+
+
+@router.post("/diversification/sectors", response_model=APIResponse[list[SectorConcentrationResponse]])
+async def get_sector_breakdown(
+    data: DiversificationRequest,
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+    div_service: DiversificationService = Depends(get_diversification_service_dep),
+):
+    """
+    Get detailed sector breakdown with benchmark comparison.
+    """
+    result = div_service.calculate_diversification_score(
+        positions=data.positions,
+        sector_map=data.sector_map,
+    )
+    
+    return APIResponse(
+        data=[
+            SectorConcentrationResponse(
+                sector=s.sector,
+                weight=round(s.weight, 2),
+                benchmark_weight=round(s.benchmark_weight, 2),
+                deviation=round(s.deviation, 2),
+                is_overweight=s.is_overweight,
+                is_underweight=s.is_underweight,
+            )
+            for s in result.sector_breakdown
+        ],
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
+
+
+@router.get("/diversification/sectors/benchmark")
+async def get_sector_benchmarks(
+    request_id: str = Depends(get_request_id),
+    user: AuthenticatedUser = Depends(get_current_user),
+):
+    """
+    Get S&P 500 sector benchmark weights.
+    """
+    return APIResponse(
+        data={
+            "sectors": GICS_SECTORS,
+            "weights": SP500_SECTOR_WEIGHTS,
+        },
+        meta=ResponseMeta(request_id=request_id, timestamp=datetime.now(UTC)),
+    )
 
