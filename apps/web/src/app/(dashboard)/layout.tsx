@@ -20,9 +20,12 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
+import { Eye } from 'lucide-react';
+
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Portfolio', href: '/portfolio', icon: Briefcase },
+  { name: 'Watchlist', href: '/watchlist', icon: Eye },
   { name: 'Screener', href: '/screener', icon: Search },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

@@ -93,3 +93,24 @@ export {
   type PresetRule,
 } from './use-alerts';
 
+// Watchlist hooks
+export {
+  watchlistKeys,
+  useWatchlists,
+  useWatchlist,
+  useCreateWatchlist,
+  useUpdateWatchlist,
+  useDeleteWatchlist,
+  useAddWatchlistItem,
+  useAddWatchlistItemsBatch,
+  useUpdateWatchlistItem,
+  useRemoveWatchlistItem,
+  useReorderWatchlistItems,
+  useQuickAddToWatchlist,
+  useIsWatching,
+  type Watchlist,
+  type WatchlistItem,
+  type WatchlistSummary,
+  type IsWatchingResponse,
+} from './use-watchlists';
+
