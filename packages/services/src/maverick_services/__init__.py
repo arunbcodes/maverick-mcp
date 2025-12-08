@@ -78,6 +78,17 @@ from maverick_services.export_service import (
     ExportResult,
     get_export_service,
 )
+from maverick_services.thesis_tracking_service import (
+    ThesisTrackingService,
+    InvestmentThesisEntry,
+    Milestone,
+    Decision,
+    ThesisStatus,
+    MilestoneStatus,
+    MilestoneType,
+    DecisionType,
+    get_thesis_tracking_service,
+)
 from maverick_services.exceptions import (
     ServiceError,
     ServiceException,
@@ -152,6 +163,16 @@ __all__ = [
     "ExportConfig",
     "ExportResult",
     "get_export_service",
+    # Thesis Tracking Services
+    "ThesisTrackingService",
+    "InvestmentThesisEntry",
+    "Milestone",
+    "Decision",
+    "ThesisStatus",
+    "MilestoneStatus",
+    "MilestoneType",
+    "DecisionType",
+    "get_thesis_tracking_service",
     # Base exceptions
     "ServiceError",
     "ServiceException",
