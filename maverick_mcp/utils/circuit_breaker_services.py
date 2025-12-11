@@ -4,6 +4,7 @@ Provides pre-configured circuit breakers for different external services.
 """
 
 import logging
+from collections.abc import Callable
 
 import pandas as pd
 import requests
@@ -110,7 +111,7 @@ class StockDataCircuitBreaker(EnhancedCircuitBreaker):
 
     def fetch_with_fallback(
         self,
-        fetch_func: callable,
+        fetch_func: Callable,
         symbol: str,
         start_date: str,
         end_date: str,
@@ -144,7 +145,7 @@ class StockDataCircuitBreaker(EnhancedCircuitBreaker):
 
     async def fetch_with_fallback_async(
         self,
-        fetch_func: callable,
+        fetch_func: Callable,
         symbol: str,
         start_date: str,
         end_date: str,
@@ -181,7 +182,7 @@ class MarketDataCircuitBreaker(EnhancedCircuitBreaker):
         self.fallback = MARKET_DATA_FALLBACK
 
     def fetch_with_fallback(
-        self, fetch_func: callable, mover_type: str = "gainers", **kwargs
+        self, fetch_func: Callable, mover_type: str = "gainers", **kwargs
     ) -> dict:
         """Fetch market data with circuit breaker and fallback."""
         try:
@@ -204,7 +205,7 @@ class EconomicDataCircuitBreaker(EnhancedCircuitBreaker):
 
     def fetch_with_fallback(
         self,
-        fetch_func: callable,
+        fetch_func: Callable,
         series_id: str,
         start_date: str,
         end_date: str,
@@ -241,7 +242,7 @@ class NewsDataCircuitBreaker(EnhancedCircuitBreaker):
         super().__init__(config)
         self.fallback = NEWS_FALLBACK
 
-    def fetch_with_fallback(self, fetch_func: callable, symbol: str, **kwargs) -> dict:
+    def fetch_with_fallback(self, fetch_func: Callable, symbol: str, **kwargs) -> dict:
         """Fetch news data with circuit breaker and fallback."""
         try:
             return self.call_sync(fetch_func, symbol, **kwargs)

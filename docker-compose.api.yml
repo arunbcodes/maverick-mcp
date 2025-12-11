@@ -8,14 +8,14 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.api
     command: ["uvicorn", "maverick_api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     ports:
-      - "8000:8000"
+      - "8002:8000"
     environment:
       - MAVERICK_ENVIRONMENT=development
       - MAVERICK_DEBUG=true
-      - MAVERICK_DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:55432/maverick_mcp
+      - MAVERICK_DATABASE_URL=postgresql://postgres:postgres@postgres:55432/maverick_mcp
       - MAVERICK_REDIS_URL=redis://redis:56379
       - MAVERICK_JWT_SECRET=${JWT_SECRET:-change-me-in-production}
-      - MAVERICK_CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+      - MAVERICK_CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
       # External API keys
       - MAVERICK_TIINGO_API_KEY=${TIINGO_API_KEY:-}
       - MAVERICK_OPENAI_API_KEY=${OPENAI_API_KEY:-}

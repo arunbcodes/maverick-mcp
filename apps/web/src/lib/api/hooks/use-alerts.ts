@@ -331,18 +331,48 @@ interface UseAlertStreamOptions {
 
 /**
  * Subscribe to real-time alert stream via SSE
+ *
+ * Features exponential backoff and max retry limit to prevent
+ * aggressive reconnection loops.
  */
 export function useAlertStream(options?: UseAlertStreamOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const [lastAlert, setLastAlert] = useState<Alert | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const retryCountRef = useRef(0);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
 
+  const MAX_RETRIES = 5;
+  const BASE_DELAY = 5000; // 5 seconds
+  const MAX_DELAY = 60000; // 1 minute
+
   const connect = useCallback(() => {
+    // Don't connect if disabled
     if (options?.enabled === false) return;
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+    // Don't connect if we've exceeded max retries
+    if (retryCountRef.current >= MAX_RETRIES) {
+      console.warn('Alert stream: max retries exceeded, stopping reconnection attempts');
+      setError(new Error('Max retries exceeded'));
+      return;
+    }
+
+    // Check if user is logged in (has access token)
+    const token = typeof window !== 'undefined' ? localStorage.getItem('maverick_access_token') : null;
+    if (!token) {
+      // Not logged in, don't try to connect
+      return;
+    }
+
+    // Close existing connection if any
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+
+    // Use relative URL to go through Next.js proxy, or direct API URL
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
     const url = `${baseUrl}/api/v1/alerts/stream`;
 
     try {
@@ -352,10 +382,12 @@ export function useAlertStream(options?: UseAlertStreamOptions) {
       eventSource.onopen = () => {
         setIsConnected(true);
         setError(null);
+        retryCountRef.current = 0; // Reset retry count on successful connection
       };
 
       eventSource.addEventListener('connected', () => {
         setIsConnected(true);
+        retryCountRef.current = 0;
       });
 
       eventSource.addEventListener('alert', (event) => {
@@ -378,13 +410,28 @@ export function useAlertStream(options?: UseAlertStreamOptions) {
         // Keepalive received
       });
 
-      eventSource.onerror = (e) => {
+      eventSource.onerror = () => {
         setIsConnected(false);
-        setError(new Error('Connection lost'));
-
-        // Reconnect after delay
         eventSource.close();
-        setTimeout(connect, 5000);
+        eventSourceRef.current = null;
+
+        // Exponential backoff with jitter
+        retryCountRef.current += 1;
+        if (retryCountRef.current < MAX_RETRIES) {
+          const delay = Math.min(
+            BASE_DELAY * Math.pow(2, retryCountRef.current - 1) + Math.random() * 1000,
+            MAX_DELAY
+          );
+          console.log(`Alert stream: reconnecting in ${Math.round(delay / 1000)}s (attempt ${retryCountRef.current}/${MAX_RETRIES})`);
+
+          // Clear any existing retry timeout
+          if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+          }
+          retryTimeoutRef.current = setTimeout(connect, delay);
+        } else {
+          setError(new Error('Connection failed after max retries'));
+        }
       };
     } catch (e) {
       setError(e instanceof Error ? e : new Error('Failed to connect'));
@@ -392,12 +439,26 @@ export function useAlertStream(options?: UseAlertStreamOptions) {
   }, [options?.enabled, options?.onAlert, queryClient]);
 
   const disconnect = useCallback(() => {
+    // Clear retry timeout
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
       setIsConnected(false);
     }
+
+    retryCountRef.current = 0;
   }, []);
+
+  const resetAndReconnect = useCallback(() => {
+    retryCountRef.current = 0;
+    disconnect();
+    connect();
+  }, [connect, disconnect]);
 
   useEffect(() => {
     connect();
@@ -408,7 +469,7 @@ export function useAlertStream(options?: UseAlertStreamOptions) {
     isConnected,
     lastAlert,
     error,
-    reconnect: connect,
+    reconnect: resetAndReconnect,
     disconnect,
   };
 }

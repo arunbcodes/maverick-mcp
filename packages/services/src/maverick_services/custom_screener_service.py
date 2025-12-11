@@ -6,6 +6,7 @@ Allows users to define, save, and run custom stock screening criteria.
 
 import json
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from enum import Enum
@@ -504,7 +505,7 @@ class CustomScreenerService:
         self,
         user_id: str,
         screener_id: str,
-        stock_data_fetcher: callable | None = None,
+        stock_data_fetcher: Callable | None = None,
     ) -> ScreenerResult:
         """
         Run a screener against the stock universe.

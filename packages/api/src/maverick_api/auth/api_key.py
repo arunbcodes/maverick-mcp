@@ -144,7 +144,7 @@ class APIKeyAuthStrategy(AuthStrategy):
             key_data = {
                 "user_id": user_id,
                 "name": name,
-                "tier": tier.value,
+                "tier": tier.value if hasattr(tier, 'value') else tier,
                 "rate_limit": str(rate_limit),
                 "created_at": datetime.now(UTC).isoformat(),
                 "revoked": "false",

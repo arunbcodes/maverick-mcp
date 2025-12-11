@@ -129,7 +129,7 @@ class JWTAuthStrategy(AuthStrategy):
         # Access token (short-lived)
         access_payload = {
             "sub": user_id,
-            "tier": tier.value,
+            "tier": tier.value if hasattr(tier, 'value') else tier,
             "type": "access",
             "exp": now + self._access_expire,
             "iat": now,
@@ -145,7 +145,7 @@ class JWTAuthStrategy(AuthStrategy):
         refresh_jti = str(uuid.uuid4())
         refresh_payload = {
             "sub": user_id,
-            "tier": tier.value,
+            "tier": tier.value if hasattr(tier, 'value') else tier,
             "type": "refresh",
             "exp": now + self._refresh_expire,
             "iat": now,

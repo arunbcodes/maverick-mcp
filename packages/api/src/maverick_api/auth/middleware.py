@@ -24,6 +24,9 @@ PUBLIC_PATHS = {
     "/api/v1/auth/login",
     "/api/v1/auth/register",
     "/api/v1/auth/refresh",
+    "/api/v1/auth/demo-login",
+    "/api/v1/auth/forgot-password",
+    "/api/v1/auth/reset-password",
 }
 
 # Path prefixes that don't require authentication
