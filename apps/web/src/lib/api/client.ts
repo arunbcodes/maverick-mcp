@@ -198,6 +198,18 @@ export class APIClient {
   async delete<T>(endpoint: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }
+
+  async patch<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: RequestOptions
+  ): Promise<T> {
+    return this.request<T>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  }
 }
 
 export class APIRequestError extends Error {
@@ -214,4 +226,7 @@ export class APIRequestError extends Error {
 
 // Default client instance
 export const api = new APIClient('/api/v1');
+
+// Alias for backward compatibility
+export const apiClient = api;
 

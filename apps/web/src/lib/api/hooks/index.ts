@@ -20,6 +20,7 @@ export {
   usePortfolioSummary,
   usePortfolio,
   usePositions,
+  usePositions as usePortfolioPositions, // Alias for backward compatibility
   usePosition,
   useAddPosition,
   useUpdatePosition,

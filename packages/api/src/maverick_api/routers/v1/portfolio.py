@@ -16,7 +16,7 @@ from maverick_api.dependencies import (
     get_request_id,
 )
 from maverick_schemas.auth import AuthenticatedUser
-from maverick_schemas.portfolio import Portfolio, Position, PositionCreate, PortfolioPerformanceChart
+from maverick_schemas.portfolio import Portfolio, Position, PositionCreate, PortfolioPerformanceChart, PortfolioSummary
 from maverick_schemas.responses import APIResponse, ResponseMeta
 
 router = APIRouter()
@@ -43,6 +43,57 @@ async def get_portfolio(
 
     return APIResponse(
         data=portfolio,
+        meta=ResponseMeta(
+            request_id=request_id,
+            timestamp=datetime.now(UTC),
+        ),
+    )
+
+
+@router.get("/summary", response_model=APIResponse[PortfolioSummary])
+async def get_portfolio_summary(
+    request_id: str = Depends(get_request_id),
+    service=Depends(get_portfolio_service),
+    user: AuthenticatedUser = Depends(get_current_user),
+):
+    """
+    Get portfolio summary only.
+
+    Returns aggregate metrics: total value, P&L, position count, etc.
+    """
+    portfolio = await service.get_portfolio(
+        user_id=user.user_id,
+        include_prices=True,
+    )
+
+    return APIResponse(
+        data=portfolio.summary,
+        meta=ResponseMeta(
+            request_id=request_id,
+            timestamp=datetime.now(UTC),
+        ),
+    )
+
+
+@router.get("/positions", response_model=APIResponse[list[Position]])
+async def get_positions(
+    include_prices: bool = Query(True, description="Include current prices and P&L"),
+    request_id: str = Depends(get_request_id),
+    service=Depends(get_portfolio_service),
+    user: AuthenticatedUser = Depends(get_current_user),
+):
+    """
+    Get all portfolio positions.
+
+    Returns list of positions with cost basis and optionally current prices/P&L.
+    """
+    portfolio = await service.get_portfolio(
+        user_id=user.user_id,
+        include_prices=include_prices,
+    )
+
+    return APIResponse(
+        data=portfolio.positions,
         meta=ResponseMeta(
             request_id=request_id,
             timestamp=datetime.now(UTC),

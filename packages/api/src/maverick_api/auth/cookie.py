@@ -106,10 +106,12 @@ class CookieAuthStrategy(AuthStrategy):
         if self._redis:
             session_data = {
                 "user_id": user_id,
-                "tier": tier.value,
-                "email": email,
+                "tier": tier.value if hasattr(tier, 'value') else tier,
                 "created_at": datetime.now(UTC).isoformat(),
             }
+            # Only include email if it's not None (Redis can't serialize None)
+            if email:
+                session_data["email"] = email
             await self._redis.hset(f"session:{session_id}", mapping=session_data)
             await self._redis.expire(f"session:{session_id}", self._session_ttl)
 

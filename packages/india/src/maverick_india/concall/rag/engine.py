@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Protocol
 
 from maverick_india.concall.rag.vector_store import VectorStoreManager
@@ -96,7 +97,7 @@ class ConcallRAGEngine:
         llm_provider: LLMProviderProtocol | None = None,
         persist_directory: str | None = None,
         auto_index: bool = True,
-        db_session_factory: callable | None = None,
+        db_session_factory: Callable | None = None,
     ):
         """
         Initialize RAG engine.

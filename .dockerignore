@@ -52,6 +52,7 @@ test_market_calendar_caching.py
 # Documentation
 *.md
 !README.md
+!packages/*/README.md
 docs/
 
 # CI/CD

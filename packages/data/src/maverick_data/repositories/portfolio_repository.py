@@ -174,10 +174,51 @@ class PortfolioRepository:
 
     async def get_positions(
         self,
+        user_id: str,
+        portfolio_name: str = "My Portfolio",
+    ) -> list[dict[str, Any]]:
+        """
+        Get all positions in portfolio by user and name.
+
+        Args:
+            user_id: User identifier
+            portfolio_name: Portfolio name (default: "My Portfolio")
+
+        Returns:
+            List of position data dictionaries
+        """
+        session = await self._get_session()
+
+        try:
+            # First get the portfolio
+            result = await session.execute(
+                select(UserPortfolio)
+                .where(UserPortfolio.user_id == user_id)
+                .where(UserPortfolio.name == portfolio_name)
+            )
+            portfolio = result.scalar_one_or_none()
+
+            if not portfolio:
+                return []
+
+            # Then get positions
+            result = await session.execute(
+                select(PortfolioPosition)
+                .where(PortfolioPosition.portfolio_id == portfolio.id)
+                .order_by(PortfolioPosition.ticker)
+            )
+            positions = result.scalars().all()
+            return [self._position_to_dict(p) for p in positions]
+        except Exception as e:
+            logger.error(f"Error getting positions for user {user_id}, portfolio {portfolio_name}: {e}")
+            return []
+
+    async def get_positions_by_portfolio_id(
+        self,
         portfolio_id: str,
     ) -> list[dict[str, Any]]:
         """
-        Get all positions in portfolio.
+        Get all positions in portfolio by portfolio ID.
 
         Args:
             portfolio_id: Portfolio identifier
@@ -202,28 +243,40 @@ class PortfolioRepository:
 
     async def get_position(
         self,
-        portfolio_id: str,
-        symbol: str,
+        user_id: str,
+        ticker: str,
+        portfolio_name: str = "My Portfolio",
     ) -> dict[str, Any] | None:
         """
-        Get specific position in portfolio.
+        Get specific position by user and ticker.
 
         Args:
-            portfolio_id: Portfolio identifier
-            symbol: Stock ticker
+            user_id: User identifier
+            ticker: Stock ticker
+            portfolio_name: Portfolio name (default: "My Portfolio")
 
         Returns:
             Position data or None if not found
         """
         session = await self._get_session()
-        symbol = symbol.upper()
+        ticker = ticker.upper()
 
         try:
-            portfolio_uuid = uuid.UUID(portfolio_id)
+            # First get the portfolio
+            result = await session.execute(
+                select(UserPortfolio)
+                .where(UserPortfolio.user_id == user_id)
+                .where(UserPortfolio.name == portfolio_name)
+            )
+            portfolio = result.scalar_one_or_none()
+
+            if not portfolio:
+                return None
+
             result = await session.execute(
                 select(PortfolioPosition)
-                .where(PortfolioPosition.portfolio_id == portfolio_uuid)
-                .where(PortfolioPosition.ticker == symbol)
+                .where(PortfolioPosition.portfolio_id == portfolio.id)
+                .where(PortfolioPosition.ticker == ticker)
             )
             position = result.scalar_one_or_none()
 
@@ -231,7 +284,7 @@ class PortfolioRepository:
                 return self._position_to_dict(position)
             return None
         except Exception as e:
-            logger.error(f"Error getting position {symbol} in portfolio {portfolio_id}: {e}")
+            logger.error(f"Error getting position {ticker} for user {user_id}: {e}")
             return None
 
     async def save_position(self, position: dict[str, Any]) -> dict[str, Any]:
@@ -372,13 +425,188 @@ class PortfolioRepository:
             logger.error(f"Error updating position shares: {e}")
             raise
 
+    async def create_position(
+        self,
+        user_id: str,
+        position: dict[str, Any],
+        portfolio_name: str = "My Portfolio",
+    ) -> dict[str, Any]:
+        """
+        Create a new position.
+
+        Args:
+            user_id: User identifier
+            position: Position data dictionary
+            portfolio_name: Portfolio name (default: "My Portfolio")
+
+        Returns:
+            Created position data
+        """
+        session = await self._get_session()
+
+        try:
+            # Get or create portfolio
+            result = await session.execute(
+                select(UserPortfolio)
+                .where(UserPortfolio.user_id == user_id)
+                .where(UserPortfolio.name == portfolio_name)
+            )
+            portfolio = result.scalar_one_or_none()
+
+            if not portfolio:
+                portfolio = UserPortfolio(user_id=user_id, name=portfolio_name)
+                session.add(portfolio)
+                await session.flush()
+
+            ticker = position["ticker"].upper()
+            shares = Decimal(str(position["shares"]))
+            avg_cost = Decimal(str(position.get("avg_cost", position.get("purchase_price", 0))))
+            total_cost = Decimal(str(position.get("total_cost", shares * avg_cost)))
+            purchase_date = position.get("first_purchase_date") or position.get("purchase_date")
+
+            if purchase_date and isinstance(purchase_date, str):
+                purchase_date = datetime.fromisoformat(purchase_date.replace("Z", "+00:00"))
+            elif not purchase_date:
+                purchase_date = datetime.now(UTC)
+
+            new_position = PortfolioPosition(
+                portfolio_id=portfolio.id,
+                ticker=ticker,
+                shares=shares,
+                average_cost_basis=avg_cost,
+                total_cost=total_cost,
+                purchase_date=purchase_date,
+                notes=position.get("notes"),
+            )
+            session.add(new_position)
+            await session.commit()
+            await session.refresh(new_position)
+            return self._position_to_dict(new_position)
+
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Error creating position: {e}")
+            raise
+
+    async def update_position(
+        self,
+        user_id: str,
+        ticker: str,
+        updates: dict[str, Any],
+        portfolio_name: str = "My Portfolio",
+    ) -> dict[str, Any]:
+        """
+        Update an existing position.
+
+        Args:
+            user_id: User identifier
+            ticker: Stock ticker
+            updates: Dictionary of fields to update
+            portfolio_name: Portfolio name (default: "My Portfolio")
+
+        Returns:
+            Updated position data
+        """
+        session = await self._get_session()
+        ticker = ticker.upper()
+
+        try:
+            # Get portfolio
+            result = await session.execute(
+                select(UserPortfolio)
+                .where(UserPortfolio.user_id == user_id)
+                .where(UserPortfolio.name == portfolio_name)
+            )
+            portfolio = result.scalar_one_or_none()
+
+            if not portfolio:
+                raise ValueError(f"Portfolio '{portfolio_name}' not found for user {user_id}")
+
+            # Get position
+            result = await session.execute(
+                select(PortfolioPosition)
+                .where(PortfolioPosition.portfolio_id == portfolio.id)
+                .where(PortfolioPosition.ticker == ticker)
+            )
+            position = result.scalar_one_or_none()
+
+            if not position:
+                raise ValueError(f"Position {ticker} not found")
+
+            # Apply updates
+            if "shares" in updates:
+                position.shares = Decimal(str(updates["shares"]))
+            if "avg_cost" in updates:
+                position.average_cost_basis = Decimal(str(updates["avg_cost"]))
+            if "total_cost" in updates:
+                position.total_cost = Decimal(str(updates["total_cost"]))
+            if "notes" in updates:
+                position.notes = updates["notes"]
+
+            await session.commit()
+            await session.refresh(position)
+            return self._position_to_dict(position)
+
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Error updating position {ticker}: {e}")
+            raise
+
     async def delete_position(
+        self,
+        user_id: str,
+        ticker: str,
+        portfolio_name: str = "My Portfolio",
+    ) -> bool:
+        """
+        Delete position from portfolio.
+
+        Args:
+            user_id: User identifier
+            ticker: Stock ticker
+            portfolio_name: Portfolio name (default: "My Portfolio")
+
+        Returns:
+            True if deleted, False if not found
+        """
+        session = await self._get_session()
+        ticker = ticker.upper()
+
+        try:
+            # Get portfolio
+            result = await session.execute(
+                select(UserPortfolio)
+                .where(UserPortfolio.user_id == user_id)
+                .where(UserPortfolio.name == portfolio_name)
+            )
+            portfolio = result.scalar_one_or_none()
+
+            if not portfolio:
+                return False
+
+            result = await session.execute(
+                delete(PortfolioPosition)
+                .where(PortfolioPosition.portfolio_id == portfolio.id)
+                .where(PortfolioPosition.ticker == ticker)
+            )
+            await session.commit()
+
+            deleted = result.rowcount > 0
+            if deleted:
+                logger.info(f"Deleted position {ticker} for user {user_id}")
+            return deleted
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Error deleting position {ticker}: {e}")
+            return False
+
+    async def delete_position_by_portfolio_id(
         self,
         portfolio_id: str,
         symbol: str,
     ) -> bool:
         """
-        Delete position from portfolio.
+        Delete position from portfolio by portfolio ID.
 
         Args:
             portfolio_id: Portfolio identifier
@@ -543,8 +771,10 @@ class PortfolioRepository:
             "portfolio_id": str(position.portfolio_id),
             "ticker": position.ticker,
             "shares": float(position.shares),
-            "average_cost_basis": float(position.average_cost_basis),
+            "avg_cost": float(position.average_cost_basis),  # Service expects avg_cost
+            "average_cost_basis": float(position.average_cost_basis),  # Keep for compatibility
             "total_cost": float(position.total_cost),
+            "first_purchase_date": position.purchase_date,  # Service expects first_purchase_date
             "purchase_date": position.purchase_date.isoformat() if position.purchase_date else None,
             "notes": position.notes,
             "created_at": position.created_at.isoformat() if position.created_at else None,

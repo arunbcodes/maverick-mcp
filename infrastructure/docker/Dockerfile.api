@@ -16,17 +16,17 @@ RUN pip install uv
 WORKDIR /app
 
 # Copy dependency files first for caching
-COPY pyproject.toml uv.lock ./
-COPY packages/schemas/pyproject.toml packages/schemas/
-COPY packages/core/pyproject.toml packages/core/
-COPY packages/data/pyproject.toml packages/data/
-COPY packages/services/pyproject.toml packages/services/
-COPY packages/api/pyproject.toml packages/api/
-COPY packages/server/pyproject.toml packages/server/
-COPY packages/backtest/pyproject.toml packages/backtest/
-COPY packages/agents/pyproject.toml packages/agents/
-COPY packages/india/pyproject.toml packages/india/
-COPY packages/crypto/pyproject.toml packages/crypto/
+COPY pyproject.toml uv.lock README.md ./
+COPY packages/schemas/pyproject.toml packages/schemas/README.md packages/schemas/
+COPY packages/core/pyproject.toml packages/core/README.md packages/core/
+COPY packages/data/pyproject.toml packages/data/README.md packages/data/
+COPY packages/services/pyproject.toml packages/services/README.md packages/services/
+COPY packages/api/pyproject.toml packages/api/README.md packages/api/
+COPY packages/server/pyproject.toml packages/server/README.md packages/server/
+COPY packages/backtest/pyproject.toml packages/backtest/README.md packages/backtest/
+COPY packages/agents/pyproject.toml packages/agents/README.md packages/agents/
+COPY packages/india/pyproject.toml packages/india/README.md packages/india/
+COPY packages/crypto/pyproject.toml packages/crypto/README.md packages/crypto/
 
 # Install dependencies
 RUN uv sync --frozen --no-dev

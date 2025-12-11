@@ -75,7 +75,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Get user info (may not be authenticated yet)
         user = getattr(request.state, "user", None)
-        tier = user.tier.value if user else "free"
+        tier = (user.tier.value if hasattr(user.tier, 'value') else user.tier) if user else "free"
         user_id = user.user_id if user else self._get_client_id(request)
 
         # Get applicable limits

@@ -30,7 +30,8 @@ def _get_database_url() -> str:
     if os.getenv("GITHUB_ACTIONS") == "true" or os.getenv("CI") == "true":
         return "sqlite:///:memory:"
     return (
-        os.getenv("DATABASE_URL")
+        os.getenv("MAVERICK_DATABASE_URL")
+        or os.getenv("DATABASE_URL")
         or os.getenv("POSTGRES_URL")
         or "sqlite:///maverick_mcp.db"
     )

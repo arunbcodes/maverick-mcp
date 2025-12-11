@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from enum import Enum
-from typing import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from uuid import uuid4
 
 from redis.asyncio import Redis
@@ -538,7 +538,7 @@ class WatchlistService:
     async def populate_prices(
         self,
         watchlist: Watchlist,
-        price_fetcher: callable = None,
+        price_fetcher: Callable | None = None,
     ) -> Watchlist:
         """
         Populate current prices for watchlist items.
