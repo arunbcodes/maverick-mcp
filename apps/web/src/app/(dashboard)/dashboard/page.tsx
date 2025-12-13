@@ -78,11 +78,13 @@ export default function DashboardPage() {
     enabled: tickers.length > 0,
   });
 
-  // Top performers (sorted by gain)
+  // Top performers (sorted by value)
   const topPositions = useMemo(() => {
     if (!positions) return [];
+    const getValue = (p: typeof positions[0]) => 
+      p.market_value ?? p.current_value ?? p.cost_basis ?? p.total_cost ?? 0;
     return [...positions]
-      .sort((a, b) => (b.market_value ?? b.cost_basis) - (a.market_value ?? a.cost_basis))
+      .sort((a, b) => getValue(b) - getValue(a))
       .slice(0, 4);
   }, [positions]);
 

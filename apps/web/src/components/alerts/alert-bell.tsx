@@ -17,6 +17,7 @@ import {
   type AlertType,
   type AlertPriority,
 } from '@/lib/api/hooks/use-alerts';
+import { getAccessToken } from '@/lib/api/client';
 import Link from 'next/link';
 
 /**
@@ -26,7 +27,18 @@ export function AlertBell() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Queries
+  // Check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    // Check login status on mount and when token changes
+    const checkLogin = () => setIsLoggedIn(!!getAccessToken());
+    checkLogin();
+    // Re-check periodically in case token changes
+    const interval = setInterval(checkLogin, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Queries - only run when logged in
   const { data: unreadCount = 0, isLoading: countLoading } = useUnreadAlertCount();
   const { data: alerts = [], isLoading: alertsLoading } = useAlerts({ limit: 10 });
 
@@ -35,11 +47,11 @@ export function AlertBell() {
   const markAllRead = useMarkAllAlertsRead();
   const dismiss = useDismissAlert();
 
-  // SSE subscription
+  // SSE subscription - ONLY enable when logged in and dropdown is open
+  // This prevents connection storms on page load
   const { lastAlert, isConnected } = useAlertStream({
-    enabled: true,
+    enabled: isLoggedIn && isOpen,
     onAlert: (alert) => {
-      // Show toast notification (optional)
       console.log('New alert:', alert.title);
     },
   });

@@ -10,6 +10,7 @@ import { WatchlistCard, WatchlistCardSkeleton } from '@/components/watchlist';
 import {
   useWatchlists,
   useCreateWatchlist,
+  useUpdateWatchlist,
   useDeleteWatchlist,
 } from '@/lib/api/hooks/use-watchlists';
 
@@ -192,14 +193,15 @@ function EditWatchlistModal({
   const [name, setName] = useState(watchlist?.name || '');
   const [description, setDescription] = useState(watchlist?.description || '');
 
-  const { mutateAsync: updateWatchlist, isPending } = useWatchlists().refetch
-    ? { mutateAsync: async () => {}, isPending: false }
-    : { mutateAsync: async () => {}, isPending: false };
+  const updateWatchlist = useUpdateWatchlist();
+  const isPending = updateWatchlist.isPending;
 
-  // TODO: Wire up update mutation properly
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // await updateWatchlist({ watchlistId, data: { name, description } });
+    await updateWatchlist.mutateAsync({
+      watchlistId,
+      data: { name, description: description || undefined },
+    });
     onClose();
   };
 

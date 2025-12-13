@@ -4,9 +4,11 @@ Multi-strategy authentication middleware.
 Tries each authentication strategy in order until one succeeds.
 """
 
+from datetime import datetime, UTC
+
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 
 from maverick_api.auth.base import AuthStrategy
 
@@ -85,17 +87,48 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     # Store authenticated user in request state
                     request.state.user = user
                     return await call_next(request)
-            except HTTPException:
-                # Re-raise HTTP exceptions (e.g., CSRF errors)
-                raise
+            except HTTPException as e:
+                # Return HTTP exceptions as JSON response (e.g., CSRF errors)
+                return JSONResponse(
+                    status_code=e.status_code,
+                    content={
+                        "success": False,
+                        "error": {
+                            "code": "UNAUTHORIZED" if e.status_code == 401 else "AUTH_ERROR",
+                            "message": str(e.detail) if isinstance(e.detail, str) else "Authentication error",
+                            "details": e.detail if isinstance(e.detail, dict) else None,
+                            "field": None,
+                        },
+                        "meta": {
+                            "request_id": getattr(request.state, "request_id", "unknown"),
+                            "timestamp": datetime.now(UTC).isoformat(),
+                            "version": "1.0.0",
+                        },
+                    },
+                    headers=e.headers,
+                )
             except Exception:
                 # Log and continue to next strategy
                 continue
 
-        # No strategy succeeded
-        raise HTTPException(
+        # No strategy succeeded - return JSON response directly
+        # (BaseHTTPMiddleware doesn't properly propagate HTTPExceptions)
+        return JSONResponse(
             status_code=401,
-            detail="Authentication required",
+            content={
+                "success": False,
+                "error": {
+                    "code": "UNAUTHORIZED",
+                    "message": "Authentication required",
+                    "details": None,
+                    "field": None,
+                },
+                "meta": {
+                    "request_id": getattr(request.state, "request_id", "unknown"),
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "version": "1.0.0",
+                },
+            },
             headers={"WWW-Authenticate": "Bearer, ApiKey"},
         )
 

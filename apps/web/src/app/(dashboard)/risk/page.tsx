@@ -41,8 +41,8 @@ export default function RiskDashboardPage() {
     if (!positions) return [];
     return positions.map(p => ({
       ticker: p.ticker,
-      market_value: p.current_value || p.cost_basis || 0,
-      sector: p.sector || 'Unknown',
+      market_value: p.market_value || p.cost_basis || 0,
+      sector: (p as { sector?: string }).sector || 'Unknown',
     }));
   }, [positions]);
 
@@ -234,7 +234,7 @@ export default function RiskDashboardPage() {
                   <div className="p-3 rounded-lg bg-slate-900/50">
                     <h4 className="font-medium text-white mb-1">VaR (Value at Risk)</h4>
                     <p className="text-slate-400 text-xs">
-                      Maximum expected loss at 95%/99% confidence. A 2% VaR means you won't lose more than 2% on 95 out of 100 days.
+                      Maximum expected loss at 95%/99% confidence. A 2% VaR means you will not lose more than 2% on 95 out of 100 days.
                     </p>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-900/50">

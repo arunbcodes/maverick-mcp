@@ -233,6 +233,11 @@ interface AllocationChartProps {
   showLegend?: boolean;
 }
 
+// Helper to get position value with fallbacks for different API field names
+function getPositionValue(position: Position): number {
+  return position.market_value ?? position.current_value ?? position.cost_basis ?? position.total_cost ?? 0;
+}
+
 export function AllocationChart({
   positions,
   height = 250,
@@ -251,15 +256,27 @@ export function AllocationChart({
 
   // Calculate total value and allocation
   const totalValue = positions.reduce(
-    (sum, p) => sum + (p.market_value ?? p.cost_basis),
+    (sum, p) => sum + getPositionValue(p),
     0
   );
+
+  // Prevent division by zero
+  if (totalValue === 0) {
+    return (
+      <div
+        className="flex items-center justify-center bg-slate-800/30 rounded-lg"
+        style={{ height }}
+      >
+        <p className="text-slate-500">No value data available</p>
+      </div>
+    );
+  }
 
   const chartData = positions
     .map((p, index) => ({
       name: p.ticker,
-      value: p.market_value ?? p.cost_basis,
-      percentage: ((p.market_value ?? p.cost_basis) / totalValue) * 100,
+      value: getPositionValue(p),
+      percentage: (getPositionValue(p) / totalValue) * 100,
       color: COLORS[index % COLORS.length],
     }))
     .sort((a, b) => b.value - a.value);

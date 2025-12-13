@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth/auth-context';
 import {
   useMaverickStocks,
   useMaverickBearStocks,
@@ -65,6 +66,7 @@ const STRATEGIES = [
 ];
 
 export default function ScreenerPage() {
+  const { isAuthenticated } = useAuth();
   const [activeStrategy, setActiveStrategy] = useState<Strategy>('maverick');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('score');
@@ -73,17 +75,17 @@ export default function ScreenerPage() {
   const [filters, setFilters] = useState<ScreeningFilters>({});
   const [persona, setPersona] = useState<InvestorPersona | null>(null);
 
-  // Fetch data based on strategy and persona
+  // Fetch data based on strategy and persona - only when authenticated
   const maverickQuery = useMaverickStocks(50, { 
-    enabled: activeStrategy === 'maverick',
+    enabled: isAuthenticated && activeStrategy === 'maverick',
     persona,
   });
   const bearQuery = useMaverickBearStocks(50, { 
-    enabled: activeStrategy === 'maverick-bear',
+    enabled: isAuthenticated && activeStrategy === 'maverick-bear',
     persona,
   });
   const breakoutQuery = useBreakoutStocks(50, { 
-    enabled: activeStrategy === 'breakouts',
+    enabled: isAuthenticated && activeStrategy === 'breakouts',
     persona,
   });
 

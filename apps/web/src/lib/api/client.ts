@@ -38,9 +38,20 @@ interface APIError {
 // Token storage
 const TOKEN_KEY = 'maverick_access_token';
 const REFRESH_TOKEN_KEY = 'maverick_refresh_token';
+const CSRF_COOKIE_NAME = 'maverick_csrf';
+const CSRF_HEADER_NAME = 'X-CSRF-Token';
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
+
+/**
+ * Get CSRF token from cookie for mutation requests
+ */
+function getCsrfToken(): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp(`(^| )${CSRF_COOKIE_NAME}=([^;]+)`));
+  return match ? match[2] : null;
+}
 
 export function getAccessToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -124,7 +135,8 @@ export class APIClient {
     options: RequestOptions = {}
   ): Promise<T> {
     const { skipAuth = false, ...fetchOptions } = options;
-    
+    const method = fetchOptions.method || 'GET';
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...(fetchOptions.headers || {}),
@@ -135,6 +147,14 @@ export class APIClient {
       const token = await getValidAccessToken();
       if (token) {
         (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    // Add CSRF token for mutation requests (POST, PUT, DELETE, PATCH)
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        (headers as Record<string, string>)[CSRF_HEADER_NAME] = csrfToken;
       }
     }
 

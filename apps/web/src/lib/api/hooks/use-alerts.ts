@@ -4,7 +4,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api } from '../client';
+import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
+import { api, getAccessToken } from '../client';
 import type { APIResponse } from '../types';
 
 // ============================================
@@ -198,6 +199,9 @@ export function useAlerts(options?: { limit?: number; status?: AlertStatus }) {
   if (options?.status) params.set('status', options.status);
   const queryString = params.toString();
 
+  // Only fetch if user is logged in
+  const isLoggedIn = typeof window !== 'undefined' && !!getAccessToken();
+
   return useQuery({
     queryKey: alertKeys.history(options?.limit, options?.status),
     queryFn: async () => {
@@ -205,8 +209,9 @@ export function useAlerts(options?: { limit?: number; status?: AlertStatus }) {
       const response = await api.get<APIResponse<Alert[]>>(url);
       return response.data;
     },
+    enabled: isLoggedIn, // Only run when logged in
     staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 60 * 1000, // Refetch every minute
+    refetchInterval: isLoggedIn ? 60 * 1000 : false, // Refetch every minute only if logged in
   });
 }
 
@@ -214,6 +219,9 @@ export function useAlerts(options?: { limit?: number; status?: AlertStatus }) {
  * Get unread alert count
  */
 export function useUnreadAlertCount() {
+  // Only fetch if user is logged in
+  const isLoggedIn = typeof window !== 'undefined' && !!getAccessToken();
+
   return useQuery({
     queryKey: alertKeys.unreadCount(),
     queryFn: async () => {
@@ -222,8 +230,9 @@ export function useUnreadAlertCount() {
       );
       return response.data.unread_count;
     },
+    enabled: isLoggedIn, // Only run when logged in
     staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+    refetchInterval: isLoggedIn ? 30 * 1000 : false, // Refetch every 30 seconds only if logged in
   });
 }
 
@@ -329,141 +338,178 @@ interface UseAlertStreamOptions {
   enabled?: boolean;
 }
 
+// Custom error class for retryable errors
+class RetriableError extends Error {}
+class FatalError extends Error {}
+
 /**
  * Subscribe to real-time alert stream via SSE
  *
- * Features exponential backoff and max retry limit to prevent
- * aggressive reconnection loops.
+ * Uses @microsoft/fetch-event-source to send Authorization header with JWT.
+ * Features exponential backoff and max retry limit.
+ *
+ * IMPORTANT: This hook is disabled by default. Pass enabled: true to activate.
  */
 export function useAlertStream(options?: UseAlertStreamOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const [lastAlert, setLastAlert] = useState<Alert | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const retryCountRef = useRef(0);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isConnectingRef = useRef(false);
   const queryClient = useQueryClient();
 
-  const MAX_RETRIES = 5;
-  const BASE_DELAY = 5000; // 5 seconds
-  const MAX_DELAY = 60000; // 1 minute
+  const MAX_RETRIES = 3; // Reduced from 5
+  const BASE_DELAY = 10000; // 10 seconds (increased from 5)
+  const MAX_DELAY = 120000; // 2 minutes
 
-  const connect = useCallback(() => {
-    // Don't connect if disabled
-    if (options?.enabled === false) return;
+  // Check if user is logged in - do this at render time, not in callback
+  const isLoggedIn = typeof window !== 'undefined' && !!getAccessToken();
+
+  // Only enable if explicitly enabled AND user is logged in
+  const shouldConnect = options?.enabled === true && isLoggedIn;
+
+  const disconnect = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    isConnectingRef.current = false;
+    setIsConnected(false);
+    retryCountRef.current = 0;
+  }, []);
+
+  const connect = useCallback(async () => {
+    // Don't connect if not enabled or not logged in
+    if (!shouldConnect) {
+      return;
+    }
+
+    // Prevent multiple concurrent connection attempts
+    if (isConnectingRef.current) {
+      return;
+    }
 
     // Don't connect if we've exceeded max retries
     if (retryCountRef.current >= MAX_RETRIES) {
-      console.warn('Alert stream: max retries exceeded, stopping reconnection attempts');
+      console.warn('Alert stream: max retries exceeded, stopping');
       setError(new Error('Max retries exceeded'));
       return;
     }
 
-    // Check if user is logged in (has access token)
-    const token = typeof window !== 'undefined' ? localStorage.getItem('maverick_access_token') : null;
+    // Get fresh token
+    const token = getAccessToken();
     if (!token) {
-      // Not logged in, don't try to connect
       return;
     }
 
-    // Close existing connection if any
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
+    // Abort existing connection if any
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
 
-    // Use relative URL to go through Next.js proxy, or direct API URL
+    isConnectingRef.current = true;
+
+    // Create new abort controller
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    // Use relative URL to go through Next.js proxy
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
     const url = `${baseUrl}/api/v1/alerts/stream`;
 
     try {
-      const eventSource = new EventSource(url, { withCredentials: true });
-      eventSourceRef.current = eventSource;
+      await fetchEventSource(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': EventStreamContentType,
+        },
+        signal: abortController.signal,
+        // Disable library's built-in retry to use our own
+        openWhenHidden: false,
 
-      eventSource.onopen = () => {
-        setIsConnected(true);
-        setError(null);
-        retryCountRef.current = 0; // Reset retry count on successful connection
-      };
-
-      eventSource.addEventListener('connected', () => {
-        setIsConnected(true);
-        retryCountRef.current = 0;
-      });
-
-      eventSource.addEventListener('alert', (event) => {
-        try {
-          const alert: Alert = JSON.parse(event.data);
-          setLastAlert(alert);
-
-          // Callback
-          options?.onAlert?.(alert);
-
-          // Invalidate queries to update UI
-          queryClient.invalidateQueries({ queryKey: alertKeys.history() });
-          queryClient.invalidateQueries({ queryKey: alertKeys.unreadCount() });
-        } catch (e) {
-          console.error('Failed to parse alert:', e);
-        }
-      });
-
-      eventSource.addEventListener('ping', () => {
-        // Keepalive received
-      });
-
-      eventSource.onerror = () => {
-        setIsConnected(false);
-        eventSource.close();
-        eventSourceRef.current = null;
-
-        // Exponential backoff with jitter
-        retryCountRef.current += 1;
-        if (retryCountRef.current < MAX_RETRIES) {
-          const delay = Math.min(
-            BASE_DELAY * Math.pow(2, retryCountRef.current - 1) + Math.random() * 1000,
-            MAX_DELAY
-          );
-          console.log(`Alert stream: reconnecting in ${Math.round(delay / 1000)}s (attempt ${retryCountRef.current}/${MAX_RETRIES})`);
-
-          // Clear any existing retry timeout
-          if (retryTimeoutRef.current) {
-            clearTimeout(retryTimeoutRef.current);
+        async onopen(response) {
+          isConnectingRef.current = false;
+          if (response.ok && response.headers.get('content-type')?.includes(EventStreamContentType)) {
+            setIsConnected(true);
+            setError(null);
+            retryCountRef.current = 0;
+            return;
+          } else if (response.status === 401 || response.status === 403) {
+            // Auth error - don't retry, user needs to re-login
+            throw new FatalError('Unauthorized');
+          } else if (response.status >= 400 && response.status < 500) {
+            // Client errors - don't retry
+            throw new FatalError(`Client error: ${response.status}`);
+          } else {
+            // Server errors - could retry but be conservative
+            throw new FatalError(`Server error: ${response.status}`);
           }
-          retryTimeoutRef.current = setTimeout(connect, delay);
-        } else {
-          setError(new Error('Connection failed after max retries'));
-        }
-      };
+        },
+
+        onmessage(msg) {
+          if (msg.event === 'connected') {
+            setIsConnected(true);
+            retryCountRef.current = 0;
+          } else if (msg.event === 'alert') {
+            try {
+              const alert: Alert = JSON.parse(msg.data);
+              setLastAlert(alert);
+              options?.onAlert?.(alert);
+              queryClient.invalidateQueries({ queryKey: alertKeys.history() });
+              queryClient.invalidateQueries({ queryKey: alertKeys.unreadCount() });
+            } catch (e) {
+              console.error('Failed to parse alert:', e);
+            }
+          }
+          // Ignore ping events
+        },
+
+        onclose() {
+          setIsConnected(false);
+          isConnectingRef.current = false;
+          // Don't auto-reconnect on close - let user manually reconnect if needed
+        },
+
+        onerror(err) {
+          setIsConnected(false);
+          isConnectingRef.current = false;
+
+          // Always treat errors as fatal to prevent reconnection storms
+          if (err instanceof FatalError) {
+            setError(err);
+          } else {
+            setError(new Error('Connection failed'));
+          }
+          // Throw to stop the library's internal retry
+          throw new FatalError('Stopping reconnection');
+        },
+      });
     } catch (e) {
-      setError(e instanceof Error ? e : new Error('Failed to connect'));
+      isConnectingRef.current = false;
+      if (e instanceof FatalError) {
+        setError(e);
+      } else if (!(e instanceof DOMException && e.name === 'AbortError')) {
+        setError(e instanceof Error ? e : new Error('Failed to connect'));
+      }
     }
-  }, [options?.enabled, options?.onAlert, queryClient]);
-
-  const disconnect = useCallback(() => {
-    // Clear retry timeout
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current);
-      retryTimeoutRef.current = null;
-    }
-
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-      setIsConnected(false);
-    }
-
-    retryCountRef.current = 0;
-  }, []);
+  }, [shouldConnect, options?.onAlert, queryClient]);
 
   const resetAndReconnect = useCallback(() => {
     retryCountRef.current = 0;
+    setError(null);
     disconnect();
-    connect();
+    // Small delay before reconnecting
+    setTimeout(connect, 1000);
   }, [connect, disconnect]);
 
   useEffect(() => {
-    connect();
+    if (shouldConnect) {
+      connect();
+    }
     return disconnect;
-  }, [connect, disconnect]);
+  }, [shouldConnect, connect, disconnect]);
 
   return {
     isConnected,

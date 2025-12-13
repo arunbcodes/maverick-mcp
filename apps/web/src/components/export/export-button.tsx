@@ -5,7 +5,7 @@ import { Download, FileSpreadsheet, FileJson, Check, Loader2 } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { api } from '@/lib/api/client';
+import { getAccessToken } from '@/lib/api/client';
 
 // ============================================
 // Types
@@ -54,14 +54,23 @@ export function ExportButton({
     setShowDropdown(false);
 
     try {
-      const endpoint = getExportEndpoint(exportType);
-      const response = await api.post(endpoint, data, {
-        params: { format },
-        responseType: 'blob',
+      const endpoint = `/api/v1${getExportEndpoint(exportType)}?format=${format}`;
+      const token = getAccessToken();
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(data),
       });
 
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.statusText}`);
+      }
+
       // Get filename from header or generate one
-      const contentDisposition = response.headers['content-disposition'];
+      const contentDisposition = response.headers.get('content-disposition');
       let downloadFilename = filename;
       if (contentDisposition) {
         const match = contentDisposition.match(/filename=(.+)/);
@@ -74,9 +83,7 @@ export function ExportButton({
       }
 
       // Create download link
-      const blob = new Blob([response.data], {
-        type: format === 'csv' ? 'text/csv' : 'application/json',
-      });
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -248,20 +255,29 @@ export function ExportModal({
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      const endpoint = getExportEndpoint(exportType);
-      const response = await api.post(endpoint, data, {
-        params: { format: selectedFormat },
-        responseType: 'blob',
+      const endpoint = `/api/v1${getExportEndpoint(exportType)}?format=${selectedFormat}`;
+      const token = getAccessToken();
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(data),
       });
 
-      const contentDisposition = response.headers['content-disposition'];
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.statusText}`);
+      }
+
+      const contentDisposition = response.headers.get('content-disposition');
       let filename = `${exportType}_export.${selectedFormat}`;
       if (contentDisposition) {
         const match = contentDisposition.match(/filename=(.+)/);
         if (match) filename = match[1];
       }
 
-      const blob = new Blob([response.data]);
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
