@@ -41,9 +41,21 @@ pyright_analysis.txt
 
 # Virtual environments
 .env
+.env.*
 .env.prod
 .env.local
 .venv
+
+# Docker environment files (never commit these!)
+docker/.env
+docker/.env.*
+!docker/env.example
+
+# Secret files
+*.pem
+*.key
+secrets/
+.secrets
 env/
 venv/
 ENV/
