@@ -179,11 +179,11 @@ export default function PortfolioPage() {
             <div>
               <CardTitle className="text-white">Performance</CardTitle>
               <CardDescription className="text-slate-400">
-                {performanceData?.data ? (
+                {performanceData?.data && typeof performanceData.total_return === 'number' ? (
                   <>
                     {performanceData.total_return >= 0 ? '+' : ''}
                     {performanceData.total_return.toFixed(2)}% return
-                    {performanceData.alpha !== null && (
+                    {typeof performanceData.alpha === 'number' && (
                       <span className="ml-2 text-slate-500">
                         (α: {performanceData.alpha >= 0 ? '+' : ''}{performanceData.alpha.toFixed(2)}%)
                       </span>

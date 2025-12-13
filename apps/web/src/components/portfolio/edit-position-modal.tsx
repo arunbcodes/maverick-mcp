@@ -68,8 +68,13 @@ export function EditPositionModal({
     };
 
     try {
+      const positionId = position.position_id ?? position.id;
+      if (!positionId) {
+        setError('Position ID not found');
+        return;
+      }
       await updatePosition.mutateAsync({
-        positionId: position.position_id,
+        positionId,
         data,
       });
       handleClose();
@@ -128,7 +133,7 @@ export function EditPositionModal({
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Market Value</span>
                 <span className="text-white">
-                  {formatCurrency(position.market_value ?? position.cost_basis)}
+                  {formatCurrency(position.market_value ?? position.current_value ?? position.cost_basis ?? position.total_cost ?? 0)}
                 </span>
               </div>
             </div>

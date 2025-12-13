@@ -6,6 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Edit2, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Position } from '@/lib/api/types';
 
+// Helper to get position value with fallbacks for different API field names
+function getPositionValue(position: Position): number {
+  return position.market_value ?? position.current_value ?? position.cost_basis ?? position.total_cost ?? 0;
+}
+
+function getPositionGain(position: Position): number {
+  return position.gain ?? position.unrealized_pnl ?? 0;
+}
+
+function getPositionGainPercent(position: Position): number {
+  return position.gain_percent ?? position.unrealized_pnl_percent ?? 0;
+}
+
+function getPositionId(position: Position): string {
+  return position.position_id ?? position.id ?? '';
+}
+
 interface PositionRowProps {
   position: Position;
   onEdit?: (position: Position) => void;
@@ -23,7 +40,12 @@ export function PositionRow({
 }: PositionRowProps) {
   const [isHovered, setIsHovered] = useState(false);
   
-  const isGain = position.gain >= 0;
+  const gain = getPositionGain(position);
+  const gainPercent = getPositionGainPercent(position);
+  const marketValue = getPositionValue(position);
+  const positionId = getPositionId(position);
+  
+  const isGain = gain >= 0;
   const dayIsGain = (position.day_change ?? 0) >= 0;
 
   return (
@@ -68,7 +90,7 @@ export function PositionRow({
       <div className="text-right flex items-center space-x-4">
         <div>
           <p className="text-white font-medium">
-            {formatCurrency(position.market_value ?? position.cost_basis)}
+            {formatCurrency(marketValue)}
           </p>
           <div className="flex items-center justify-end space-x-1">
             {isGain ? (
@@ -82,7 +104,7 @@ export function PositionRow({
                 isGain ? 'text-emerald-400' : 'text-red-400'
               )}
             >
-              {formatCurrency(Math.abs(position.gain))} ({formatPercent(position.gain_percent)})
+              {formatCurrency(Math.abs(gain))} ({formatPercent(gainPercent)})
             </span>
           </div>
         </div>
@@ -120,12 +142,12 @@ export function PositionRow({
                 <Edit2 className="h-4 w-4" />
               </Button>
             )}
-            {onRemove && (
+            {onRemove && positionId && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-slate-400 hover:text-red-400"
-                onClick={() => onRemove(position.position_id)}
+                onClick={() => onRemove(positionId)}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -158,14 +180,14 @@ export function PositionList({
 
   // Sort by market value descending
   const sortedPositions = [...positions].sort(
-    (a, b) => (b.market_value ?? b.cost_basis) - (a.market_value ?? a.cost_basis)
+    (a, b) => getPositionValue(b) - getPositionValue(a)
   );
 
   return (
     <div className="space-y-2">
-      {sortedPositions.map((position) => (
+      {sortedPositions.map((position, index) => (
         <PositionRow
-          key={position.position_id}
+          key={getPositionId(position) || `position-${index}`}
           position={position}
           onEdit={onEdit}
           onRemove={onRemove}

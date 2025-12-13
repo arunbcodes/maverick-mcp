@@ -12,7 +12,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "003_add_performance_indexes"
-down_revision = "002_add_authentication_tables"
+down_revision = "001_initial_schema"
 branch_labels = None
 depends_on = None
 

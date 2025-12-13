@@ -159,21 +159,32 @@ export interface Portfolio {
 }
 
 export interface Position {
-  position_id: string;
+  // ID can come from backend as 'id' or frontend may use 'position_id'
+  id?: string;
+  position_id?: string;
   ticker: string;
   shares: number;
   avg_cost: number;
+  total_cost: number;
   current_price?: number;
+  // Backend uses current_value, frontend may use market_value
+  current_value?: number;
   market_value?: number;
-  cost_basis: number;
-  gain: number;
-  gain_percent: number;
+  // Backend uses unrealized_pnl, frontend may alias as gain
+  unrealized_pnl?: number;
+  unrealized_pnl_percent?: number;
+  // Aliases for frontend convenience
+  cost_basis?: number;
+  gain?: number;
+  gain_percent?: number;
   day_change?: number;
   day_change_percent?: number;
   weight?: number;
   name?: string;
-  created_at: string;
-  updated_at: string;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+  last_updated?: string;
 }
 
 export interface AddPositionRequest {

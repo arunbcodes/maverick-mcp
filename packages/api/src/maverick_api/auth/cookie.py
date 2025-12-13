@@ -77,8 +77,11 @@ class CookieAuthStrategy(AuthStrategy):
                     detail="CSRF token mismatch",
                 )
 
+        # Get Redis from request app state if not set during init
+        redis = self._redis or getattr(request.app.state, "redis", None)
+
         # Validate session
-        return await self._validate_session(session_id)
+        return await self._validate_session(session_id, redis)
 
     async def create_session(
         self,
@@ -167,12 +170,13 @@ class CookieAuthStrategy(AuthStrategy):
         if self._redis and session_id:
             await self._redis.delete(f"session:{session_id}")
 
-    async def _validate_session(self, session_id: str) -> AuthenticatedUser | None:
+    async def _validate_session(self, session_id: str, redis: Redis | None = None) -> AuthenticatedUser | None:
         """Validate session and return user if valid."""
-        if not self._redis:
+        redis = redis or self._redis
+        if not redis:
             return None
 
-        session_data = await self._redis.hgetall(f"session:{session_id}")
+        session_data = await redis.hgetall(f"session:{session_id}")
         if not session_data:
             return None
 

@@ -177,7 +177,7 @@ function FilterConditionRow({
       <div className="flex items-center gap-2 flex-1">
         <Input
           type={fieldType === 'number' ? 'number' : 'text'}
-          value={condition.value ?? ''}
+          value={Array.isArray(condition.value) ? String(condition.value[0] ?? '') : (condition.value ?? '')}
           onChange={(e) =>
             onUpdate({
               value:

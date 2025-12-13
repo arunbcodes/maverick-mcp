@@ -215,6 +215,18 @@ class ScreeningRepository:
             logger.error(f"Error saving screening results for {strategy}: {e}")
             return False
 
+    async def get_maverick_stocks(self, limit: int = 20) -> list[dict[str, Any]]:
+        """Get cached Maverick bullish picks."""
+        return await self.get_screening_results("maverick", limit=limit)
+
+    async def get_maverick_bear_stocks(self, limit: int = 20) -> list[dict[str, Any]]:
+        """Get cached Maverick bearish picks."""
+        return await self.get_screening_results("maverick_bear", limit=limit)
+
+    async def get_breakout_stocks(self, limit: int = 20) -> list[dict[str, Any]]:
+        """Get supply/demand breakout stocks."""
+        return await self.get_screening_results("supply_demand", limit=limit)
+
     async def get_screening_results(
         self,
         strategy: str,
