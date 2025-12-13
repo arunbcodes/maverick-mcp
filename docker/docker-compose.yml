@@ -74,6 +74,7 @@ services:
       - MAVERICK_TIINGO_API_KEY=${TIINGO_API_KEY:-}
       - MAVERICK_OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - MAVERICK_ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
     volumes:
       # Mount packages for hot-reload in development
       - ../packages/schemas/src/maverick_schemas:/app/packages/schemas/src/maverick_schemas

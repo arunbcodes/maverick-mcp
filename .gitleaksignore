@@ -1,0 +1,12 @@
+# Gitleaks ignore file
+# Add fingerprints of false positives here
+# Format: fingerprint or path pattern
+
+# Test secrets (intentionally fake)
+.github/workflows/api-ci.yml:MAVERICK_JWT_SECRET:test-secret-for-ci
+
+# Example/documentation files with placeholder values
+docker/env.example
+docker/README.md
+docs/**/*.md
+
