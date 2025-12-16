@@ -168,10 +168,12 @@ open http://localhost:3000
 ```
 
 **Login with demo account:**
+
 - Email: `demo@maverick.example`
 - Password: `demo123456`
 
 **Stop everything:**
+
 ```bash
 make docker-full-down
 ```
@@ -194,6 +196,7 @@ open http://localhost:3000
 ```
 
 **Why use this?**
+
 - Faster hot-reload when editing UI code
 - No need to rebuild Docker image for frontend changes
 
@@ -221,26 +224,27 @@ open http://localhost:3000
 
 ### Quick Reference
 
-| Setup | Command | UI URL | Use Case |
-|-------|---------|--------|----------|
-| Full Docker | `make docker-full-up` | http://localhost:3000 | Testing, demos |
+| Setup              | Command                               | UI URL                | Use Case       |
+| ------------------ | ------------------------------------- | --------------------- | -------------- |
+| Full Docker        | `make docker-full-up`                 | http://localhost:3000 | Testing, demos |
 | Docker + Local Web | `make docker-backend` + `npm run dev` | http://localhost:3000 | UI development |
-| All Local | Manual setup | http://localhost:3000 | Full-stack dev |
+| All Local          | Manual setup                          | http://localhost:3000 | Full-stack dev |
 
 ### Services & Ports
 
-| Service | Port | URL |
-|---------|------|-----|
-| Web UI | 3000 | http://localhost:3000 |
-| REST API | 8000 | http://localhost:8000 |
-| API Docs | 8000 | http://localhost:8000/docs |
-| MCP Server | 8003 | http://localhost:8003 |
-| PostgreSQL | 5432 | - |
-| Redis | 6379 | - |
+| Service    | Port | URL                        |
+| ---------- | ---- | -------------------------- |
+| Web UI     | 3000 | http://localhost:3000      |
+| REST API   | 8000 | http://localhost:8000      |
+| API Docs   | 8000 | http://localhost:8000/docs |
+| MCP Server | 8003 | http://localhost:8003      |
+| PostgreSQL | 5432 | -                          |
+| Redis      | 6379 | -                          |
 
 ### Troubleshooting
 
 **Container won't start?**
+
 ```bash
 # Check logs
 docker compose -f docker/docker-compose.yml logs api
@@ -248,6 +252,7 @@ docker compose -f docker/docker-compose.yml logs web
 ```
 
 **Port already in use?**
+
 ```bash
 # Find what's using the port
 lsof -i :3000
@@ -257,6 +262,7 @@ lsof -i :8000
 ```
 
 **Clean restart:**
+
 ```bash
 make docker-clean  # Removes all containers and volumes
 make docker-full-up
