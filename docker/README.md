@@ -62,6 +62,17 @@ make docker-full
 | API Docs | http://localhost:8000/docs | Swagger UI |
 | MCP Server | http://localhost:8003 | For Claude/Cursor |
 
+### 4. Login with Demo Account
+
+For testing, a demo account is available:
+
+| Field | Value |
+|-------|-------|
+| **Email** | `demo@maverick.example` |
+| **Password** | `demo123456` |
+
+Or register a new account at http://localhost:3000/register
+
 ## Common Commands
 
 ```bash
@@ -283,3 +294,40 @@ docker build -f docker/base.Dockerfile -t your-registry/maverick-base:latest .
 docker push your-registry/maverick-base:latest
 ```
 
+## Security
+
+### Environment Variables
+
+**Never commit API keys!** The repository includes:
+
+- `.gitignore` - Ignores `docker/.env` and other secret files
+- `.pre-commit-config.yaml` - Gitleaks hook to catch secrets before commit
+- `docker/env.example` - Template with empty values (safe to commit)
+
+### Setup Pre-commit Hooks
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install gitleaks (secret scanner)
+brew install gitleaks  # macOS
+# or: apt install gitleaks  # Linux
+
+# Activate hooks
+pre-commit install
+
+# Test (scans all files)
+pre-commit run --all-files
+```
+
+### API Keys for AI Features
+
+For AI-powered features (natural language search, explanations), set:
+
+```bash
+# In docker/.env
+OPENROUTER_API_KEY=your-key-here  # Required for AI features
+```
+
+Without this key, the app falls back to rule-based parsing (still functional but less accurate).

@@ -42,6 +42,24 @@ Deep dive into any stock:
 - **Support/Resistance**: Key price levels
 - **Quick actions**: Add to portfolio, set alerts
 
+### 👁️ Watchlist
+
+Track stocks you're interested in:
+
+- **Multiple watchlists**: Organize by strategy or sector
+- **Real-time prices**: Live price updates via SSE
+- **Quick actions**: Add to portfolio, set alerts
+- **Notes**: Add personal notes per stock
+
+### 🛡️ Risk Analytics
+
+Monitor portfolio risk:
+
+- **Risk scores**: Per-position and portfolio-wide
+- **Concentration analysis**: Sector and position sizing
+- **Volatility metrics**: Historical volatility tracking
+- **Risk alerts**: Warnings for high-risk positions
+
 ### ⚙️ Settings
 
 Account management:
@@ -149,15 +167,27 @@ open http://localhost:3000
 | `/` | Landing / Login redirect |
 | `/login` | Login page |
 | `/register` | Registration page |
+| `/forgot-password` | Password recovery |
+| `/reset-password` | Password reset |
 | `/dashboard` | Main dashboard |
 | `/portfolio` | Portfolio management |
+| `/watchlist` | Stock watchlists |
 | `/screener` | Stock screener |
+| `/risk` | Risk analytics dashboard |
 | `/stocks/[ticker]` | Stock detail page |
 | `/settings` | Account settings |
+
+## Demo Account
+
+For testing, use the demo account:
+
+| Field | Value |
+|-------|-------|
+| Email | `demo@maverick.example` |
+| Password | `demo123456` |
 
 ## Next Steps
 
 - [Features Guide](features.md) - Detailed feature documentation
 - [Configuration](configuration.md) - Environment setup
 - [Development](development.md) - Component structure, contributing
-

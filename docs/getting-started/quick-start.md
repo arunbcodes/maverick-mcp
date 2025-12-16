@@ -39,6 +39,15 @@ Get Maverick MCP up and running in minutes!
     | API Docs | http://localhost:8000/docs | Swagger UI |
     | MCP Server | http://localhost:8003 | For Claude/Cursor |
 
+    **Login with Demo Account:**
+
+    | Field | Value |
+    |-------|-------|
+    | Email | `demo@maverick.example` |
+    | Password | `demo123456` |
+
+    Or register a new account at http://localhost:3000/register
+
     For more details, see the [Docker Guide](../deployment/docker.md).
 
 === "🐍 Local Python"

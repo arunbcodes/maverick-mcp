@@ -58,10 +58,11 @@ nano .env  # Edit with your keys
 - **Cost**: Free tier sufficient for personal use
 
 ### OpenRouter (Recommended)
-- **Purpose**: AI analysis, summarization, sentiment
+- **Purpose**: AI analysis, natural language search, stock explanations
 - **Pricing**: Pay-as-you-go, access to 400+ models
 - **Sign Up**: [openrouter.ai](https://openrouter.ai)
 - **Cost**: ~$0.01-0.05 per analysis
+- **Without it**: App falls back to rule-based parsing (functional but less accurate)
 
 ### OpenAI (Optional - RAG Only)
 - **Purpose**: Embeddings for RAG Q&A
@@ -123,6 +124,26 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
+## Docker Configuration
+
+When running with Docker, configure environment variables in `docker/.env`:
+
+```bash
+# Copy template
+cp docker/env.example docker/.env
+
+# Edit with your keys
+nano docker/.env
+```
+
+**Required for Docker:**
+```ini
+TIINGO_API_KEY=your-tiingo-key
+
+# For AI features (natural language search, explanations)
+OPENROUTER_API_KEY=your-openrouter-key
+```
+
 ## Security
 
 ### Protect API Keys
@@ -130,15 +151,37 @@ REDIS_PORT=6379
 ```bash
 # Set proper permissions
 chmod 600 .env
+chmod 600 docker/.env
+```
+
+### Pre-commit Hooks
+
+The repository includes gitleaks pre-commit hooks to prevent accidental secret commits:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install gitleaks
+brew install gitleaks  # macOS
+
+# Activate hooks
+pre-commit install
+
+# Verify no secrets
+pre-commit run --all-files
 ```
 
 ### Gitignore
 
-Ensure `.env` is in `.gitignore`:
+The `.gitignore` protects these files:
 ```
 .env
 .env.*
-*.env
+docker/.env
+docker/.env.*
+*.pem
+*.key
 ```
 
 ### Never Commit
