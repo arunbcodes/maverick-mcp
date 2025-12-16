@@ -159,6 +159,17 @@ docker ps
 | **API Docs** | http://localhost:8000/docs | Swagger UI |
 | **MCP Server** | http://localhost:8003 | For Claude/Cursor |
 
+### 6. Login
+
+**Demo Account** (for testing):
+
+| Field | Value |
+|-------|-------|
+| Email | `demo@maverick.example` |
+| Password | `demo123456` |
+
+Or create a new account at http://localhost:3000/register
+
 ### 6. Connect Claude Desktop
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
@@ -468,11 +479,46 @@ docker compose -f docker/docker-compose.yml build --progress=plain api
 docker compose -f docker/docker-compose.yml run --rm api python -c "import talib; print(talib.__version__)"
 ```
 
+## Security
+
+### Protecting API Keys
+
+The repository includes security measures to prevent accidental key commits:
+
+```bash
+# Install pre-commit hooks (one time)
+pip install pre-commit
+pre-commit install
+
+# Install gitleaks for secret scanning
+brew install gitleaks  # macOS
+
+# Verify no secrets in repo
+pre-commit run --all-files
+```
+
+### Files Protected by .gitignore
+
+- `docker/.env` - Your actual environment file
+- `*.pem`, `*.key` - Private keys
+- `.env.*` - All environment variations
+
+### AI Features
+
+For AI-powered features (natural language search, stock explanations), configure:
+
+```bash
+# In docker/.env
+OPENROUTER_API_KEY=your-openrouter-key
+```
+
+Get a key at [openrouter.ai](https://openrouter.ai). Without this, the app uses rule-based parsing (functional but less accurate).
+
 ## Next Steps
 
 - [ ] Set up [Production Environment](production.md)
 - [ ] Configure [Monitoring with Grafana](../development/monitoring.md)
-- [ ] Review [Security Checklist](#security-checklist)
+- [ ] Review Security Checklist above
 - [ ] Set up [CI/CD Pipeline](#cicd-pipeline)
 
 ## Additional Resources
