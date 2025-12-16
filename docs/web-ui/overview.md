@@ -70,15 +70,15 @@ Account management:
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 14 (App Router) |
-| Styling | TailwindCSS + shadcn/ui |
+| Layer         | Technology                   |
+| ------------- | ---------------------------- |
+| Framework     | Next.js 14 (App Router)      |
+| Styling       | TailwindCSS + shadcn/ui      |
 | Data Fetching | React Query (TanStack Query) |
-| Forms | React Hook Form + Zod |
-| Charts | Recharts |
-| Icons | Lucide React |
-| Fonts | Geist (Sans & Mono) |
+| Forms         | React Hook Form + Zod        |
+| Charts        | Recharts                     |
+| Icons         | Lucide React                 |
+| Fonts         | Geist (Sans & Mono)          |
 
 ## Screenshots
 
@@ -133,58 +133,160 @@ Filter and find stocks matching your criteria:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Quick Start
+## Testing Locally - Step by Step
 
-### Docker (Recommended)
+### Prerequisites
+
+- **Docker Desktop** or **Rancher Desktop** installed and running
+- Git
+
+### Option 1: Full Docker Stack (Easiest - Recommended)
+
+Everything runs in Docker containers. Best for first-time testing.
 
 ```bash
-# Start full stack
+# 1. Clone the repo (skip if already done)
+git clone https://github.com/arunbcodes/maverick-mcp.git
+cd maverick-mcp
+
+# 2. Copy environment template
+cp docker/env.example docker/.env
+
+# 3. (Optional) Add API keys for AI features
+nano docker/.env
+# Add: TIINGO_API_KEY=your-key
+# Add: OPENROUTER_API_KEY=your-key (for AI search)
+
+# 4. Start all services
 make docker-full-up
 
-# Open dashboard
+# 5. Wait for services to be healthy (about 30-60 seconds)
+docker ps  # All containers should show "healthy"
+
+# 6. Open the UI
 open http://localhost:3000
 ```
 
-### Local Development
+**Login with demo account:**
+- Email: `demo@maverick.example`
+- Password: `demo123456`
+
+**Stop everything:**
+```bash
+make docker-full-down
+```
+
+### Option 2: Docker Backend + Local Web (For Web Development)
+
+Backend in Docker, web runs locally with hot-reload. Best for UI development.
 
 ```bash
-# Start backend first
+# 1. Start backend services (API + Database + Redis)
 make docker-backend
 
-# Run web locally
+# 2. In a new terminal, run web locally
 cd apps/web
 npm install
 npm run dev
 
-# Open dashboard
+# 3. Open the UI
 open http://localhost:3000
+```
+
+**Why use this?**
+- Faster hot-reload when editing UI code
+- No need to rebuild Docker image for frontend changes
+
+### Option 3: Everything Local (Advanced)
+
+For full-stack development. Requires Node.js 20+, Python 3.12+, PostgreSQL, Redis.
+
+```bash
+# 1. Start only database services in Docker
+docker compose -f docker/docker-compose.yml up -d postgres redis
+
+# 2. Start API locally (Terminal 1)
+cd packages/api
+pip install -e .
+uvicorn maverick_api.main:app --reload --port 8000
+
+# 3. Start Web locally (Terminal 2)
+cd apps/web
+npm install
+npm run dev
+
+# 4. Open the UI
+open http://localhost:3000
+```
+
+### Quick Reference
+
+| Setup | Command | UI URL | Use Case |
+|-------|---------|--------|----------|
+| Full Docker | `make docker-full-up` | http://localhost:3000 | Testing, demos |
+| Docker + Local Web | `make docker-backend` + `npm run dev` | http://localhost:3000 | UI development |
+| All Local | Manual setup | http://localhost:3000 | Full-stack dev |
+
+### Services & Ports
+
+| Service | Port | URL |
+|---------|------|-----|
+| Web UI | 3000 | http://localhost:3000 |
+| REST API | 8000 | http://localhost:8000 |
+| API Docs | 8000 | http://localhost:8000/docs |
+| MCP Server | 8003 | http://localhost:8003 |
+| PostgreSQL | 5432 | - |
+| Redis | 6379 | - |
+
+### Troubleshooting
+
+**Container won't start?**
+```bash
+# Check logs
+docker compose -f docker/docker-compose.yml logs api
+docker compose -f docker/docker-compose.yml logs web
+```
+
+**Port already in use?**
+```bash
+# Find what's using the port
+lsof -i :3000
+lsof -i :8000
+
+# Kill it or use different port
+```
+
+**Clean restart:**
+```bash
+make docker-clean  # Removes all containers and volumes
+make docker-full-up
 ```
 
 ## Navigation
 
-| Route | Page |
-|-------|------|
-| `/` | Landing / Login redirect |
-| `/login` | Login page |
-| `/register` | Registration page |
-| `/forgot-password` | Password recovery |
-| `/reset-password` | Password reset |
-| `/dashboard` | Main dashboard |
-| `/portfolio` | Portfolio management |
-| `/watchlist` | Stock watchlists |
-| `/screener` | Stock screener |
-| `/risk` | Risk analytics dashboard |
-| `/stocks/[ticker]` | Stock detail page |
-| `/settings` | Account settings |
+| Route              | Page                     |
+| ------------------ | ------------------------ |
+| `/`                | Landing / Login redirect |
+| `/login`           | Login page               |
+| `/register`        | Registration page        |
+| `/forgot-password` | Password recovery        |
+| `/reset-password`  | Password reset           |
+| `/dashboard`       | Main dashboard           |
+| `/portfolio`       | Portfolio management     |
+| `/watchlist`       | Stock watchlists         |
+| `/screener`        | Stock screener           |
+| `/risk`            | Risk analytics dashboard |
+| `/stocks/[ticker]` | Stock detail page        |
+| `/settings`        | Account settings         |
 
 ## Demo Account
 
 For testing, use the demo account:
 
-| Field | Value |
-|-------|-------|
-| Email | `demo@maverick.example` |
-| Password | `demo123456` |
+| Field    | Value                   |
+| -------- | ----------------------- |
+| Email    | `demo@maverick.example` |
+| Password | `demo123456`            |
 
 ## Next Steps
 
