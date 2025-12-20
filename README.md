@@ -900,12 +900,43 @@ For issues or questions:
 
 ### Capabilities Architecture (NEW)
 
-- **Capability Registry**: Centralized Python-based registry for 25+ capabilities across screening, portfolio, technical, research, and risk groups
+A DRY (Don't Repeat Yourself) architecture where capabilities are defined once and automatically exposed as both MCP tools and REST endpoints.
+
+**Core Components:**
+- **Capability Registry**: 25+ capabilities across screening, portfolio, technical, research, and risk groups
 - **Orchestrator Abstraction**: Swappable execution backends (ServiceOrchestrator now, AgentField-ready for future)
-- **Audit Logging**: Automatic execution logging with `@with_audit` decorator on screening, portfolio, and technical tools
-- **Async Task Queue**: Memory-based (development) and Redis-backed (production) task execution with progress tracking
-- **REST API Integration**: New `/api/v1/capabilities` endpoints for system introspection
-- **MCP Tools**: New `system_list_capabilities`, `system_get_capability`, `system_get_audit_stats`, `system_get_recent_executions` tools
+- **Audit Logging**: Automatic execution logging with `@with_audit` decorator on all 42+ MCP tools
+- **Async Task Queue**: Memory-based (development) and Redis-backed (production) with progress tracking
+- **Rate Limiting**: 100 req/min global, 20 req/min per capability with access control
+
+**Auto-Generation (DRY Mode):**
+
+```bash
+# Start MCP server with auto-generated tools
+python -m maverick_server --auto-gen
+
+# Or use manual mode (default)
+python -m maverick_server
+```
+
+With `--auto-gen`, MCP tools are automatically created from capability definitions:
+
+```
+Capability Definition → MCP Tool + REST Endpoint + Audit Logging
+     (1 file)              (auto-generated)
+```
+
+**Benefits:**
+- Single source of truth for all capabilities
+- Add new features by defining one capability (not 3 separate implementations)
+- Consistent behavior across MCP and REST interfaces
+- Automatic audit trail for compliance
+
+**New Endpoints:**
+- `GET /api/v1/capabilities` - List all capabilities
+- `GET /api/v1/capabilities/{id}` - Get capability details
+- `POST /api/v1/tasks/{capability}` - Submit async task
+- `GET /api/v1/tasks/{id}/status` - Check task status
 
 See `packages/capabilities/README.md` for complete documentation.
 

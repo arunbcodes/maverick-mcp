@@ -59,10 +59,47 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.redis = redis
     logger.info("Redis connection pool initialized")
 
+    # Initialize capabilities system
+    try:
+        from maverick_server.capabilities_integration import initialize_capabilities
+        initialize_capabilities()
+        logger.info("Capabilities system initialized")
+    except Exception as e:
+        logger.warning(f"Failed to initialize capabilities: {e}")
+
+    # Initialize task queue for async operations
+    try:
+        from maverick_api.capabilities.async_endpoints import set_task_queue
+        from maverick_capabilities.tasks import RedisTaskQueue
+
+        task_queue = RedisTaskQueue(redis)
+        await task_queue.start()
+        set_task_queue(task_queue)
+        app.state.task_queue = task_queue
+        logger.info("Task queue initialized")
+    except Exception as e:
+        logger.warning(f"Failed to initialize task queue: {e}")
+
     yield
 
     # Shutdown - Close connections
     logger.info("Shutting down...")
+
+    # Stop task queue
+    if hasattr(app.state, "task_queue"):
+        try:
+            await app.state.task_queue.stop()
+            logger.info("Task queue stopped")
+        except Exception as e:
+            logger.warning(f"Error stopping task queue: {e}")
+
+    # Shutdown capabilities
+    try:
+        from maverick_server.capabilities_integration import shutdown_capabilities
+        shutdown_capabilities()
+    except Exception:
+        pass
+
     await close_redis_pool()
     logger.info("Redis connection pool closed")
 
@@ -113,10 +150,10 @@ def create_app(
 def _configure_middleware(app: FastAPI, settings: Settings) -> None:
     """
     Configure middleware stack.
-    
+
     Note: Middleware is executed in REVERSE order of addition.
     Last added = First executed.
-    
+
     Execution order will be:
     1. CORS (first - handles preflight)
     2. Request Logging (adds correlation ID)
@@ -163,9 +200,55 @@ def _configure_routers(app: FastAPI) -> None:
     from maverick_api.routers import health
     app.include_router(health.router, tags=["Health"])
 
-    # Version 1 API
+    # Version 1 API (manual routes)
     from maverick_api.routers.v1 import router as v1_router
     app.include_router(v1_router, prefix="/api/v1")
+
+    # Auto-generated capability routes
+    try:
+        from maverick_api.capabilities import (
+            generate_capability_routes,
+            create_async_endpoints,
+        )
+
+        # Generate REST endpoints from screening capabilities
+        screening_router = generate_capability_routes(
+            groups=["screening"],
+            prefix="/screening",
+            tags=["Screening (Auto)"],
+            require_auth=True,
+        )
+        app.include_router(screening_router, prefix="/api/v1")
+
+        # Generate REST endpoints from portfolio capabilities
+        portfolio_router = generate_capability_routes(
+            groups=["portfolio"],
+            prefix="/portfolio",
+            tags=["Portfolio (Auto)"],
+            require_auth=True,
+        )
+        app.include_router(portfolio_router, prefix="/api/v1")
+
+        # Generate REST endpoints from technical capabilities
+        technical_router = generate_capability_routes(
+            groups=["technical"],
+            prefix="/technical",
+            tags=["Technical (Auto)"],
+            require_auth=True,
+        )
+        app.include_router(technical_router, prefix="/api/v1")
+
+        # Async task endpoints for long-running operations
+        async_router = create_async_endpoints(
+            groups=["research", "risk"],
+            prefix="/tasks",
+            tags=["Async Tasks"],
+        )
+        app.include_router(async_router, prefix="/api/v1")
+
+        logger.info("Registered capability-based routes")
+    except Exception as e:
+        logger.warning(f"Failed to register capability routes: {e}")
 
 
 # Create default app instance
@@ -173,4 +256,3 @@ app = create_app()
 
 
 __all__ = ["create_app", "app"]
-
