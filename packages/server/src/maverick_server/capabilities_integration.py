@@ -33,6 +33,7 @@ from maverick_capabilities.audit import (
     AuditEvent,
     AuditEventType,
     MemoryAuditLogger,
+    create_database_audit_logger,
 )
 
 logger = logging.getLogger(__name__)
@@ -48,6 +49,8 @@ def initialize_capabilities(
     orchestrator_type: OrchestratorType = OrchestratorType.SERVICE,
     enable_audit: bool = True,
     audit_max_events: int = 10000,
+    use_database_audit: bool = False,
+    async_session_factory: Any | None = None,
 ) -> None:
     """
     Initialize the capabilities system.
@@ -58,6 +61,8 @@ def initialize_capabilities(
         orchestrator_type: Type of orchestrator to use
         enable_audit: Whether to enable audit logging
         audit_max_events: Maximum events to keep in memory audit log
+        use_database_audit: Use DatabaseAuditLogger (requires async_session_factory)
+        async_session_factory: Async session factory for database audit logging
     """
     global _initialized
 
@@ -82,9 +87,18 @@ def initialize_capabilities(
 
     # Initialize audit logger
     if enable_audit:
-        audit_logger = MemoryAuditLogger(max_events=audit_max_events)
+        if use_database_audit and async_session_factory:
+            audit_logger = create_database_audit_logger(async_session_factory)
+            logger.info("Initialized database audit logger (PostgreSQL)")
+        else:
+            audit_logger = MemoryAuditLogger(max_events=audit_max_events)
+            if use_database_audit:
+                logger.warning(
+                    "Database audit requested but no session_factory provided. "
+                    "Falling back to memory audit logger."
+                )
+            logger.info("Initialized memory audit logger")
         set_audit_logger(audit_logger)
-        logger.info("Initialized memory audit logger")
 
     _initialized = True
     logger.info("Capabilities system initialized")
