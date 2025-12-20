@@ -16,6 +16,7 @@ from maverick_capabilities.audit.factory import (
     get_audit_logger,
     set_audit_logger,
     reset_audit_logger,
+    create_database_audit_logger,
 )
 
 __all__ = [
@@ -30,4 +31,5 @@ __all__ = [
     "get_audit_logger",
     "set_audit_logger",
     "reset_audit_logger",
+    "create_database_audit_logger",
 ]

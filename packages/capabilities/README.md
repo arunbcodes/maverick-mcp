@@ -158,6 +158,33 @@ trace = await audit.get_execution_trace(execution_id)
 - `MemoryAuditLogger`: In-memory storage (development)
 - `DatabaseAuditLogger`: PostgreSQL/SQLite persistence (production)
 
+### Enabling Database Audit Logging
+
+To persist audit events to PostgreSQL:
+
+```python
+from maverick_server.capabilities_integration import initialize_capabilities
+from maverick_data.session import get_async_session_context
+
+# Initialize with database audit logging
+initialize_capabilities(
+    use_database_audit=True,
+    async_session_factory=get_async_session_context,
+)
+```
+
+Run the migration to create the `audit_logs` table:
+
+```bash
+alembic upgrade 019_add_audit_logs
+```
+
+The database logger provides:
+- Persistent storage for compliance
+- Query by capability, user, ticker, time range
+- Execution trace reconstruction
+- Automatic cleanup of old events
+
 ### 4. Async Task Queue
 
 Long-running task execution with progress tracking.
