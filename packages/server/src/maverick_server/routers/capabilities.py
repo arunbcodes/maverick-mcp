@@ -3,10 +3,12 @@ Capabilities router - MCP tools for capability introspection.
 
 Exposes tools to list capabilities, get audit stats, and
 query execution history. Also provides orchestrator-based
-capability execution.
+capability execution with rate limiting.
 """
 
 import logging
+import time
+from collections import defaultdict
 from typing import Any
 
 from fastmcp import FastMCP
@@ -21,6 +23,92 @@ from maverick_server.capabilities_integration import (
 from maverick_capabilities import get_audit_logger
 
 logger = logging.getLogger(__name__)
+
+
+# Rate limiter for system_execute_capability
+class RateLimiter:
+    """Simple in-memory rate limiter with sliding window."""
+
+    def __init__(
+        self,
+        max_requests: int = 100,
+        window_seconds: int = 60,
+        per_capability_limit: int = 20,
+    ):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.per_capability_limit = per_capability_limit
+        self._requests: dict[str, list[float]] = defaultdict(list)
+        self._capability_requests: dict[str, dict[str, list[float]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
+
+    def _cleanup_old(self, timestamps: list[float], now: float) -> list[float]:
+        """Remove timestamps outside the window."""
+        cutoff = now - self.window_seconds
+        return [t for t in timestamps if t > cutoff]
+
+    def check(
+        self,
+        user_id: str,
+        capability_id: str | None = None,
+    ) -> tuple[bool, str | None]:
+        """
+        Check if request is allowed under rate limits.
+
+        Returns:
+            Tuple of (allowed, error_message)
+        """
+        now = time.time()
+
+        # Clean up old requests
+        self._requests[user_id] = self._cleanup_old(self._requests[user_id], now)
+
+        # Check global limit for user
+        if len(self._requests[user_id]) >= self.max_requests:
+            return False, f"Rate limit exceeded: max {self.max_requests} requests per {self.window_seconds}s"
+
+        # Check per-capability limit if specified
+        if capability_id:
+            cap_requests = self._capability_requests[user_id]
+            cap_requests[capability_id] = self._cleanup_old(
+                cap_requests[capability_id], now
+            )
+
+            if len(cap_requests[capability_id]) >= self.per_capability_limit:
+                return False, (
+                    f"Rate limit exceeded for {capability_id}: "
+                    f"max {self.per_capability_limit} requests per {self.window_seconds}s"
+                )
+
+        return True, None
+
+    def record(self, user_id: str, capability_id: str | None = None) -> None:
+        """Record a request."""
+        now = time.time()
+        self._requests[user_id].append(now)
+        if capability_id:
+            self._capability_requests[user_id][capability_id].append(now)
+
+
+# Allowlist of capabilities that can be executed via system_execute_capability
+# Empty list means all capabilities are allowed
+ALLOWED_CAPABILITIES: set[str] = set()
+
+# Denylist of sensitive capabilities that should never be executed via generic endpoint
+DENIED_CAPABILITIES: set[str] = {
+    "admin_clear_cache",
+    "admin_reset_database",
+    "admin_delete_user",
+    "system_shutdown",
+}
+
+# Global rate limiter instance
+_rate_limiter = RateLimiter(
+    max_requests=100,  # 100 requests per minute per user
+    window_seconds=60,
+    per_capability_limit=20,  # 20 requests per minute per capability per user
+)
 
 
 def register_capabilities_tools(mcp: FastMCP) -> None:
@@ -125,6 +213,7 @@ def register_capabilities_tools(mcp: FastMCP) -> None:
     async def system_execute_capability(
         capability_id: str,
         parameters: dict[str, Any] | None = None,
+        user_id: str = "mcp_anonymous",
     ) -> dict[str, Any]:
         """Execute a capability through the orchestrator.
 
@@ -133,11 +222,18 @@ def register_capabilities_tools(mcp: FastMCP) -> None:
         - Centralized timeout handling
         - Consistent error handling
         - Execution tracing
-        - Future: caching, retry logic, AgentField routing
+        - Rate limiting (100 req/min global, 20 req/min per capability)
+        - Access control (allowlist/denylist)
+
+        Security:
+        - Rate limited to prevent abuse
+        - Certain admin capabilities are blocked
+        - All executions are audit logged
 
         Args:
             capability_id: The capability to execute (e.g., "get_maverick_stocks")
             parameters: Input parameters for the capability (optional)
+            user_id: User identifier for rate limiting (default: "mcp_anonymous")
 
         Returns:
             Dictionary containing execution result or error
@@ -146,10 +242,46 @@ def register_capabilities_tools(mcp: FastMCP) -> None:
             >>> system_execute_capability("get_maverick_stocks", {"limit": 10})
             >>> system_execute_capability("get_rsi_analysis", {"ticker": "AAPL"})
         """
+        # Access control: check denylist
+        if capability_id in DENIED_CAPABILITIES:
+            logger.warning(
+                f"Blocked access to denied capability: {capability_id} by {user_id}"
+            )
+            return {
+                "success": False,
+                "error": f"Capability '{capability_id}' cannot be executed through this endpoint",
+                "error_type": "AccessDenied",
+            }
+
+        # Access control: check allowlist (if configured)
+        if ALLOWED_CAPABILITIES and capability_id not in ALLOWED_CAPABILITIES:
+            logger.warning(
+                f"Capability not in allowlist: {capability_id} by {user_id}"
+            )
+            return {
+                "success": False,
+                "error": f"Capability '{capability_id}' is not available through this endpoint",
+                "error_type": "NotAllowed",
+            }
+
+        # Rate limiting
+        allowed, error_msg = _rate_limiter.check(user_id, capability_id)
+        if not allowed:
+            logger.warning(f"Rate limit hit: {user_id} for {capability_id}")
+            return {
+                "success": False,
+                "error": error_msg,
+                "error_type": "RateLimitExceeded",
+            }
+
+        # Record the request
+        _rate_limiter.record(user_id, capability_id)
+
         try:
             result = await execute_capability(
                 capability_id=capability_id,
                 input_data=parameters or {},
+                user_id=user_id,
             )
             return result
         except Exception as e:
