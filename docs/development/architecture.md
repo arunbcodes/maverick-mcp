@@ -21,15 +21,24 @@ Maverick MCP is built using modern Python architecture principles with a focus o
 └──────────────────────┬──────────────────────────────────────┘
                        │ MCP Protocol (SSE/HTTP/STDIO)
 ┌──────────────────────┴──────────────────────────────────────┐
-│  FastMCP Server (maverick_mcp/api/server.py)               │
+│  FastMCP Server (packages/server)                           │
 │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
 │  • Routers (stock, technical, portfolio, research, concall) │
+│  • @with_audit decorator for execution logging              │
 │  • Tool Registry (40+ MCP tools)                            │
-│  • Request/Response handling                                │
 └──────────────────────┬──────────────────────────────────────┘
                        │
 ┌──────────────────────┴──────────────────────────────────────┐
-│  Services Layer                                             │
+│  Capabilities Layer (packages/capabilities) [NEW]           │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│  • Capability Registry (25 capabilities)                    │
+│  • Orchestrator (ServiceOrchestrator, AgentField-ready)    │
+│  • Audit Logger (Memory/Database)                           │
+│  • Task Queue (Memory/Redis)                                │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────┴──────────────────────────────────────┐
+│  Services Layer (packages/services)                         │
 │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
 │  • ScreeningService • MarketCalendarService                 │
 │  • PortfolioService • TechnicalAnalysisService              │
@@ -46,7 +55,7 @@ Maverick MCP is built using modern Python architecture principles with a focus o
 └──────────────────────┬──────────────────────────────────────┘
                        │
 ┌──────────────────────┴──────────────────────────────────────┐
-│  Data & Infrastructure Layer                                │
+│  Data & Infrastructure Layer (packages/data)                │
 │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
 │  • data/ - ORM models, caching, sessions                    │
 │  • providers/ - External APIs (Tiingo, OpenRouter, FRED)   │
@@ -57,12 +66,38 @@ Maverick MCP is built using modern Python architecture principles with a focus o
 │  External Services                                          │
 │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
 │  • PostgreSQL/SQLite (data storage)                         │
-│  • Redis (caching)                                          │
+│  • Redis (caching + task queue)                             │
 │  • Tiingo API (stock data)                                  │
 │  • OpenRouter (AI models)                                   │
 │  • FRED API (economic data)                                 │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## Capabilities Layer
+
+The capabilities layer provides a centralized abstraction between MCP tools and services:
+
+### Components
+
+1. **Capability Registry**
+   - Python-based registry of 25 capabilities
+   - Grouped by: screening, portfolio, technical, research, risk
+   - Supports MCP and API exposure configuration
+
+2. **Orchestrator**
+   - Protocol-based execution backend
+   - ServiceOrchestrator (current): Direct service calls
+   - AgentFieldOrchestrator (future): Kubernetes for AI agents
+
+3. **Audit Logger**
+   - MemoryAuditLogger: In-memory (development)
+   - DatabaseAuditLogger: PostgreSQL/SQLite (production)
+   - Query support for compliance and analytics
+
+4. **Task Queue**
+   - MemoryTaskQueue: In-memory asyncio (development)
+   - RedisTaskQueue: Redis-backed with persistence (production)
+   - Progress tracking and webhooks
 
 ## Directory Structure
 

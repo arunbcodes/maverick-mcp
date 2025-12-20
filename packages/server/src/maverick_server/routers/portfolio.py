@@ -16,6 +16,7 @@ from maverick_data import (
     YFinanceProvider,
     get_db,
 )
+from maverick_server.capabilities_integration import with_audit
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
     """Register portfolio management tools with MCP server."""
 
     @mcp.tool()
+    @with_audit("portfolio_add_position")
     async def portfolio_add_position(
         ticker: str,
         shares: float,
@@ -92,6 +94,7 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("portfolio_get_my_portfolio")
     async def portfolio_get_my_portfolio(
         user_id: str = "default",
         portfolio_name: str = "My Portfolio",
@@ -179,6 +182,7 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("portfolio_remove_position")
     async def portfolio_remove_position(
         ticker: str,
         shares: Optional[float] = None,
@@ -236,6 +240,7 @@ def register_portfolio_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("portfolio_clear_portfolio")
     async def portfolio_clear_portfolio(
         user_id: str = "default",
         portfolio_name: str = "My Portfolio",

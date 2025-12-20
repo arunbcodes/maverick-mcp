@@ -8,6 +8,7 @@ This package provides the MCP server implementation that combines all Maverick p
 
 - **maverick-core**: Interfaces and domain entities
 - **maverick-data**: Data access and caching
+- **maverick-capabilities**: Capability registry, orchestration, and audit logging
 - **maverick-agents**: AI/LLM agents (optional)
 - **maverick-backtest**: Backtesting engine (optional)
 - **maverick-india**: Indian market support (optional)
@@ -82,10 +83,48 @@ This package follows a thin orchestration layer pattern:
 maverick-server (MCP interface)
 ├── maverick-core (shared interfaces)
 ├── maverick-data (data access)
+├── maverick-capabilities (registry, orchestration, audit)
 ├── maverick-agents (AI agents) [optional]
 ├── maverick-backtest (backtesting) [optional]
 └── maverick-india (Indian market) [optional]
 ```
+
+## Capabilities Integration
+
+The server integrates with the capabilities package for:
+
+### Automatic Initialization
+
+On server startup, capabilities are automatically initialized:
+
+```python
+# In __main__.py
+from maverick_server.capabilities_integration import initialize_capabilities
+initialize_capabilities()  # Registers 25 capabilities
+```
+
+### Audit Logging
+
+All tool executions are automatically logged via the `@with_audit` decorator:
+
+```python
+from maverick_server.capabilities_integration import with_audit
+
+@mcp.tool()
+@with_audit("screening_get_maverick_stocks")
+async def screening_get_maverick_stocks(limit: int = 20):
+    """Tool with automatic audit logging."""
+    ...
+```
+
+### System Introspection Tools
+
+The following MCP tools are automatically registered:
+
+- `system_list_capabilities` - List all registered capabilities
+- `system_get_capability` - Get capability details
+- `system_get_audit_stats` - Get audit statistics
+- `system_get_recent_executions` - Get recent execution events
 
 ## Dependencies
 
@@ -94,3 +133,4 @@ maverick-server (MCP interface)
 - FastAPI: HTTP framework
 - maverick-core: Core interfaces
 - maverick-data: Data access
+- maverick-capabilities: Capability registry and orchestration
