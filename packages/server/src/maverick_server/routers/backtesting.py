@@ -12,6 +12,8 @@ from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
 
+from maverick_server.capabilities_integration import with_audit
+
 logger = logging.getLogger(__name__)
 
 # Check if maverick-backtest is available
@@ -37,6 +39,7 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
         return
 
     @mcp.tool()
+    @with_audit("backtest_run")
     async def backtest_run(
         symbol: str,
         strategy: str = "sma_cross",
@@ -105,6 +108,7 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("backtest_compare_strategies")
     async def backtest_compare_strategies(
         symbol: str,
         strategies: Optional[List[str]] = None,
@@ -166,6 +170,7 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("backtest_list_strategies")
     async def backtest_list_strategies() -> Dict[str, Any]:
         """List all available VectorBT strategies.
 
@@ -192,6 +197,7 @@ def register_backtesting_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("backtest_parse_strategy")
     async def backtest_parse_strategy(description: str) -> Dict[str, Any]:
         """Parse natural language strategy description into parameters.
 

@@ -19,6 +19,8 @@ from typing import Any, Dict, List, Tuple
 
 from fastmcp import FastMCP
 
+from maverick_server.capabilities_integration import with_audit
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,6 +33,7 @@ def register_concall_tools(mcp: FastMCP) -> None:
     """
 
     @mcp.tool()
+    @with_audit("concall_fetch_transcript")
     async def concall_fetch_transcript(
         ticker: str,
         quarter: str,
@@ -117,6 +120,7 @@ def register_concall_tools(mcp: FastMCP) -> None:
             }
 
     @mcp.tool()
+    @with_audit("concall_summarize_transcript")
     async def concall_summarize_transcript(
         ticker: str,
         quarter: str,
@@ -250,6 +254,7 @@ def register_concall_tools(mcp: FastMCP) -> None:
             }
 
     @mcp.tool()
+    @with_audit("concall_analyze_sentiment")
     async def concall_analyze_sentiment(
         ticker: str,
         quarter: str,
@@ -377,6 +382,7 @@ def register_concall_tools(mcp: FastMCP) -> None:
             }
 
     @mcp.tool()
+    @with_audit("concall_query_transcript")
     async def concall_query_transcript(
         question: str,
         ticker: str,
@@ -494,6 +500,7 @@ def register_concall_tools(mcp: FastMCP) -> None:
             }
 
     @mcp.tool()
+    @with_audit("concall_compare_quarters")
     async def concall_compare_quarters(
         ticker: str,
         quarters: List[Tuple[str, int]],

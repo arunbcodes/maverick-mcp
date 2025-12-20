@@ -18,6 +18,8 @@ from maverick_data import (
     get_db,
 )
 
+from maverick_server.capabilities_integration import with_audit
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,6 +27,7 @@ def register_data_tools(mcp: FastMCP) -> None:
     """Register data operation tools with MCP server."""
 
     @mcp.tool()
+    @with_audit("data_fetch_stock_data")
     async def data_fetch_stock_data(
         ticker: str,
         start_date: Optional[str] = None,
@@ -75,6 +78,7 @@ def register_data_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("data_fetch_stock_data_batch")
     async def data_fetch_stock_data_batch(
         tickers: List[str],
         start_date: Optional[str] = None,
@@ -132,6 +136,7 @@ def register_data_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("data_get_stock_info")
     async def data_get_stock_info(ticker: str) -> Dict[str, Any]:
         """Get detailed fundamental information about a stock.
 
@@ -165,6 +170,7 @@ def register_data_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("data_get_chart_links")
     async def data_get_chart_links(ticker: str) -> Dict[str, Any]:
         """Provide links to various financial charting websites.
 
@@ -188,6 +194,7 @@ def register_data_tools(mcp: FastMCP) -> None:
         }
 
     @mcp.tool()
+    @with_audit("data_clear_cache")
     async def data_clear_cache(ticker: Optional[str] = None) -> Dict[str, Any]:
         """Clear cached data for a specific ticker or all tickers.
 
