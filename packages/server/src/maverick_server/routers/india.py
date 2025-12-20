@@ -12,6 +12,8 @@ from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
+from maverick_server.capabilities_integration import with_audit
+
 logger = logging.getLogger(__name__)
 
 # Check if maverick-india is available
@@ -39,6 +41,7 @@ def register_india_tools(mcp: FastMCP) -> None:
         return
 
     @mcp.tool()
+    @with_audit("india_get_market_overview")
     async def india_get_market_overview() -> Dict[str, Any]:
         """Get comprehensive overview of Indian stock market.
 
@@ -63,6 +66,7 @@ def register_india_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("india_get_recommendations")
     async def india_get_recommendations(
         strategy: str = "bullish",
         limit: int = 20,
@@ -98,6 +102,7 @@ def register_india_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("india_get_economic_indicators")
     async def india_get_economic_indicators() -> Dict[str, Any]:
         """Get current Indian economic indicators from RBI.
 
@@ -122,6 +127,7 @@ def register_india_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("india_get_stock_news")
     async def india_get_stock_news(
         symbol: str,
         limit: int = 10,
@@ -150,6 +156,7 @@ def register_india_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("india_convert_currency")
     async def india_convert_currency(
         amount: float,
         from_currency: str = "INR",
@@ -186,6 +193,7 @@ def register_india_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("india_analyze_nifty_sectors")
     async def india_analyze_nifty_sectors() -> Dict[str, Any]:
         """Analyze Nifty 50 sector rotation and performance.
 

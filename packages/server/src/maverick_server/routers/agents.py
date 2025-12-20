@@ -15,6 +15,8 @@ from typing import Any
 
 from fastmcp import FastMCP
 
+from maverick_server.capabilities_integration import with_audit
+
 logger = logging.getLogger(__name__)
 
 # Cache for agent instances to avoid recreation
@@ -102,6 +104,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
     """Register agent tools with the MCP server."""
 
     @mcp.tool(description="Analyze market using LangGraph agent with persona-aware recommendations.")
+    @with_audit("agents_analyze_market")
     async def analyze_market_with_agent(
         query: str,
         persona: str = "moderate",
@@ -148,6 +151,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
             return {"status": "error", "error": str(e), "agent_type": "market_analysis"}
 
     @mcp.tool(description="Get streaming market analysis with real-time updates.")
+    @with_audit("agents_streaming_analysis")
     async def get_agent_streaming_analysis(
         query: str,
         persona: str = "moderate",
@@ -195,6 +199,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
             return {"status": "error", "error": str(e)}
 
     @mcp.tool(description="Run orchestrated multi-agent analysis using the SupervisorAgent.")
+    @with_audit("agents_orchestrated_analysis")
     async def orchestrated_analysis(
         query: str,
         persona: str = "moderate",
@@ -252,6 +257,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
             }
 
     @mcp.tool(description="Conduct comprehensive financial research using web search and AI analysis.")
+    @with_audit("agents_deep_research")
     async def deep_research_financial(
         research_topic: str,
         persona: str = "moderate",
@@ -310,6 +316,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
             return {"status": "error", "error": str(e), "agent_type": "deep_research"}
 
     @mcp.tool(description="Compare analysis results across multiple agent types.")
+    @with_audit("agents_compare_multi")
     async def compare_multi_agent_analysis(
         query: str,
         agent_types: list[str] | None = None,
@@ -399,7 +406,8 @@ def register_agents_tools(mcp: FastMCP) -> None:
             return {"status": "error", "error": str(e)}
 
     @mcp.tool(description="List all available LangGraph agents and their capabilities.")
-    def list_available_agents() -> dict[str, Any]:
+    @with_audit("agents_list_available")
+    async def list_available_agents() -> dict[str, Any]:
         """List all available LangGraph agents and their capabilities."""
         return {
             "status": "success",
@@ -447,6 +455,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
         }
 
     @mcp.tool(description="Compare analysis across different investor personas.")
+    @with_audit("agents_compare_personas")
     async def compare_personas_analysis(
         query: str,
         session_id: str | None = None,
@@ -503,4 +512,3 @@ def register_agents_tools(mcp: FastMCP) -> None:
 
 
 __all__ = ["register_agents_tools"]
-

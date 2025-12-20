@@ -12,6 +12,8 @@ from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
 
+from maverick_server.capabilities_integration import with_audit
+
 logger = logging.getLogger(__name__)
 
 # Check if maverick-agents is available
@@ -40,6 +42,7 @@ def register_research_tools(mcp: FastMCP) -> None:
         return
 
     @mcp.tool()
+    @with_audit("research_comprehensive")
     async def research_comprehensive(
         query: str,
         persona: str = "moderate",
@@ -93,6 +96,7 @@ def register_research_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("research_company")
     async def research_company(
         symbol: str,
         include_competitive_analysis: bool = False,
@@ -135,6 +139,7 @@ def register_research_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("research_market_sentiment")
     async def research_market_sentiment(
         topic: str,
         timeframe: str = "1w",
