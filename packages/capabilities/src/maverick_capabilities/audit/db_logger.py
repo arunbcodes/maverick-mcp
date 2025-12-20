@@ -20,13 +20,47 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    TypeDecorator,
     select,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from maverick_data.models.base import Base, TimestampMixin
+
+
+class UUIDType(TypeDecorator):
+    """
+    Platform-independent UUID type.
+
+    Uses PostgreSQL's UUID type when available, otherwise stores as CHAR(36).
+    This allows the same model to work with both PostgreSQL and SQLite.
+    """
+
+    impl = String(36)
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+            return dialect.type_descriptor(PG_UUID(as_uuid=True))
+        return dialect.type_descriptor(String(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return value
+        # For SQLite, convert UUID to string
+        return str(value) if isinstance(value, UUID) else value
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return value
+        # For SQLite, convert string back to UUID
+        return UUID(value) if isinstance(value, str) else value
 from maverick_capabilities.audit.protocols import (
     AuditEvent,
     AuditEventType,
@@ -40,16 +74,20 @@ logger = logging.getLogger(__name__)
 
 
 class AuditLogModel(Base, TimestampMixin):
-    """SQLAlchemy model for audit logs."""
+    """SQLAlchemy model for audit logs.
+
+    Uses UUIDType which is compatible with both PostgreSQL (native UUID)
+    and SQLite (CHAR(36) string storage).
+    """
 
     __tablename__ = "audit_logs"
 
-    id = Column(PG_UUID(as_uuid=True), primary_key=True)
+    id = Column(UUIDType(), primary_key=True)
     event_type = Column(String(50), nullable=False, index=True)
     timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
 
     # Execution context
-    execution_id = Column(PG_UUID(as_uuid=True), index=True)
+    execution_id = Column(UUIDType(), index=True)
     capability_id = Column(String(100), index=True)
     user_id = Column(String(100), index=True)
     correlation_id = Column(String(100), index=True)
