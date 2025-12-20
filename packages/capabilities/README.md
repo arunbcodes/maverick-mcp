@@ -232,6 +232,37 @@ System introspection tools are automatically registered:
 - `system_get_capability` - Get capability details
 - `system_get_audit_stats` - Get audit statistics
 - `system_get_recent_executions` - Get recent execution events
+- `system_execute_capability` - Execute any capability via orchestrator
+
+### Orchestrator-Based Execution
+
+The `system_execute_capability` tool provides universal capability execution:
+
+```python
+# Execute any capability through the orchestrator
+result = await system_execute_capability(
+    capability_id="get_maverick_stocks",
+    parameters={"limit": 10}
+)
+
+# The orchestrator handles:
+# - Timeout management
+# - Error handling
+# - Audit logging
+# - Future: caching, retry logic, AgentField routing
+```
+
+You can also use the `execute_capability` function directly in code:
+
+```python
+from maverick_server.capabilities_integration import execute_capability
+
+result = await execute_capability("get_maverick_stocks", {"limit": 10})
+if result["success"]:
+    stocks = result["data"]
+else:
+    print(f"Error: {result['error']}")
+```
 
 ## REST API Integration
 

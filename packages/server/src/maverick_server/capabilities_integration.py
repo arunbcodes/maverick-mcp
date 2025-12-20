@@ -287,10 +287,154 @@ def get_audit_stats() -> dict[str, Any]:
     return {"total_events": 0}
 
 
+async def execute_capability(
+    capability_id: str,
+    input_data: dict[str, Any] | None = None,
+    user_id: str | None = None,
+) -> dict[str, Any]:
+    """
+    Execute a capability through the orchestrator.
+
+    This is the primary function for executing capabilities in a standardized way.
+    It routes through the orchestrator which handles:
+    - Timeout management
+    - Error handling
+    - Audit logging (if configured)
+    - Future: caching, retry logic
+
+    Args:
+        capability_id: The capability to execute
+        input_data: Input parameters for the capability
+        user_id: Optional user ID for audit logging
+
+    Returns:
+        Dictionary with execution result
+
+    Example:
+        >>> result = await execute_capability(
+        ...     "get_maverick_stocks",
+        ...     {"limit": 10}
+        ... )
+        >>> if result["success"]:
+        ...     stocks = result["data"]
+    """
+    from maverick_capabilities.orchestration.protocols import (
+        ExecutionContext,
+        ExecutionStatus,
+    )
+
+    orchestrator = get_orchestrator()
+    input_data = input_data or {}
+
+    # Create execution context
+    context = ExecutionContext(
+        capability_id=capability_id,
+        user_id=user_id,
+    )
+
+    # Execute through orchestrator
+    result = await orchestrator.execute(capability_id, input_data, context)
+
+    # Convert to standard response format
+    if result.status == ExecutionStatus.COMPLETED:
+        return {
+            "success": True,
+            "data": result.result,
+            "execution_id": str(result.execution_id),
+            "duration_ms": result.duration_ms,
+        }
+    else:
+        return {
+            "success": False,
+            "error": result.error,
+            "error_type": result.error_type,
+            "execution_id": str(result.execution_id),
+            "status": result.status.value,
+        }
+
+
+def with_orchestrator(
+    capability_id: str,
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
+    """
+    Decorator to route tool execution through the orchestrator.
+
+    This decorator replaces direct service calls with orchestrator-based
+    execution, enabling:
+    - Centralized timeout handling
+    - Consistent error handling
+    - Execution tracing
+    - Future: capability-based routing to different backends
+
+    Usage:
+        @mcp.tool()
+        @with_orchestrator("get_maverick_stocks")
+        async def screening_get_maverick_stocks(limit: int = 20):
+            # The body is ignored when using orchestrator
+            pass
+
+    Note:
+        When using @with_orchestrator, the function body is not executed.
+        Instead, execution is delegated to the orchestrator which calls
+        the configured service method for the capability.
+
+    Args:
+        capability_id: The capability ID to execute
+    """
+
+    def decorator(func: Callable[P, T]) -> Callable[P, T]:
+        @functools.wraps(func)
+        async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            # Execute through orchestrator
+            result = await execute_capability(capability_id, dict(kwargs))
+
+            if result["success"]:
+                return result["data"]  # type: ignore
+            else:
+                # Return error in standard format for MCP tools
+                return {  # type: ignore
+                    "error": result.get("error", "Unknown error"),
+                    "error_type": result.get("error_type", "ExecutionError"),
+                    "execution_id": result.get("execution_id"),
+                }
+
+        return async_wrapper  # type: ignore
+
+    return decorator
+
+
+def register_service_instance(service_name: str, instance: Any) -> None:
+    """
+    Register a service instance with the orchestrator.
+
+    This allows the orchestrator to use dependency-injected service instances
+    rather than instantiating services directly.
+
+    Args:
+        service_name: Name of the service class (e.g., "ScreeningService")
+        instance: The service instance to use
+
+    Example:
+        >>> from maverick_services import ScreeningService
+        >>> service = ScreeningService(repository=my_repo)
+        >>> register_service_instance("ScreeningService", service)
+    """
+    orchestrator = get_orchestrator()
+    if hasattr(orchestrator, "register_service"):
+        orchestrator.register_service(service_name, instance)
+    else:
+        logger.warning(
+            f"Orchestrator does not support service registration: {type(orchestrator)}"
+        )
+
+
 __all__ = [
     "initialize_capabilities",
     "shutdown_capabilities",
     "with_audit",
+    "with_orchestrator",
+    "execute_capability",
+    "register_service_instance",
     "get_capability_info",
     "list_capabilities",
     "get_audit_stats",
