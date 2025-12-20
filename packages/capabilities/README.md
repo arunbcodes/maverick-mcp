@@ -251,6 +251,34 @@ async def screening_get_maverick_stocks(limit: int = 20):
     ...
 ```
 
+### Auto-Generated MCP Tools
+
+Generate MCP tools automatically from capability definitions (DRY):
+
+```python
+from fastmcp import FastMCP
+from maverick_server.tool_generator import generate_mcp_tools
+
+mcp = FastMCP("maverick")
+
+# Generate tools for specific groups
+count = generate_mcp_tools(mcp, groups=["screening", "portfolio"])
+print(f"Generated {count} tools")
+
+# Or generate all MCP-exposed capabilities
+count = generate_mcp_tools(mcp)
+
+# Get manifest of generated tools
+from maverick_server.tool_generator import get_generated_tool_manifest
+manifest = get_generated_tool_manifest()
+```
+
+Benefits:
+- **Single source of truth**: Define capability once, expose via MCP and REST
+- **Automatic audit logging**: All tools get `@with_audit` decorator
+- **Orchestrator routing**: Consistent execution through orchestrator
+- **Async support**: Long-running tasks use task queue automatically
+
 ### Capabilities MCP Tools
 
 System introspection tools are automatically registered:
@@ -292,6 +320,50 @@ else:
 ```
 
 ## REST API Integration
+
+### Capability-Based Route Generation
+
+Generate REST endpoints automatically from capability definitions:
+
+```python
+from maverick_api.capabilities import generate_capability_routes
+
+# Generate routes for screening group
+router = generate_capability_routes(
+    groups=["screening"],
+    prefix="/screening",
+    tags=["Screening"],
+)
+app.include_router(router)
+
+# Or generate specific capabilities
+router = generate_capability_routes(
+    capability_ids=["get_maverick_stocks", "get_breakout_stocks"],
+)
+```
+
+### Async Task Endpoints
+
+For long-running operations (research, backtesting), async endpoints are available:
+
+```python
+from maverick_api.capabilities import create_async_endpoints
+
+# Create task endpoints for async capabilities
+router = create_async_endpoints(
+    groups=["research", "backtesting"],
+    prefix="/tasks",
+)
+app.include_router(router)
+```
+
+This creates:
+- `POST /tasks/{capability_id}` - Submit task
+- `GET /tasks/{task_id}/status` - Check status
+- `DELETE /tasks/{task_id}` - Cancel task
+- `GET /tasks` - List tasks
+
+### Capability Endpoints
 
 New endpoints are available at `/api/v1/capabilities`:
 
