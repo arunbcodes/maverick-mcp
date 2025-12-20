@@ -550,6 +550,9 @@ uv run python -m maverick_server --transport sse --port 8003
 uv run python -m maverick_server --transport streamable-http --port 8003
 uv run python -m maverick_server --transport stdio
 
+# Auto-generation mode (DRY - generates tools from capability definitions)
+uv run python -m maverick_server --auto-gen --transport sse --port 8003
+
 # Script-based startup (with environment variable)
 ./scripts/dev.sh                        # Defaults to SSE
 MAVERICK_TRANSPORT=streamable-http ./scripts/dev.sh
@@ -559,6 +562,10 @@ MAVERICK_TRANSPORT=streamable-http ./scripts/dev.sh
 - **SSE** (`make dev` or `make dev-sse`): Best for Claude Desktop - tested and stable
 - **Streamable-HTTP** (`make dev-http`): Ideal for testing with curl/Postman, debugging transport issues
 - **STDIO** (`make dev-stdio`): Direct connection without network layer, good for development
+
+**Tool Registration Modes:**
+- **Manual mode** (default): Uses explicit tool definitions in routers
+- **Auto-gen mode** (`--auto-gen`): Generates tools from capability definitions (DRY)
 
 ### Testing
 

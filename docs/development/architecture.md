@@ -75,7 +75,7 @@ Maverick MCP is built using modern Python architecture principles with a focus o
 
 ## Capabilities Layer
 
-The capabilities layer provides a centralized abstraction between MCP tools and services:
+The capabilities layer provides a centralized abstraction between MCP tools and services, enabling DRY (Don't Repeat Yourself) development where features are defined once and automatically exposed through multiple interfaces.
 
 ### Components
 
@@ -98,6 +98,69 @@ The capabilities layer provides a centralized abstraction between MCP tools and 
    - MemoryTaskQueue: In-memory asyncio (development)
    - RedisTaskQueue: Redis-backed with persistence (production)
    - Progress tracking and webhooks
+
+5. **Auto-Generation**
+   - MCP Tool Generator: Creates MCP tools from capability definitions
+   - REST Route Generator: Creates FastAPI endpoints from capabilities
+   - Async Endpoints: Task queue integration for long-running operations
+
+### Auto-Generation Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Capability Definition (packages/capabilities/definitions/)     │
+│  - id, title, description                                       │
+│  - service_class, method_name                                   │
+│  - mcp: MCPConfig(expose=True, tool_name="...")                │
+│  - api: APIConfig(expose=True, path="/...", method="GET")      │
+│  - audit: AuditConfig(log=True)                                │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+        ┌───────────────────────┴───────────────────────┐
+        ▼                                               ▼
+┌───────────────────────────┐              ┌─────────────────────────┐
+│ MCP Server                │              │     REST API            │
+│ tool_generator.py         │              │  route_generator.py     │
+│                           │              │  async_endpoints.py     │
+│ generate_mcp_tools()      │              │                         │
+│ - Extracts parameters     │              │ generate_capability_    │
+│ - Creates typed handlers  │              │   routes()              │
+│ - Applies @with_audit     │              │ - Creates FastAPI       │
+│ - Registers with FastMCP  │              │   endpoints             │
+│                           │              │ - Async task submission │
+└───────────────────────────┘              └─────────────────────────┘
+```
+
+### Usage
+
+**MCP Server with Auto-Generation:**
+```bash
+# Auto-gen mode (DRY - recommended for new development)
+python -m maverick_server --auto-gen
+
+# Manual mode (explicit tool definitions)
+python -m maverick_server
+```
+
+**Adding a New Capability:**
+```python
+# 1. Define capability in packages/capabilities/definitions/
+Capability(
+    id="my_new_feature",
+    title="My New Feature",
+    description="Does something useful",
+    group=CapabilityGroup.SCREENING,
+    service_class=MyService,
+    method_name="do_something",
+    execution=ExecutionConfig(timeout_seconds=30),
+    mcp=MCPConfig(expose=True, tool_name="my_new_feature"),
+    api=APIConfig(expose=True, path="/my/feature", method="GET"),
+    audit=AuditConfig(log=True),
+)
+
+# 2. Register in definitions/__init__.py
+# 3. Restart server → MCP tool + REST endpoint auto-generated
+```
 
 ## Directory Structure
 

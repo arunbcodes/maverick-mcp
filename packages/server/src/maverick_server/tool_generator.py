@@ -182,41 +182,132 @@ def _extract_parameters(cap: Capability) -> dict[str, dict[str, Any]]:
     return params
 
 
+def _get_simple_type_name(type_hint: Any) -> str:
+    """Get a simple type name suitable for function signatures.
+
+    Maps complex types to simple ones that work in exec() context.
+    """
+    if type_hint is None:
+        return "str"
+
+    type_name = getattr(type_hint, "__name__", None)
+    if type_name:
+        # Map to basic types that are always available
+        if type_name in ("int", "str", "float", "bool", "list", "dict"):
+            return type_name
+        # Any other type becomes str (will be parsed by service)
+        return "str"
+
+    # Handle typing module types
+    origin = getattr(type_hint, "__origin__", None)
+    if origin is list:
+        return "list"
+    if origin is dict:
+        return "dict"
+
+    return "str"
+
+
 def _create_sync_tool_handler(cap: Capability, tool_name: str) -> Callable:
-    """Create a synchronous tool handler."""
+    """Create a synchronous tool handler with explicit parameters.
+
+    FastMCP requires explicit parameters (not **kwargs), so we dynamically
+    create a function with the correct signature based on the capability's
+    service method.
+    """
     cap_id = cap.id
+    params = _extract_parameters(cap)
 
-    async def sync_handler(**kwargs: Any) -> dict[str, Any]:
-        """Auto-generated tool handler."""
-        result = await execute_capability(cap_id, kwargs)
-        if result.get("success"):
-            return result.get("data", {})
-        return {"error": result.get("error"), "error_type": result.get("error_type")}
+    # Build parameter list for function signature
+    param_parts = []
+    param_names = []
+    for name, info in params.items():
+        param_names.append(name)
+        type_name = _get_simple_type_name(info.get("type"))
 
-    return sync_handler
+        if info.get("required", True):
+            param_parts.append(f"{name}: {type_name}")
+        else:
+            default = info.get("default")
+            if isinstance(default, str):
+                param_parts.append(f'{name}: {type_name} = "{default}"')
+            elif default is None:
+                param_parts.append(f"{name}: {type_name} = None")
+            else:
+                param_parts.append(f"{name}: {type_name} = {default!r}")
+
+    param_str = ", ".join(param_parts) if param_parts else ""
+    kwargs_collect = ", ".join(f'"{n}": {n}' for n in param_names)
+
+    # Generate function code
+    func_code = f'''
+async def {tool_name}({param_str}) -> dict:
+    """Auto-generated tool for {cap.title}."""
+    kwargs = {{{kwargs_collect}}}
+    result = await _execute('{cap_id}', kwargs)
+    if result.get("success"):
+        return result.get("data", {{}})
+    return {{"error": result.get("error"), "error_type": result.get("error_type")}}
+'''
+
+    # Execute to create function
+    local_ns: dict[str, Any] = {"_execute": execute_capability}
+    try:
+        exec(func_code, local_ns)
+        return local_ns[tool_name]
+    except Exception as e:
+        logger.warning(f"Failed to create typed handler for {cap_id}: {e}")
+        # Fallback to simple handler (may not work with all MCP clients)
+        async def fallback_handler() -> dict[str, Any]:
+            result = await execute_capability(cap_id, {})
+            if result.get("success"):
+                return result.get("data", {})
+            return {"error": result.get("error")}
+        fallback_handler.__name__ = tool_name
+        return fallback_handler
 
 
 def _create_async_tool_handler(cap: Capability, tool_name: str) -> Callable:
-    """Create an async tool handler that uses task queue."""
+    """Create an async tool handler that uses task queue with explicit parameters."""
     cap_id = cap.id
+    params = _extract_parameters(cap)
 
-    async def async_handler(**kwargs: Any) -> dict[str, Any]:
-        """
-        Auto-generated async tool handler.
+    # Build parameter list
+    param_parts = []
+    param_names = []
+    for name, info in params.items():
+        param_names.append(name)
+        type_name = _get_simple_type_name(info.get("type"))
 
-        Submits the task to the queue and returns a task ID.
-        Use system_get_task_status to check progress.
-        """
+        if info.get("required", True):
+            param_parts.append(f"{name}: {type_name}")
+        else:
+            default = info.get("default")
+            if isinstance(default, str):
+                param_parts.append(f'{name}: {type_name} = "{default}"')
+            elif default is None:
+                param_parts.append(f"{name}: {type_name} = None")
+            else:
+                param_parts.append(f"{name}: {type_name} = {default!r}")
+
+    param_str = ", ".join(param_parts) if param_parts else ""
+    kwargs_collect = ", ".join(f'"{n}": {n}' for n in param_names)
+
+    # Store capability info for the handler
+    cap_title = cap.title
+    cap_execution = cap.execution
+
+    async def _async_impl(kwargs: dict) -> dict[str, Any]:
+        """Implementation for async handler."""
         try:
-            # Import here to avoid circular imports
             from maverick_api.capabilities.async_endpoints import get_task_queue
             from maverick_capabilities.tasks.protocols import TaskConfig
 
             queue = get_task_queue()
             config = TaskConfig(
-                queue=cap.execution.queue,
-                timeout_seconds=cap.execution.timeout_seconds,
-                max_retries=cap.execution.max_retries,
+                queue=cap_execution.queue,
+                timeout_seconds=cap_execution.timeout_seconds,
+                max_retries=cap_execution.max_retries,
             )
 
             result = await queue.enqueue(cap_id, kwargs, config)
@@ -224,38 +315,85 @@ def _create_async_tool_handler(cap: Capability, tool_name: str) -> Callable:
             return {
                 "task_id": str(result.task_id),
                 "status": result.status.value,
-                "message": f"Task submitted for {cap.title}. Use system_get_task_status to check progress.",
+                "message": f"Task submitted for {cap_title}. Use system_get_task_status to check progress.",
             }
         except RuntimeError:
-            # Task queue not initialized - fall back to sync execution
             logger.warning(f"Task queue not available, executing {cap_id} synchronously")
             result = await execute_capability(cap_id, kwargs)
             if result.get("success"):
                 return result.get("data", {})
             return {"error": result.get("error")}
 
-    return async_handler
+    # Generate function code
+    func_code = f'''
+async def {tool_name}({param_str}) -> dict:
+    """Auto-generated async tool for {cap_title}. Returns task ID for polling."""
+    kwargs = {{{kwargs_collect}}}
+    return await _impl(kwargs)
+'''
+
+    local_ns: dict[str, Any] = {"_impl": _async_impl}
+    try:
+        exec(func_code, local_ns)
+        return local_ns[tool_name]
+    except Exception as e:
+        logger.warning(f"Failed to create async handler for {cap_id}: {e}")
+        async def fallback() -> dict[str, Any]:
+            return await _async_impl({})
+        fallback.__name__ = tool_name
+        return fallback
 
 
 def _create_streaming_tool_handler(cap: Capability, tool_name: str) -> Callable:
-    """Create a streaming tool handler."""
+    """Create a streaming tool handler with explicit parameters."""
     cap_id = cap.id
+    params = _extract_parameters(cap)
 
-    async def streaming_handler(**kwargs: Any) -> dict[str, Any]:
-        """
-        Auto-generated streaming tool handler.
+    # Build parameter list
+    param_parts = []
+    param_names = []
+    for name, info in params.items():
+        param_names.append(name)
+        type_name = _get_simple_type_name(info.get("type"))
 
-        Note: MCP streaming requires special client support.
-        Returns initial acknowledgment; results streamed via SSE.
-        """
-        # For now, execute synchronously
-        # True streaming would require SSE or WebSocket integration
-        result = await execute_capability(cap_id, kwargs)
-        if result.get("success"):
-            return result.get("data", {})
-        return {"error": result.get("error")}
+        if info.get("required", True):
+            param_parts.append(f"{name}: {type_name}")
+        else:
+            default = info.get("default")
+            if isinstance(default, str):
+                param_parts.append(f'{name}: {type_name} = "{default}"')
+            elif default is None:
+                param_parts.append(f"{name}: {type_name} = None")
+            else:
+                param_parts.append(f"{name}: {type_name} = {default!r}")
 
-    return streaming_handler
+    param_str = ", ".join(param_parts) if param_parts else ""
+    kwargs_collect = ", ".join(f'"{n}": {n}' for n in param_names)
+
+    # Generate function code
+    func_code = f'''
+async def {tool_name}({param_str}) -> dict:
+    """Auto-generated streaming tool for {cap.title}."""
+    kwargs = {{{kwargs_collect}}}
+    result = await _execute('{cap_id}', kwargs)
+    if result.get("success"):
+        return result.get("data", {{}})
+    return {{"error": result.get("error")}}
+'''
+
+    local_ns: dict[str, Any] = {"_execute": execute_capability}
+    try:
+        exec(func_code, local_ns)
+        return local_ns[tool_name]
+    except Exception as e:
+        logger.warning(f"Failed to create streaming handler for {cap_id}: {e}")
+        async def fallback() -> dict[str, Any]:
+            result = await execute_capability(cap_id, {})
+            if result.get("success"):
+                return result.get("data", {})
+            return {"error": result.get("error")}
+        fallback.__name__ = tool_name
+        return fallback
 
 
 def get_generated_tool_manifest() -> dict[str, Any]:
