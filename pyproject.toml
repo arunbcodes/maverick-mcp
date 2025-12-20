@@ -10,6 +10,7 @@ dependencies = [
     "maverick-core",
     "maverick-data",
     "maverick-services",  # Shared domain services
+    "maverick-capabilities",  # Capability registry and orchestration
     "maverick-agents",
     "maverick-backtest",
     "maverick-india",
@@ -200,10 +201,10 @@ maverick-schemas = { workspace = true }
 maverick-core = { workspace = true }
 maverick-data = { workspace = true }
 maverick-services = { workspace = true }
+maverick-capabilities = { workspace = true }
 maverick-agents = { workspace = true }
 maverick-backtest = { workspace = true }
 maverick-india = { workspace = true }
 maverick-server = { workspace = true }
 maverick-crypto = { workspace = true }
 maverick-api = { workspace = true }
-

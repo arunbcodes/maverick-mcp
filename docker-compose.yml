@@ -26,13 +26,14 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - ENVIRONMENT=${ENVIRONMENT:-production}
       # Python path for new packages (matches Dockerfile)
-      - PYTHONPATH=/app/packages/schemas/src:/app/packages/core/src:/app/packages/data/src:/app/packages/services/src:/app/packages/api/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app/packages/crypto/src:/app
+      - PYTHONPATH=/app/packages/schemas/src:/app/packages/core/src:/app/packages/data/src:/app/packages/services/src:/app/packages/capabilities/src:/app/packages/api/src:/app/packages/server/src:/app/packages/backtest/src:/app/packages/india/src:/app/packages/agents/src:/app/packages/crypto/src:/app
     volumes:
       # Mount packages for development hot-reload
       - ./packages/schemas/src/maverick_schemas:/app/packages/schemas/src/maverick_schemas
       - ./packages/core/src/maverick_core:/app/packages/core/src/maverick_core
       - ./packages/data/src/maverick_data:/app/packages/data/src/maverick_data
       - ./packages/services/src/maverick_services:/app/packages/services/src/maverick_services
+      - ./packages/capabilities/src/maverick_capabilities:/app/packages/capabilities/src/maverick_capabilities
       - ./packages/api/src/maverick_api:/app/packages/api/src/maverick_api
       - ./packages/backtest/src/maverick_backtest:/app/packages/backtest/src/maverick_backtest
       - ./packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents

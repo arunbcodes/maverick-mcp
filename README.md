@@ -727,7 +727,7 @@ docker-compose up -d
 - PostgreSQL: `localhost:55432` (container also uses port 55432)
 - Redis: `localhost:56379` (container also uses port 56379)
 
-**Note**: The Dockerfile uses `uv` for fast dependency installation and smaller image sizes. 
+**Note**: The Dockerfile uses `uv` for fast dependency installation and smaller image sizes.
 
 **For Rancher Desktop Users**: Non-standard ports (55432, 56379) are used because Rancher Desktop's Lima VM reserves standard ports (5432, 6379) via SSH tunnel. The containers are configured to listen on these non-standard ports internally to avoid `port already allocated` errors.
 
@@ -898,6 +898,17 @@ For issues or questions:
 
 ## Recent Updates
 
+### Capabilities Architecture (NEW)
+
+- **Capability Registry**: Centralized Python-based registry for 25+ capabilities across screening, portfolio, technical, research, and risk groups
+- **Orchestrator Abstraction**: Swappable execution backends (ServiceOrchestrator now, AgentField-ready for future)
+- **Audit Logging**: Automatic execution logging with `@with_audit` decorator on screening, portfolio, and technical tools
+- **Async Task Queue**: Memory-based (development) and Redis-backed (production) task execution with progress tracking
+- **REST API Integration**: New `/api/v1/capabilities` endpoints for system introspection
+- **MCP Tools**: New `system_list_capabilities`, `system_get_capability`, `system_get_audit_stats`, `system_get_recent_executions` tools
+
+See `packages/capabilities/README.md` for complete documentation.
+
 ### Indian Economic Indicators & Market Comparison - Phase 4 (NEW)
 
 - **RBI Data Integration**: Policy rates, GDP growth, inflation data, and forex reserves
@@ -935,7 +946,7 @@ See `docs/PHASE4_IMPLEMENTATION.md` for complete documentation.
 ### Performance Improvements
 
 - **Parallel Agent Execution**: Increased concurrent agents from 4 to 6
-- **Optimized Semaphores**: BoundedSemaphore for better resource management  
+- **Optimized Semaphores**: BoundedSemaphore for better resource management
 - **Reduced Rate Limiting**: Delays decreased from 0.5s to 0.05s
 - **Batch Processing**: Improved throughput for multiple research tasks
 - **Smart Caching**: Redis-powered with in-memory fallback

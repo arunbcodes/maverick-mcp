@@ -35,6 +35,7 @@ maverick_api/
 │   │   ├── portfolio.py
 │   │   ├── screening.py
 │   │   ├── backtest.py
+│   │   ├── capabilities.py  # Capability introspection
 │   │   └── sse.py         # Server-Sent Events
 │   └── health.py          # Health probes
 ├── sse/                   # SSE implementation
@@ -110,3 +111,38 @@ curl -H "X-API-Key: mav_live_..." https://api.maverick.com/api/v1/stocks/AAPL
 - `GET /ready` - Readiness probe
 - `GET /startup` - Startup probe
 
+## Capabilities Endpoints
+
+The API includes capability introspection endpoints at `/api/v1/capabilities`:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/capabilities` | GET | List all capabilities (filter by group, mcp_only, api_only) |
+| `/capabilities/groups` | GET | List capability groups with their capabilities |
+| `/capabilities/stats` | GET | Get registry statistics |
+| `/capabilities/{id}` | GET | Get detailed capability information |
+| `/capabilities/audit/stats` | GET | Get audit event statistics |
+| `/capabilities/audit/recent` | GET | Get recent execution events |
+
+### Example: List Capabilities
+
+```bash
+# List all capabilities
+curl http://localhost:8003/api/v1/capabilities
+
+# List only screening capabilities
+curl http://localhost:8003/api/v1/capabilities?group=screening
+
+# List only MCP-exposed capabilities
+curl http://localhost:8003/api/v1/capabilities?mcp_only=true
+```
+
+### Example: Get Audit Stats
+
+```bash
+# Get audit statistics
+curl http://localhost:8003/api/v1/capabilities/audit/stats
+
+# Get recent executions for a specific capability
+curl http://localhost:8003/api/v1/capabilities/audit/recent?capability_id=screening_get_maverick_stocks
+```

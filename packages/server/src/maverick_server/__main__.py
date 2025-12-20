@@ -19,6 +19,10 @@ import sys
 from maverick_server import MaverickServer, configure_warnings
 from maverick_server.config import get_settings
 from maverick_server.routers import register_all_tools
+from maverick_server.capabilities_integration import (
+    initialize_capabilities,
+    shutdown_capabilities,
+)
 
 
 def main() -> int:
@@ -77,6 +81,13 @@ def main() -> int:
     for warning in warnings:
         logger.warning(warning)
 
+    # Initialize capabilities system (registry, orchestrator, audit)
+    try:
+        initialize_capabilities()
+        logger.info("Capabilities system initialized")
+    except Exception as e:
+        logger.warning(f"Failed to initialize capabilities: {e}")
+
     # Create server
     server = MaverickServer(name=args.name)
     logger.info(f"Created MaverickMCP server: {args.name}")
@@ -108,6 +119,12 @@ def main() -> int:
     except Exception as e:
         logger.error(f"Server error: {e}")
         return 1
+    finally:
+        # Cleanup capabilities system
+        try:
+            shutdown_capabilities()
+        except Exception:
+            pass
 
     return 0
 

@@ -18,6 +18,7 @@ from maverick_core import (
     calculate_support_resistance,
 )
 from maverick_data import YFinanceProvider
+from maverick_server.capabilities_integration import with_audit
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
     """Register technical analysis tools with MCP server."""
 
     @mcp.tool()
+    @with_audit("technical_get_rsi_analysis")
     async def technical_get_rsi_analysis(
         ticker: str,
         period: int = 14,
@@ -71,6 +73,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("technical_get_macd_analysis")
     async def technical_get_macd_analysis(
         ticker: str,
         fast_period: int = 12,
@@ -131,6 +134,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("technical_get_support_resistance")
     async def technical_get_support_resistance(
         ticker: str,
         days: int = 365,
@@ -168,6 +172,7 @@ def register_technical_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("technical_get_bollinger_bands")
     async def technical_get_bollinger_bands(
         ticker: str,
         period: int = 20,

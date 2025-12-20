@@ -16,6 +16,7 @@ from maverick_data import (
     ScreeningRepository,
     get_db,
 )
+from maverick_server.capabilities_integration import with_audit
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
     """Register stock screening tools with MCP server."""
 
     @mcp.tool()
+    @with_audit("screening_get_maverick_stocks")
     async def screening_get_maverick_stocks(limit: int = 20) -> Dict[str, Any]:
         """Get top Maverick stocks from the screening results.
 
@@ -66,6 +68,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("screening_get_maverick_bear_stocks")
     async def screening_get_maverick_bear_stocks(limit: int = 20) -> Dict[str, Any]:
         """Get top Maverick Bear stocks from the screening results.
 
@@ -107,6 +110,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("screening_get_supply_demand_breakouts")
     async def screening_get_supply_demand_breakouts(
         limit: int = 20,
         filter_moving_averages: bool = False,
@@ -159,6 +163,7 @@ def register_screening_tools(mcp: FastMCP) -> None:
             return {"error": str(e)}
 
     @mcp.tool()
+    @with_audit("screening_get_all_recommendations")
     async def screening_get_all_recommendations() -> Dict[str, Any]:
         """Get comprehensive screening results from all strategies.
 
