@@ -111,7 +111,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
         screening_strategy: str = "momentum",
         max_results: int = 20,
         session_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> dict:
         """
         Analyze market using LangGraph agent with persona-aware recommendations.
 
@@ -157,7 +157,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
         persona: str = "moderate",
         stream_mode: str = "updates",
         session_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> dict:
         """
         Get streaming market analysis with real-time updates.
 
@@ -207,7 +207,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
         max_agents: int = 3,
         parallel_execution: bool = True,
         session_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> dict:
         """
         Run orchestrated multi-agent analysis using the SupervisorAgent.
 
@@ -265,7 +265,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
         focus_areas: list[str] | None = None,
         timeframe: str = "30d",
         session_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> dict:
         """
         Conduct comprehensive financial research using web search and AI analysis.
 
@@ -322,7 +322,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
         agent_types: list[str] | None = None,
         persona: str = "moderate",
         session_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> dict:
         """
         Compare analysis results across multiple agent types.
 
@@ -407,7 +407,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
 
     @mcp.tool(description="List all available LangGraph agents and their capabilities.")
     @with_audit("agents_list_available")
-    async def list_available_agents() -> dict[str, Any]:
+    async def list_available_agents() -> dict:
         """List all available LangGraph agents and their capabilities."""
         return {
             "status": "success",
@@ -459,7 +459,7 @@ def register_agents_tools(mcp: FastMCP) -> None:
     async def compare_personas_analysis(
         query: str,
         session_id: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> dict:
         """
         Compare analysis across different investor personas.
 

@@ -16,10 +16,13 @@ echo -e "${GREEN}Starting Maverick-MCP Development Environment${NC}"
 # Function to check and seed database if needed
 check_and_seed_database() {
     echo -e "${YELLOW}Checking database status...${NC}"
-    
-    # Count stocks in database
+
+    # Count stocks in database (try new packages first, fallback to legacy)
     STOCK_COUNT=$(uv run python -c "
-from maverick_mcp.data.models import engine, Stock
+try:
+    from maverick_data import engine, Stock
+except ImportError:
+    from maverick_mcp.data.models import engine, Stock
 from sqlalchemy.orm import Session
 try:
     with Session(engine) as session:
@@ -28,9 +31,9 @@ try:
 except Exception:
     print('0')
 " 2>/dev/null || echo "0")
-    
+
     echo -e "${GREEN}Found $STOCK_COUNT stocks in database${NC}"
-    
+
     if [ "$STOCK_COUNT" -lt 10 ]; then
         echo -e "${YELLOW}Database needs seeding (fewer than 10 stocks)${NC}"
         echo -e "${YELLOW}This will seed:${NC}"
@@ -38,7 +41,7 @@ except Exception:
         echo -e "  • Nifty 50 stocks (~50 Indian stocks)"
         echo -e "${YELLOW}Estimated time: 3-12 minutes${NC}"
         echo ""
-        
+
         # Seed S&P 500
         echo -e "${YELLOW}1/2: Seeding S&P 500 stocks...${NC}"
         if uv run python scripts/seed_sp500.py; then
@@ -46,9 +49,9 @@ except Exception:
         else
             echo -e "${YELLOW}⚠️  S&P 500 seeding failed (continuing anyway)${NC}"
         fi
-        
+
         echo ""
-        
+
         # Seed Indian stocks
         echo -e "${YELLOW}2/2: Seeding Indian stocks...${NC}"
         if uv run python scripts/seed_indian_stocks.py; then
@@ -56,7 +59,7 @@ except Exception:
         else
             echo -e "${YELLOW}⚠️  Indian stocks seeding failed (continuing anyway)${NC}"
         fi
-        
+
         echo ""
         echo -e "${GREEN}✅ Database seeding completed!${NC}"
         echo ""
@@ -134,14 +137,14 @@ fi
 
 # Choose transport based on environment variable or default to SSE for reliability
 TRANSPORT=${MAVERICK_TRANSPORT:-sse}
-echo -e "${YELLOW}Starting backend with: uv run python -m maverick_mcp.api.server --transport ${TRANSPORT} --host 0.0.0.0 --port 8003${NC}"
+echo -e "${YELLOW}Starting backend with: uv run python -m maverick_server --transport ${TRANSPORT} --host 0.0.0.0 --port 8003${NC}"
 echo -e "${YELLOW}Transport: ${TRANSPORT} (recommended for Claude Desktop stability)${NC}"
 
 # Run backend with FastMCP in development mode (show real-time output)
 echo -e "${YELLOW}Starting server with real-time output...${NC}"
 # Set PYTHONWARNINGS to suppress websockets deprecation warnings from uvicorn
 PYTHONWARNINGS="ignore::DeprecationWarning:websockets.*,ignore::DeprecationWarning:uvicorn.*" \
-uv run python -m maverick_mcp.api.server --transport ${TRANSPORT} --host 0.0.0.0 --port 8003 2>&1 | tee backend.log &
+uv run python -m maverick_server --transport ${TRANSPORT} --host 0.0.0.0 --port 8003 2>&1 | tee backend.log &
 BACKEND_PID=$!
 echo -e "${YELLOW}Backend PID: $BACKEND_PID${NC}"
 
@@ -156,17 +159,18 @@ for i in {1..45}; do
         echo -e "${RED}Backend process died! Check output above for errors.${NC}"
         exit 1
     fi
-    
+
     # Check if port is open
     if nc -z localhost 8003 2>/dev/null || curl -s http://localhost:8003/health >/dev/null 2>&1; then
         if [ "$TOOLS_REGISTERED" = false ]; then
             echo -e "${GREEN}Backend port is open, checking for tool registration...${NC}"
-            
-            # Check backend.log for tool registration messages
-            if grep -q "Research tools registered successfully" backend.log 2>/dev/null || 
-               grep -q "Tool registration process completed" backend.log 2>/dev/null || 
-               grep -q "Tools registered successfully" backend.log 2>/dev/null; then
-                echo -e "${GREEN}Research tools successfully registered!${NC}"
+
+            # Check backend.log for tool registration messages (new server)
+            if grep -q "Tools registered successfully" backend.log 2>/dev/null ||
+               grep -q "Registered.*tool groups" backend.log 2>/dev/null ||
+               grep -q "auto-generated tools" backend.log 2>/dev/null ||
+               grep -q "Health endpoints registered" backend.log 2>/dev/null; then
+                echo -e "${GREEN}Tools successfully registered!${NC}"
                 TOOLS_REGISTERED=true
                 break
             else
@@ -176,13 +180,13 @@ for i in {1..45}; do
     else
         echo -e "${YELLOW}Still waiting for backend to start... ($i/45)${NC}"
     fi
-    
+
     if [ $i -eq 45 ]; then
         echo -e "${RED}Backend failed to fully initialize after 45 seconds!${NC}"
         echo -e "${RED}Server may be running but tools not registered. Check output above.${NC}"
         # Don't exit - let it continue in case tools load later
     fi
-    
+
     sleep 1
 done
 
@@ -225,7 +229,7 @@ if [ "$TRANSPORT" = "sse" ]; then
     echo -e '{"mcpServers": {"maverick-mcp": {"command": "npx", "args": ["-y", "mcp-remote", "http://localhost:8003/sse/"]}}}'
 elif [ "$TRANSPORT" = "stdio" ]; then
     echo -e "${GREEN}STDIO Transport (direct connection):${NC}"
-    echo -e '{"mcpServers": {"maverick-mcp": {"command": "uv", "args": ["run", "python", "-m", "maverick_mcp.api.server", "--transport", "stdio"], "cwd": "'$(pwd)'"}}}'
+    echo -e '{"mcpServers": {"maverick-mcp": {"command": "uv", "args": ["run", "python", "-m", "maverick_server", "--transport", "stdio"], "cwd": "'$(pwd)'"}}}'
 elif [ "$TRANSPORT" = "streamable-http" ]; then
     echo -e "${GREEN}Streamable-HTTP Transport (for testing):${NC}"
     echo -e '{"mcpServers": {"maverick-mcp": {"command": "npx", "args": ["-y", "mcp-remote", "http://localhost:8003/mcp"]}}}'

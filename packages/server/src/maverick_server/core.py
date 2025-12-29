@@ -190,6 +190,10 @@ class MaverickServer:
         """
         logger.info(f"Starting MaverickServer with transport={transport}")
 
+        # For HTTP transports, add health endpoints after app is created
+        if transport in ("sse", "streamable-http"):
+            self._add_health_endpoints_on_startup()
+
         if transport == "stdio":
             self._fastmcp.run(transport="stdio")
         elif transport == "sse":
@@ -198,6 +202,37 @@ class MaverickServer:
             self._fastmcp.run(transport="streamable-http", host=host, port=port)
         else:
             raise ValueError(f"Unknown transport: {transport}")
+
+    def _add_health_endpoints_on_startup(self) -> None:
+        """Add HTTP health endpoints using FastMCP's custom routes."""
+        from datetime import datetime
+
+        # Use FastMCP's custom_route decorator if available
+        if hasattr(self._fastmcp, "custom_route"):
+
+            @self._fastmcp.custom_route("/health", methods=["GET"])
+            async def health(request):
+                from starlette.responses import JSONResponse
+
+                return JSONResponse({
+                    "status": "healthy",
+                    "timestamp": datetime.now().isoformat(),
+                    "service": "maverick-mcp",
+                })
+
+            @self._fastmcp.custom_route("/health/ready", methods=["GET"])
+            async def health_ready(request):
+                from starlette.responses import PlainTextResponse
+
+                return PlainTextResponse("OK")
+
+            @self._fastmcp.custom_route("/health/live", methods=["GET"])
+            async def health_live(request):
+                from starlette.responses import PlainTextResponse
+
+                return PlainTextResponse("OK")
+
+            logger.info("Health endpoints registered: /health, /health/ready, /health/live")
 
 
 def create_server(

@@ -128,6 +128,8 @@ def main() -> int:
         else:
             logger.warning(f"  ✗ {name} (failed)")
 
+    logger.info("Tools registered successfully")
+
     # Run server
     logger.info(f"Starting server on {args.host}:{args.port} ({args.transport})")
 

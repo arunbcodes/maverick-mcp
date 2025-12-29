@@ -84,10 +84,11 @@ dev-stdio:
 
 backend:
 	@echo "Starting backend in development mode..."
-	@./scripts/start-backend.sh --dev
+	@uv run python -m maverick_server --transport sse --host 0.0.0.0 --port 8003
 
 stop:
 	@echo "Stopping all services..."
+	@pkill -f "maverick_server" || true
 	@pkill -f "maverick_mcp.api.server" || true
 	@echo "All services stopped."
 
