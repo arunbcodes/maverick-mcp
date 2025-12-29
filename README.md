@@ -22,7 +22,7 @@ MaverickMCP provides professional-grade financial analysis tools directly within
 - **No Setup Complexity**: Simple `make dev` command gets you running (or `uv sync` + `make dev`)
 - **Modern Python Tooling**: Built with `uv` for lightning-fast dependency management
 - **Claude Desktop Integration**: Native MCP support for seamless AI-powered analysis
-- **Comprehensive Analysis**: 70+ financial tools covering technical indicators, screening, portfolio, agents, and crypto
+- **Comprehensive Analysis**: 80+ financial tools covering technical indicators, screening, portfolio, agents, research, and crypto
 - **Smart Caching**: Redis-powered performance with graceful fallbacks
 - **Fast Development**: Hot reload, smart error handling, and parallel processing
 - **Open Source**: MIT licensed, community-driven development
