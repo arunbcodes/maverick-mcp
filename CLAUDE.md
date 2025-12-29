@@ -25,12 +25,17 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
 
 ### New Modular Packages (Primary)
 - `packages/`
-  - `core/`: Shared configuration, logging, resilience, validation
-  - `data/`: Database models, providers, caching, services
-  - `backtest/`: VectorBT strategies, ML strategies, optimization
-  - `india/`: Indian market support, NSE/BSE, concall analysis
-  - `server/`: MCP server, routers, monitoring, health checks
-  - `agents/`: LangGraph agents, research, market analysis
+  - `schemas/`: Shared Pydantic models and DTOs
+  - `core/`: Configuration, logging, resilience, validation, technical analysis
+  - `data/`: Database models, providers (YFinance, Tiingo), caching, services
+  - `services/`: Business logic layer shared between MCP and REST API
+  - `capabilities/`: Capability registry, orchestration, audit logging
+  - `server/`: MCP server, routers (12 tool groups, 70+ tools), health checks
+  - `api/`: REST API with FastAPI, SSE streaming, authentication
+  - `agents/`: LangGraph agents, research, market analysis (WIP)
+  - `backtest/`: VectorBT strategies, ML strategies, optimization (WIP)
+  - `india/`: Indian market support, NSE/BSE, concall analysis (WIP)
+  - `crypto/`: Cryptocurrency data, technical analysis, DeFi tools
 
 ### Legacy (Backward Compatibility)
 - `maverick_mcp/`: Original monolith (still functional, being phased out)
