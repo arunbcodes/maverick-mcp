@@ -73,7 +73,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         from maverick_capabilities.tasks import RedisTaskQueue
 
         task_queue = RedisTaskQueue(redis)
-        await task_queue.start()
+        await task_queue.start_worker()
         set_task_queue(task_queue)
         app.state.task_queue = task_queue
         logger.info("Task queue initialized")
@@ -88,7 +88,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Stop task queue
     if hasattr(app.state, "task_queue"):
         try:
-            await app.state.task_queue.stop()
+            await app.state.task_queue.stop_worker()
             logger.info("Task queue stopped")
         except Exception as e:
             logger.warning(f"Error stopping task queue: {e}")
