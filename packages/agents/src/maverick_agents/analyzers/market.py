@@ -686,3 +686,7 @@ Remember to:
             }
 
         return [mock_maverick_stocks, mock_market_breadth, mock_sector_sentiment]
+
+
+# Alias for backward compatibility
+MarketAnalyzer = MarketAnalysisAgent

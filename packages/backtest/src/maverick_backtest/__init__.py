@@ -78,6 +78,9 @@ from maverick_backtest.batch import (
     ExecutionResult,
 )
 
+# Parser
+from maverick_backtest.parser import ParsedStrategy, StrategyParser
+
 # Workflows (optional - requires langchain/langgraph)
 try:
     from maverick_backtest.workflows import (
@@ -155,4 +158,7 @@ __all__ = [
     "StrategySelectorAgent",
     "OptimizerAgent",
     "ValidatorAgent",
+    # Parser
+    "StrategyParser",
+    "ParsedStrategy",
 ]

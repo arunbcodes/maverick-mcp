@@ -722,3 +722,7 @@ def create_optimized_research_agent(
         optimization_enabled=True,
         **kwargs,
     )
+
+
+# Alias for backward compatibility
+OptimizedResearchAgent = OptimizedDeepResearchAgent

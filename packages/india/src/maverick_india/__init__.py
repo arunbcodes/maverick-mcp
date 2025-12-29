@@ -72,10 +72,64 @@ from maverick_india.concall import (
     TranscriptLoaderFactory,
 )
 
+# Aliases for backward compatibility with router expectations
+IndianMarketProvider = IndianMarketDataProvider
+EconomicIndicatorsProvider = RBIDataProvider
+
+
+class CurrencyConverter:
+    """Currency converter wrapper for INR/USD conversions."""
+
+    async def convert(
+        self,
+        amount: float,
+        from_currency: str = "INR",
+        to_currency: str = "USD",
+    ) -> dict:
+        """Convert between currencies."""
+        rate = await get_exchange_rate(from_currency, to_currency)
+        return {
+            "amount": amount,
+            "from_currency": from_currency,
+            "to_currency": to_currency,
+            "rate": rate,
+            "converted": amount * rate,
+        }
+
+
+class IndianMarketScreener:
+    """Screener for Indian market stocks."""
+
+    async def get_maverick_bullish(self, limit: int = 20) -> list:
+        """Get bullish stocks from Indian market."""
+        return await get_maverick_bullish_india(limit=limit)
+
+    async def get_maverick_bearish(self, limit: int = 20) -> list:
+        """Get bearish stocks from Indian market."""
+        return await get_maverick_bearish_india(limit=limit)
+
+    async def get_momentum(self, limit: int = 20) -> list:
+        """Get momentum stocks from Nifty 50."""
+        return await get_nifty50_momentum(limit=limit)
+
+    async def get_sector_rotation(self) -> dict:
+        """Get sector rotation analysis."""
+        return await get_nifty_sector_rotation()
+
+    async def get_value_picks(self, limit: int = 20) -> list:
+        """Get value picks from Indian market."""
+        return await get_value_picks_india(limit=limit)
+
+    async def get_smallcap_breakouts(self, limit: int = 20) -> list:
+        """Get smallcap breakout stocks."""
+        return await get_smallcap_breakouts_india(limit=limit)
+
 __all__ = [
     # Market Provider
     "IndianMarket",
     "IndianMarketDataProvider",
+    "IndianMarketProvider",  # Alias
+    "IndianMarketScreener",
     "INDIAN_MARKET_CONFIG",
     "calculate_circuit_breaker_limits",
     "format_indian_currency",
@@ -91,12 +145,14 @@ __all__ = [
     "get_smallcap_breakouts_india",
     # Economic Indicators
     "RBIDataProvider",
+    "EconomicIndicatorsProvider",  # Alias
     "EconomicIndicator",
     "get_indian_economic_data",
     "ExchangeRateProvider",
     "ExchangeRateSource",
     "get_exchange_rate",
     "convert_currency",
+    "CurrencyConverter",
     # News Aggregation
     "BaseNewsScraper",
     "NewsArticleStore",
