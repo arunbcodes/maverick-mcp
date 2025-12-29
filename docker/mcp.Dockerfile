@@ -92,9 +92,9 @@ USER ${APP_USER}
 # Map to any host port (e.g., 8003:8000 for MCP)
 EXPOSE 8000
 
-# Health check - MCP server responds differently than REST API
+# Health check - verify server is responding
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -s http://localhost:8000/ 2>&1 | grep -q "Not Found\|jsonrpc\|Method Not Allowed" || exit 1
+    CMD curl -sf http://localhost:8000/health || exit 1
 
-# Start MCP server with SSE transport (use python -m to avoid shebang path issues)
-CMD ["/app/.venv/bin/python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+# Start MCP server with SSE transport
+CMD ["/app/.venv/bin/python", "-m", "maverick_server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]

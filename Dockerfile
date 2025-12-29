@@ -128,10 +128,10 @@ EXPOSE 8000
 
 # Health check - verify server is responding
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
-    CMD curl -s http://localhost:8000/ 2>&1 | grep -q "Not Found\|jsonrpc\|Method Not Allowed" || exit 1
+    CMD curl -sf http://localhost:8000/health || exit 1
 
 # Set entrypoint to handle auto-seeding
 ENTRYPOINT ["/app/scripts/docker-entrypoint.sh"]
 
-# Default command: Start MCP server (using legacy entry point until migration complete)
-CMD ["uv", "run", "python", "-m", "maverick_mcp.api.server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
+# Default command: Start MCP server
+CMD ["uv", "run", "python", "-m", "maverick_server", "--transport", "sse", "--host", "0.0.0.0", "--port", "8000"]
