@@ -37,9 +37,6 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
   - `india/`: Indian market support, NSE/BSE, concall analysis (WIP)
   - `crypto/`: Cryptocurrency data, technical analysis, DeFi tools
 
-### Legacy (Backward Compatibility)
-- `maverick_mcp/`: Original monolith (still functional, being phased out)
-
 ### Supporting Files
 - `tools/`: Development tools for faster workflows
 - `docs/`: Architecture documentation
@@ -95,7 +92,7 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
    FRED_API_KEY=your-fred-key
 
    # Database (optional - uses SQLite by default)
-   DATABASE_URL=postgresql://localhost/maverick_mcp
+   DATABASE_URL=postgresql://localhost/maverick
 
    # Redis (optional - works without caching)
    REDIS_HOST=localhost
@@ -629,10 +626,10 @@ make dev
 
 ```bash
 # In .env file
-DATABASE_URL=postgresql://localhost/maverick_mcp
+DATABASE_URL=postgresql://localhost/maverick
 
 # Create database
-createdb maverick_mcp
+createdb maverick
 make migrate
 ```
 
@@ -715,7 +712,7 @@ unset DATABASE_URL
 make dev
 
 # Or fix PostgreSQL
-createdb maverick_mcp
+createdb maverick
 make migrate
 ```
 

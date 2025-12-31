@@ -172,15 +172,15 @@ def check_project_structure():
             print(f"❌ {file}: Missing")
             all_present = False
 
-    # Check for parent project structure
-    parent_files = [
-        "../maverick_mcp/__init__.py",
-        "../maverick_mcp/data/models.py",
-        "../maverick_mcp/core/technical_analysis.py",
+    # Check for modular packages
+    package_files = [
+        "../packages/core/src/maverick_core/__init__.py",
+        "../packages/data/src/maverick_data/__init__.py",
+        "../packages/server/src/maverick_server/__init__.py",
     ]
 
-    print("\nParent project files:")
-    for file in parent_files:
+    print("\nModular packages:")
+    for file in package_files:
         file_path = script_dir / file
         if file_path.exists():
             print(f"✅ {file}: Found")

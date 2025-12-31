@@ -20,30 +20,27 @@ sys.path.insert(0, str(project_root))
 import yfinance as yf
 from sqlalchemy.orm import Session
 
-# Try new package structure first, fall back to legacy
-try:
-    from maverick_data import Stock, SessionLocal
-    from maverick_india.market import IndianMarket, INDIAN_MARKET_CONFIG
-    
-    # Compatibility shim for Market enum
-    class Market:
-        INDIA_NSE = "NSE"
-        INDIA_BSE = "BSE"
-    
-    def get_market_config(symbol: str):
-        """Get market config for symbol."""
-        market = "NSE" if symbol.endswith('.NS') else "BSE"
-        config = INDIAN_MARKET_CONFIG.get(market, INDIAN_MARKET_CONFIG["NSE"])
-        
-        class Config:
-            name = market
-            country = config["country"]
-            currency = config["currency"]
-        
-        return Config()
-except ImportError:
-    from maverick_mcp.config.markets import Market, get_market_config
-    from maverick_mcp.data.models import Stock, SessionLocal
+from maverick_data import Stock, SessionLocal
+from maverick_india.market import INDIAN_MARKET_CONFIG
+
+
+# Compatibility shim for Market enum
+class Market:
+    INDIA_NSE = "NSE"
+    INDIA_BSE = "BSE"
+
+
+def get_market_config(symbol: str):
+    """Get market config for symbol."""
+    market = "NSE" if symbol.endswith('.NS') else "BSE"
+    config = INDIAN_MARKET_CONFIG.get(market, INDIAN_MARKET_CONFIG["NSE"])
+
+    class Config:
+        name = market
+        country = config["country"]
+        currency = config["currency"]
+
+    return Config()
 
 # Configure logging
 logging.basicConfig(

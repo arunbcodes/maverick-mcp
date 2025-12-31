@@ -22,13 +22,8 @@ from typing import Any
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Try new package structure first, fall back to legacy
-try:
-    from maverick_data.models import CompanyIRMapping
-    from maverick_data import get_session
-except ImportError:
-    from maverick_mcp.concall.models import CompanyIRMapping
-    from maverick_mcp.data.models import get_session
+from maverick_data.models import CompanyIRMapping
+from maverick_data import get_session
 
 logging.basicConfig(
     level=logging.INFO,
@@ -281,7 +276,7 @@ def main():
     if not default_seed_file.exists():
         default_seed_file = (
             Path(__file__).parent.parent
-            / "maverick_mcp/concall/data/company_ir_seed.json"
+            / "packages/india/src/maverick_india/concall/data/company_ir_seed.json"
         )
 
     parser.add_argument(

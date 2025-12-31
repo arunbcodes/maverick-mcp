@@ -18,13 +18,13 @@ sys.path.insert(0, str(project_root))
 # noqa: E402 - imports must come after sys.path modification
 from sqlalchemy import create_engine, text  # noqa: E402
 
-from maverick_mcp.data.models import Base  # noqa: E402
+from maverick_data.models import Base  # noqa: E402
 
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger("maverick_mcp.migrate")
+logger = logging.getLogger("maverick.migrate")
 
 
 def get_database_url() -> str:

@@ -138,7 +138,7 @@ BANDITEOF
     fi
     
     # Run bandit with configuration
-    if bandit -r maverick_mcp/ -c .bandit -f screen; then
+    if bandit -r packages/ -c .bandit -f screen; then
         print_success "No security issues found (medium+ severity)"
     else
         EXIT_CODE=$?
@@ -146,7 +146,7 @@ BANDITEOF
             print_error "Security issues found by bandit!"
             echo ""
             print_warning "Review the issues above and fix before pushing"
-            print_warning "To see detailed report: bandit -r maverick_mcp/ -c .bandit -f html -o bandit_report.html"
+            print_warning "To see detailed report: bandit -r packages/ -c .bandit -f html -o bandit_report.html"
             print_warning "To skip this check: export SECURITY_AUDIT_SKIP=true"
             AUDIT_FAILED=true
         else

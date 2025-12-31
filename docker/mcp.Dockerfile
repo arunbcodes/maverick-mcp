@@ -67,7 +67,6 @@ COPY --from=builder /build/.venv /app/.venv
 
 # Copy source code
 COPY packages/ ./packages/
-COPY maverick_mcp/ ./maverick_mcp/
 COPY alembic/ ./alembic/
 COPY scripts/ ./scripts/
 COPY alembic.ini pyproject.toml uv.lock README.md ./

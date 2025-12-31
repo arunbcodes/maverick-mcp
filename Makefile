@@ -89,7 +89,6 @@ backend:
 stop:
 	@echo "Stopping all services..."
 	@pkill -f "maverick_server" || true
-	@pkill -f "maverick_mcp.api.server" || true
 	@echo "All services stopped."
 
 # Testing commands
@@ -127,15 +126,7 @@ test-parallel:
 
 test-cov:
 	@echo "Running tests with coverage..."
-	@uv run pytest --cov=maverick_mcp --cov-report=html --cov-report=term
-
-test-fixes:
-	@echo "Running MCP tool fixes validation..."
-	@uv run python maverick_mcp/tests/test_mcp_tool_fixes.py
-
-test-fixes-verbose:
-	@echo "Running MCP tool fixes validation (verbose)..."
-	@uv run python -u maverick_mcp/tests/test_mcp_tool_fixes.py
+	@uv run pytest --cov=packages --cov-report=html --cov-report=term
 
 # Speed optimization testing commands
 test-speed:
@@ -211,7 +202,7 @@ reset-db:
 backup-db:
 	@echo "Creating database backup..."
 	@mkdir -p backups
-	@pg_dump -U postgres -h localhost maverick_mcp > backups/maverick_$$(date +%Y%m%d_%H%M%S).sql
+	@pg_dump -U postgres -h localhost maverick > backups/maverick_$$(date +%Y%m%d_%H%M%S).sql
 	@echo "Backup saved to backups/"
 
 setup:

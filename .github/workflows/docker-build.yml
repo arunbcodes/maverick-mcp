@@ -65,13 +65,13 @@ jobs:
         run: uv sync --extra dev
 
       - name: Run unit tests
-        run: uv run pytest -m "not integration" --cov=maverick_mcp --cov-report=xml
+        run: uv run pytest -m "not integration" --cov=packages --cov-report=xml
         env:
           TIINGO_API_KEY: test_key
           DATABASE_URL: sqlite:///:memory:
 
       - name: Run integration tests
-        run: uv run pytest -m integration --cov=maverick_mcp --cov-report=xml --cov-append
+        run: uv run pytest -m integration --cov=packages --cov-report=xml --cov-append
         env:
           TIINGO_API_KEY: test_key
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/maverick_mcp_test

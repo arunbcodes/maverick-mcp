@@ -38,19 +38,13 @@ seed_demo_user() {
 check_database_seeded() {
     echo "Checking if database is seeded..." >&2
 
-    # Try to count stocks in database (try new packages first, fallback to legacy)
+    # Count stocks in database
     stock_count=$(python -c "
 import sys
 sys.path.insert(0, '/app/packages/data/src')
 sys.path.insert(0, '/app/packages/core/src')
 
-try:
-    # Try new package first
-    from maverick_data import engine, Stock
-except ImportError:
-    # Fall back to legacy
-    from maverick_mcp.data.models import engine, Stock
-
+from maverick_data import engine, Stock
 from sqlalchemy.orm import Session
 try:
     with Session(engine) as session:

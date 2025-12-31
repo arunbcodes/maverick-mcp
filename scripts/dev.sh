@@ -17,12 +17,9 @@ echo -e "${GREEN}Starting Maverick-MCP Development Environment${NC}"
 check_and_seed_database() {
     echo -e "${YELLOW}Checking database status...${NC}"
 
-    # Count stocks in database (try new packages first, fallback to legacy)
+    # Count stocks in database
     STOCK_COUNT=$(uv run python -c "
-try:
-    from maverick_data import engine, Stock
-except ImportError:
-    from maverick_mcp.data.models import engine, Stock
+from maverick_data import engine, Stock
 from sqlalchemy.orm import Session
 try:
     with Session(engine) as session:

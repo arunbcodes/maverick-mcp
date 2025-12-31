@@ -103,9 +103,6 @@ COPY alembic ./alembic
 COPY scripts ./scripts
 COPY alembic.ini pyproject.toml uv.lock README.md ./
 
-# Copy legacy maverick_mcp (still required until migration is complete)
-COPY maverick_mcp ./maverick_mcp
-
 # Make entrypoint executable
 RUN chmod +x /app/scripts/docker-entrypoint.sh
 

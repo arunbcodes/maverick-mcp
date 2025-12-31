@@ -145,7 +145,6 @@ services:
       - ../packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
       - ../packages/india/src/maverick_india:/app/packages/india/src/maverick_india
       - ../packages/crypto/src/maverick_crypto:/app/packages/crypto/src/maverick_crypto
-      - ../maverick_mcp:/app/maverick_mcp
       - ../alembic:/app/alembic
     depends_on:
       postgres:
@@ -153,11 +152,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -s http://localhost:8000/ 2>&1 | grep -q 'Not Found\\|jsonrpc\\|Method Not Allowed'",
-        ]
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3

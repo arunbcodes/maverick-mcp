@@ -393,7 +393,7 @@ Configure MaverickMCP via `.env` file or environment variables:
 **Essential Settings:**
 
 - `REDIS_HOST`, `REDIS_PORT` - Redis cache (optional, defaults to localhost:6379)
-- `DATABASE_URL` - PostgreSQL connection or `sqlite:///maverick_mcp.db` for SQLite (default)
+- `DATABASE_URL` - PostgreSQL connection or `sqlite:///maverick.db` for SQLite (default)
 - `LOG_LEVEL` - Logging verbosity (INFO, DEBUG, ERROR)
 - S&P 500 data automatically seeds on first startup
 
@@ -715,8 +715,8 @@ For containerized deployment:
 cp .env.example .env
 
 # Using uv in Docker (recommended for faster builds)
-docker build -t maverick_mcp .
-docker run -p 8003:8003 --env-file .env maverick_mcp
+docker build -t maverick-mcp .
+docker run -p 8003:8003 --env-file .env maverick-mcp
 
 # Or start with docker-compose (recommended)
 docker-compose up -d
