@@ -11,12 +11,14 @@ from fastapi import Depends, HTTPException, Request
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from maverick_api.config import Settings, get_settings
+from maverick_core.config import Settings, get_settings
+#from maverick_api.config import Settings, get_settings
+from maverick_api.main import logger
 from maverick_schemas.auth import AuthenticatedUser
 
 
 # --- Settings ---
-
+#logger = logging.getLogger(__name__)
 
 def get_current_settings() -> Settings:
     """Get settings dependency."""
@@ -40,7 +42,7 @@ async def get_redis_pool() -> Redis:
     if _redis_pool is None:
         settings = get_settings()
         _redis_pool = Redis.from_url(
-            settings.redis_url,
+            settings.redis.url,
             encoding="utf-8",
             decode_responses=False,
             # Connection pool settings
@@ -132,12 +134,33 @@ async def get_stock_service():
     """
     from maverick_services import StockService
     from maverick_data import YFinanceProvider, get_cache_manager
-
     provider = YFinanceProvider()
-    cache = get_cache_manager()
+    cache_manager = get_cache_manager()
+    # Get the actual cache provider, not the manager
+    cache = cache_manager._ensure_initialized()
+    service = StockService(provider=provider, cache=cache)
+    return service
+"""
+    try:
+        from maverick_services import StockService
+        from maverick_data import YFinanceProvider, get_cache_manager
+        provider = YFinanceProvider()
 
-    return StockService(provider=provider, cache=cache)
-
+        # Try to get cache manager, but don't fail if Redis is not available
+        try:
+            cache_manager = get_cache_manager()
+            # Get the actual cache provider, not the manager
+            cache = cache_manager._ensure_initialized()
+            #logger.info(f"StockService cache using Redis initialized")
+        except Exception as cache_error:
+            #logger.warning(f"StockService cache not available, proceeding without cache: {cache_error}")
+            cache = None
+        service = StockService(provider=provider, cache=cache)
+        return service
+    except Exception as e:
+        logger.error(f"Failed to create stock service: {e}")
+        raise
+"""
 
 async def get_technical_service():
     """Get technical analysis service."""

@@ -20,8 +20,10 @@ from pydantic import BaseModel, Field
 
 from maverick_schemas.screening import ScreeningFilter
 from maverick_services.ai_screening_service import InvestorPersona
+from maverick_core.config import get_settings
 
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
 
 class QueryIntent(str, Enum):
@@ -646,6 +648,8 @@ Return ONLY valid JSON, no markdown or explanation."""
 # Factory function
 def get_nl_screening_service(use_llm: bool = True) -> NLScreeningService:
     """Get configured NL screening service."""
+    if settings.openrouter_api_key:
+        return NLScreeningService(openrouter_api_key=settings.openrouter_api_key, use_llm=use_llm)
     return NLScreeningService(use_llm=use_llm)
 
 

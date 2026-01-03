@@ -13,8 +13,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from redis.asyncio import Redis
 
-from maverick_api.config import Settings, get_settings
-from maverick_api.middleware.logging import RequestLoggingMiddleware
+#from maverick_api.config import Settings, get_settings
+from maverick_core.config import Settings, get_settings
+from maverick_api.middleware.logging import RequestLoggingMiddleware, CorrelationFilter
 from maverick_api.middleware.rate_limit import RateLimitMiddleware
 from maverick_api.auth.middleware import AuthMiddleware
 from maverick_api.auth.cookie import CookieAuthStrategy
@@ -33,7 +34,7 @@ async def get_redis_pool(settings: Settings) -> Redis:
     global _redis_pool
     if _redis_pool is None:
         _redis_pool = Redis.from_url(
-            settings.redis_url,
+            settings.redis.url,
             encoding="utf-8",
             decode_responses=False,
         )
@@ -55,6 +56,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info(f"Starting {settings.app_name} in {settings.environment} mode")
 
     # Startup - Initialize Redis connection pool
+    logger.info(f"****** Connecting to Redis host at: {settings.redis.url}")
     redis = await get_redis_pool(settings)
     app.state.redis = redis
     logger.info("Redis connection pool initialized")
@@ -161,6 +163,22 @@ def create_app(
     if settings is None:
         settings = get_settings()
 
+    # Configure logging if not already configured
+    if not logging.getLogger().handlers:
+        # Root logger with simple format (no request_id)
+        root_handler = logging.StreamHandler()
+        root_handler.setFormatter(logging.Formatter(settings.log_format))
+        logging.getLogger().addHandler(root_handler)
+        logging.getLogger().setLevel(settings.log_level)
+        
+        # Configure request-specific logger with correlation filter
+        request_logger = logging.getLogger("maverick_api.middleware.logging")
+        request_handler = logging.StreamHandler()
+        request_handler.setFormatter(logging.Formatter(settings.request_log_format))
+        request_handler.addFilter(CorrelationFilter())
+        request_logger.addHandler(request_handler)
+        request_logger.setLevel(settings.log_level)
+
     app = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
@@ -174,6 +192,7 @@ def create_app(
     # Store settings on app
     app.state.settings = settings
     app.state.testing = testing
+    logger.info(f"****** Using settings: {app.state.settings.to_dict()}")
 
     # Register capabilities BEFORE configuring routers
     # This ensures the capability registry is populated when routes are generated
