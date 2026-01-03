@@ -170,7 +170,7 @@ def create_app(
         root_handler.setFormatter(logging.Formatter(settings.log_format))
         logging.getLogger().addHandler(root_handler)
         logging.getLogger().setLevel(settings.log_level)
-        
+
         # Configure request-specific logger with correlation filter
         request_logger = logging.getLogger("maverick_api.middleware.logging")
         request_handler = logging.StreamHandler()
@@ -192,7 +192,9 @@ def create_app(
     # Store settings on app
     app.state.settings = settings
     app.state.testing = testing
-    logger.info(f"****** Using settings: {app.state.settings.to_dict()}")
+
+    # Debug logging on ENV and startup parameters
+    logger.debug(f"****** Using settings: {app.state.settings.to_dict()}")
 
     # Register capabilities BEFORE configuring routers
     # This ensures the capability registry is populated when routes are generated
