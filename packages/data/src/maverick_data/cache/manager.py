@@ -17,8 +17,10 @@ from typing import Any
 from maverick_core import ICacheProvider
 from maverick_data.cache.memory_cache import MemoryCache
 from maverick_data.cache.redis_cache import RedisCache
+from maverick_core.config import Settings, get_settings
 
-logger = logging.getLogger("maverick_data.cache.manager")
+logger = logging.getLogger(__name__)
+settings = get_settings()
 
 # Default cache configuration
 DEFAULT_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "3600"))
@@ -66,6 +68,7 @@ class CacheManager:
         self,
         redis_host: str | None = None,
         redis_port: int | None = None,
+        redis_db: int | None = None,
         memory_max_size: int = 1000,
         memory_limit_mb: int = 100,
     ):
@@ -75,6 +78,7 @@ class CacheManager:
         Args:
             redis_host: Redis host (optional, uses env var)
             redis_port: Redis port (optional, uses env var)
+            redis_port: Redis db (optional, uses env var)
             memory_max_size: Maximum entries for memory cache
             memory_limit_mb: Maximum memory for memory cache in MB
         """
@@ -84,6 +88,7 @@ class CacheManager:
         )
         self._redis_host = redis_host
         self._redis_port = redis_port
+        self._redis_db = redis_db
         self._initialized = False
 
     def _ensure_initialized(self) -> ICacheProvider:
@@ -91,23 +96,31 @@ class CacheManager:
         if not self._initialized:
             if CACHE_ENABLED:
                 try:
+                    logger.info(f"Initializing cache manager with Redis host: {self._redis_host}, port: {self._redis_port}, db: {self._redis_db}")
                     self._redis_cache = RedisCache(
                         host=self._redis_host,
                         port=self._redis_port,
+                        db=self._redis_db,
                     )
                     # Test connection
                     stats = self._redis_cache.get_stats()
+                    #logger.info(f"Redis Stats = {stats}")
+
                     if stats.get("connected"):
-                        logger.info("Using Redis cache provider")
+                        logger.info(f"Using Redis cache provider {stats}")
                     else:
                         logger.info("Redis not available, using memory cache")
                         self._redis_cache = None
                 except Exception as e:
                     logger.warning(f"Redis initialization failed: {e}")
                     self._redis_cache = None
+            else:
+                logger.warning(f"Cache disabled, using memory cache")
+                self._redis_cache = None
 
             self._initialized = True
 
+        # Always return a valid cache provider
         if self._redis_cache:
             return self._redis_cache
         return self._memory_cache
@@ -281,7 +294,9 @@ def get_cache_manager() -> CacheManager:
     with _cache_manager_lock:
         # Double-check after acquiring lock
         if _cache_manager is None:
-            _cache_manager = CacheManager()
+            _cache_manager = CacheManager(redis_host = settings.redis.host,
+                                          redis_port = settings.redis.port,
+                                          redis_db = settings.redis.db)
 
     return _cache_manager
 

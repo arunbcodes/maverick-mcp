@@ -17,9 +17,11 @@ from uuid import uuid4
 
 from redis.asyncio import Redis
 
+from maverick_core.config import get_settings
+
 logger = logging.getLogger(__name__)
 
-
+settings = get_settings()
 # ============================================
 # Enums and Data Classes
 # ============================================
@@ -839,6 +841,11 @@ def get_alert_service(
     import os
     
     if llm_api_key is None:
+        if settings.openrouter_api_key:
+            return AlertService(
+                redis_client=redis_client,
+                llm_api_key=settings.openrouter_api_key
+            )
         llm_api_key = os.getenv("OPENROUTER_API_KEY")
     
     return AlertService(
