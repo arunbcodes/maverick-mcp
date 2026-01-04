@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = Field(default="INFO")
     log_format: str = Field(
+        default="%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
+    request_log_format: str = Field(
         default="%(asctime)s [%(request_id)s] %(levelname)s %(name)s: %(message)s"
     )
 

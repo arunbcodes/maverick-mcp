@@ -12,6 +12,8 @@ from typing import Any, Callable, Protocol
 
 from fastmcp import FastMCP
 
+from maverick_server.monitoring import get_metrics, get_metrics_for_prometheus, get_backtesting_metrics
+
 logger = logging.getLogger(__name__)
 
 
@@ -193,6 +195,7 @@ class MaverickServer:
         # For HTTP transports, add health endpoints after app is created
         if transport in ("sse", "streamable-http"):
             self._add_health_endpoints_on_startup()
+            self._add_metric_endpoint_on_startup()
 
         if transport == "stdio":
             self._fastmcp.run(transport="stdio")
@@ -233,6 +236,37 @@ class MaverickServer:
                 return PlainTextResponse("OK")
 
             logger.info("Health endpoints registered: /health, /health/ready, /health/live")
+
+    def _add_metric_endpoint_on_startup(self) -> None:
+        """Add HTTP metric endpoints using FastMCP's custom routes for use with Prometheus"""
+        from datetime import datetime
+
+        # Use FastMCP's custom_route decorator if available
+        if hasattr(self._fastmcp, "custom_route"):
+
+            @self._fastmcp.custom_route("/metrics", methods=["GET"])
+            async def metrics(request):
+                from starlette.responses import Response, PlainTextResponse
+
+                try:
+                    # Get standard system metrics
+                    system_metrics = get_metrics()
+
+                    # Get backtesting-specific metrics
+                    backtesting_metrics = get_metrics_for_prometheus()
+
+                    # Combine all metrics
+                    combined_metrics = system_metrics + "\n" + backtesting_metrics
+
+                    return Response(
+                        content=combined_metrics,
+                        media_type="text/plain; version=0.0.4; charset=utf-8",
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to generate metrics: {e}")
+                    raise HTTPException(status_code=500, detail="Failed to generate metrics")
+
+            logger.info("Metrics endpoint registered: /metrics")
 
 
 def create_server(

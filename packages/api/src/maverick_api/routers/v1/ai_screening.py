@@ -289,40 +289,45 @@ async def _get_screening_data(
     """Fetch screening data for a ticker."""
     # Try to get from cached screening results
     try:
-        from maverick_data.models import MaverickStocks, MaverickBearStocks
+        from maverick_data.models import MaverickStocks, MaverickBearStocks, Stock
         from sqlalchemy import select
         
         ticker_upper = ticker.upper()
         
         if strategy == "maverick":
+            # Join with Stock to filter by ticker_symbol
             result = await db.execute(
-                select(MaverickStocks).where(MaverickStocks.ticker == ticker_upper)
+                select(MaverickStocks)
+                .join(Stock, MaverickStocks.stock_id == Stock.stock_id)
+                .where(Stock.ticker_symbol == ticker_upper)
+                .order_by(MaverickStocks.date_analyzed.desc())
+                .limit(1)
             )
-            stock = result.scalar_one_or_none()
-            if stock:
+            screening = result.scalar_one_or_none()
+            if screening:
                 return {
-                    "maverick_score": float(stock.maverick_score) if stock.maverick_score else None,
-                    "momentum_score": float(stock.momentum_score) if hasattr(stock, 'momentum_score') and stock.momentum_score else None,
-                    "current_price": float(stock.current_price) if stock.current_price else None,
-                    "change_percent": float(stock.change_percent) if hasattr(stock, 'change_percent') and stock.change_percent else None,
-                    "rsi": float(stock.rsi) if hasattr(stock, 'rsi') and stock.rsi else None,
-                    "trend": str(stock.trend) if hasattr(stock, 'trend') and stock.trend else None,
-                    "above_sma_50": bool(stock.above_sma_50) if hasattr(stock, 'above_sma_50') else False,
-                    "above_sma_200": bool(stock.above_sma_200) if hasattr(stock, 'above_sma_200') else False,
-                    "relative_volume": float(stock.relative_volume) if hasattr(stock, 'relative_volume') and stock.relative_volume else None,
-                    "pattern": str(stock.pattern) if hasattr(stock, 'pattern') and stock.pattern else None,
+                    "combined_score": float(screening.combined_score) if screening.combined_score else None,
+                    "momentum_score": float(screening.momentum_score) if screening.momentum_score else None,
+                    "current_price": float(screening.close_price) if screening.close_price else None,
+                    "pattern": str(screening.pattern_type) if screening.pattern_type else None,
+                    "squeeze_status": str(screening.squeeze_status) if screening.squeeze_status else None,
+                    "entry_signal": str(screening.entry_signal) if screening.entry_signal else None,
                 }
         
         elif strategy == "maverick_bear":
+            # Join with Stock to filter by ticker_symbol
             result = await db.execute(
-                select(MaverickBearStocks).where(MaverickBearStocks.ticker == ticker_upper)
+                select(MaverickBearStocks)
+                .join(Stock, MaverickBearStocks.stock_id == Stock.stock_id)
+                .where(Stock.ticker_symbol == ticker_upper)
+                .order_by(MaverickBearStocks.date_analyzed.desc())
+                .limit(1)
             )
-            stock = result.scalar_one_or_none()
-            if stock:
+            screening = result.scalar_one_or_none()
+            if screening:
                 return {
-                    "maverick_score": float(stock.maverick_score) if hasattr(stock, 'maverick_score') and stock.maverick_score else None,
-                    "current_price": float(stock.current_price) if stock.current_price else None,
-                    "rsi": float(stock.rsi) if hasattr(stock, 'rsi') and stock.rsi else None,
+                    "combined_score": float(screening.combined_score) if screening.combined_score else None,
+                    "current_price": float(screening.close_price) if screening.close_price else None,
                     "trend": "bearish",
                 }
     except Exception as e:
@@ -652,25 +657,39 @@ async def get_investment_thesis(
     technicals = {}
     
     try:
-        # Try to get stock info
-        from maverick_data.models import MaverickStocks
+        # Try to get stock info by joining MaverickStocks with Stock
+        from maverick_data.models import MaverickStocks, Stock
         from sqlalchemy import select
         
         ticker_upper = ticker.upper()
-        result = await db.execute(
-            select(MaverickStocks).where(MaverickStocks.ticker == ticker_upper)
-        )
-        stock = result.scalar_one_or_none()
         
-        if stock:
+        # First get the Stock info
+        stock_result = await db.execute(
+            select(Stock).where(Stock.ticker_symbol == ticker_upper)
+        )
+        stock_info = stock_result.scalar_one_or_none()
+        
+        # Then get the latest screening data
+        screening_result = await db.execute(
+            select(MaverickStocks)
+            .join(Stock, MaverickStocks.stock_id == Stock.stock_id)
+            .where(Stock.ticker_symbol == ticker_upper)
+            .order_by(MaverickStocks.date_analyzed.desc())
+            .limit(1)
+        )
+        screening = screening_result.scalar_one_or_none()
+        
+        if stock_info:
             stock_data = {
-                "name": getattr(stock, 'name', None),
-                "price": float(stock.current_price) if stock.current_price else None,
-                "sector": getattr(stock, 'sector', None),
+                "name": stock_info.company_name,
+                "price": float(screening.close_price) if screening and screening.close_price else None,
+                "sector": stock_info.sector,
             }
+        if screening:
             technicals = {
-                "rsi": float(stock.rsi) if hasattr(stock, 'rsi') and stock.rsi else None,
-                "trend": str(stock.trend) if hasattr(stock, 'trend') and stock.trend else None,
+                "momentum_score": float(screening.momentum_score) if screening.momentum_score else None,
+                "pattern": str(screening.pattern_type) if screening.pattern_type else None,
+                "squeeze_status": str(screening.squeeze_status) if screening.squeeze_status else None,
             }
     except Exception as e:
         logger.warning(f"Failed to fetch stock data for thesis: {e}")

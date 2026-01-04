@@ -18,9 +18,10 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from maverick_services.ai_screening_service import InvestorPersona
+from maverick_core.config import get_settings
 
 logger = logging.getLogger(__name__)
-
+settings = get_settings()
 
 class ThesisRating(str, Enum):
     """Investment thesis rating."""
@@ -533,6 +534,8 @@ def get_thesis_service(
     redis_client: Any | None = None,
 ) -> ThesisGeneratorService:
     """Get configured thesis generator service."""
+    if settings.openrouter_api_key:
+        return ThesisGeneratorService(openrouter_api_key=settings.openrouter_api_key, redis_client=redis_client)
     return ThesisGeneratorService(redis_client=redis_client)
 
 
