@@ -157,6 +157,162 @@ class CapabilityRouter:
         return self._router
 
 
+def _create_query_endpoint(
+    capability_id: str,
+    input_model: type,
+    description: str,
+    require_auth: bool,
+) -> Callable:
+    """Create a GET/DELETE endpoint with query parameters."""
+    from maverick_server.capabilities_integration import execute_capability
+
+    async def endpoint(
+        request_id: str = Depends(get_request_id),
+        user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
+        params: input_model = Depends(),
+    ) -> APIResponse[Any]:
+        try:
+            result = await execute_capability(
+                capability_id=capability_id,
+                input_data=params.model_dump(),
+                user_id=user.id if user else None,
+            )
+
+            if result.get("success"):
+                return APIResponse(
+                    data=result.get("data"),
+                    meta=ResponseMeta(
+                        request_id=request_id,
+                        timestamp=datetime.now(UTC),
+                    ),
+                )
+            else:
+                raise HTTPException(
+                    status_code=500,
+                    detail={
+                        "error": result.get("error"),
+                        "error_type": result.get("error_type"),
+                    },
+                )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Error executing capability {capability_id}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail={"error": str(e), "error_type": type(e).__name__},
+            )
+
+    endpoint.__name__ = f"capability_{capability_id}"
+    endpoint.__doc__ = description
+    # Update annotations to use the actual model
+    endpoint.__annotations__["params"] = input_model
+    return endpoint
+
+
+def _create_body_endpoint(
+    capability_id: str,
+    input_model: type,
+    description: str,
+    require_auth: bool,
+) -> Callable:
+    """Create a POST/PUT/PATCH endpoint with body parameters."""
+    from maverick_server.capabilities_integration import execute_capability
+
+    async def endpoint(
+        request_id: str = Depends(get_request_id),
+        user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
+        params: input_model = ...,
+    ) -> APIResponse[Any]:
+        try:
+            result = await execute_capability(
+                capability_id=capability_id,
+                input_data=params.model_dump(),
+                user_id=user.id if user else None,
+            )
+
+            if result.get("success"):
+                return APIResponse(
+                    data=result.get("data"),
+                    meta=ResponseMeta(
+                        request_id=request_id,
+                        timestamp=datetime.now(UTC),
+                    ),
+                )
+            else:
+                raise HTTPException(
+                    status_code=500,
+                    detail={
+                        "error": result.get("error"),
+                        "error_type": result.get("error_type"),
+                    },
+                )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Error executing capability {capability_id}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail={"error": str(e), "error_type": type(e).__name__},
+            )
+
+    endpoint.__name__ = f"capability_{capability_id}"
+    endpoint.__doc__ = description
+    # Update annotations to use the actual model
+    endpoint.__annotations__["params"] = input_model
+    return endpoint
+
+
+def _create_kwargs_endpoint(
+    capability_id: str,
+    description: str,
+    require_auth: bool,
+) -> Callable:
+    """Create an endpoint with **kwargs (no schema)."""
+    from maverick_server.capabilities_integration import execute_capability
+
+    async def endpoint(
+        request_id: str = Depends(get_request_id),
+        user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
+        **kwargs: Any,
+    ) -> APIResponse[Any]:
+        try:
+            result = await execute_capability(
+                capability_id=capability_id,
+                input_data=kwargs,
+                user_id=user.id if user else None,
+            )
+
+            if result.get("success"):
+                return APIResponse(
+                    data=result.get("data"),
+                    meta=ResponseMeta(
+                        request_id=request_id,
+                        timestamp=datetime.now(UTC),
+                    ),
+                )
+            else:
+                raise HTTPException(
+                    status_code=500,
+                    detail={
+                        "error": result.get("error"),
+                        "error_type": result.get("error_type"),
+                    },
+                )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Error executing capability {capability_id}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail={"error": str(e), "error_type": type(e).__name__},
+            )
+
+    endpoint.__name__ = f"capability_{capability_id}"
+    endpoint.__doc__ = description
+    return endpoint
+
+
 def create_capability_endpoint(
     capability_id: str,
     capability: Any,
@@ -179,7 +335,6 @@ def create_capability_endpoint(
     Returns:
         FastAPI-compatible async function
     """
-    from maverick_server.capabilities_integration import execute_capability
     from maverick_capabilities.schema_generator import generate_schema_for_capability
 
     # Get input schema - either explicitly defined or generated via introspection
@@ -190,136 +345,25 @@ def create_capability_endpoint(
 
     if input_schema is not None:
         if method in ("GET", "DELETE"):
-            # GET/DELETE requests use query parameters via Depends()
-            async def endpoint_with_query_params(
-                request_id: str = Depends(get_request_id),
-                user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
-                params: input_schema = Depends(),
-            ) -> APIResponse[Any]:
-                """Auto-generated endpoint for {capability_id}."""
-                try:
-                    result = await execute_capability(
-                        capability_id=capability_id,
-                        input_data=params.model_dump(),
-                        user_id=user.id if user else None,
-                    )
-
-                    if result.get("success"):
-                        return APIResponse(
-                            data=result.get("data"),
-                            meta=ResponseMeta(
-                                request_id=request_id,
-                                timestamp=datetime.now(UTC),
-                            ),
-                        )
-                    else:
-                        raise HTTPException(
-                            status_code=500,
-                            detail={
-                                "error": result.get("error"),
-                                "error_type": result.get("error_type"),
-                            },
-                        )
-                except HTTPException:
-                    raise
-                except Exception as e:
-                    logger.error(f"Error executing capability {capability_id}: {e}")
-                    raise HTTPException(
-                        status_code=500,
-                        detail={"error": str(e), "error_type": type(e).__name__},
-                    )
-
-            endpoint_with_query_params.__name__ = f"capability_{capability_id}"
-            endpoint_with_query_params.__doc__ = capability.description
-            return endpoint_with_query_params
-
+            return _create_query_endpoint(
+                capability_id=capability_id,
+                input_model=input_schema,
+                description=capability.description,
+                require_auth=require_auth,
+            )
         else:
-            # POST/PUT/PATCH requests parse from request body (no Depends())
-            async def endpoint_with_body(
-                request_id: str = Depends(get_request_id),
-                user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
-                params: input_schema = ...,
-            ) -> APIResponse[Any]:
-                """Auto-generated endpoint for {capability_id}."""
-                try:
-                    result = await execute_capability(
-                        capability_id=capability_id,
-                        input_data=params.model_dump(),
-                        user_id=user.id if user else None,
-                    )
-
-                    if result.get("success"):
-                        return APIResponse(
-                            data=result.get("data"),
-                            meta=ResponseMeta(
-                                request_id=request_id,
-                                timestamp=datetime.now(UTC),
-                            ),
-                        )
-                    else:
-                        raise HTTPException(
-                            status_code=500,
-                            detail={
-                                "error": result.get("error"),
-                                "error_type": result.get("error_type"),
-                            },
-                        )
-                except HTTPException:
-                    raise
-                except Exception as e:
-                    logger.error(f"Error executing capability {capability_id}: {e}")
-                    raise HTTPException(
-                        status_code=500,
-                        detail={"error": str(e), "error_type": type(e).__name__},
-                    )
-
-            endpoint_with_body.__name__ = f"capability_{capability_id}"
-            endpoint_with_body.__doc__ = capability.description
-            return endpoint_with_body
-
+            return _create_body_endpoint(
+                capability_id=capability_id,
+                input_model=input_schema,
+                description=capability.description,
+                require_auth=require_auth,
+            )
     else:
-        # Fallback to **kwargs for capabilities without schema
-        async def endpoint_handler(
-            request_id: str = Depends(get_request_id),
-            user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
-            **kwargs: Any,
-        ) -> APIResponse[Any]:
-            """Auto-generated endpoint for {capability_id}."""
-            try:
-                result = await execute_capability(
-                    capability_id=capability_id,
-                    input_data=kwargs,
-                    user_id=user.id if user else None,
-                )
-
-                if result.get("success"):
-                    return APIResponse(
-                        data=result.get("data"),
-                        meta=ResponseMeta(
-                            request_id=request_id,
-                            timestamp=datetime.now(UTC),
-                        ),
-                    )
-                else:
-                    raise HTTPException(
-                        status_code=500,
-                        detail={
-                            "error": result.get("error"),
-                            "error_type": result.get("error_type"),
-                        },
-                    )
-            except HTTPException:
-                raise
-            except Exception as e:
-                logger.error(f"Error executing capability {capability_id}: {e}")
-                raise HTTPException(
-                    status_code=500,
-                    detail={"error": str(e), "error_type": type(e).__name__},
-                )
-
-        endpoint_handler.__name__ = f"capability_{capability_id}"
-        endpoint_handler.__doc__ = capability.description
-        return endpoint_handler
+        return _create_kwargs_endpoint(
+            capability_id=capability_id,
+            description=capability.description,
+            require_auth=require_auth,
+        )
 
 
 def generate_capability_routes(
