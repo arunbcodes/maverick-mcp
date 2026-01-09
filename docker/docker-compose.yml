@@ -87,6 +87,7 @@ services:
       - ../packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
       - ../packages/india/src/maverick_india:/app/packages/india/src/maverick_india
       - ../packages/crypto/src/maverick_crypto:/app/packages/crypto/src/maverick_crypto
+      - ../packages/capabilities/src/maverick_capabilities:/app/packages/capabilities/src/maverick_capabilities
       - ../alembic:/app/alembic
     depends_on:
       postgres:
@@ -145,6 +146,7 @@ services:
       - ../packages/agents/src/maverick_agents:/app/packages/agents/src/maverick_agents
       - ../packages/india/src/maverick_india:/app/packages/india/src/maverick_india
       - ../packages/crypto/src/maverick_crypto:/app/packages/crypto/src/maverick_crypto
+      - ../packages/capabilities/src/maverick_capabilities:/app/packages/capabilities/src/maverick_capabilities
       - ../alembic:/app/alembic
     depends_on:
       postgres:
