@@ -55,12 +55,15 @@ class PricePublisher:
     async def start(self) -> None:
         """Start the price publisher background task."""
         if self._running:
-            logger.warning("Price publisher already running")
+            logger.warning("PricePublisher: already running")
             return
 
         self._running = True
         self._task = asyncio.create_task(self._run())
-        logger.info(f"Price publisher started for {len(self.tickers)} tickers")
+        logger.info(
+            f"PricePublisher: started - tracking {len(self.tickers)} tickers "
+            f"({', '.join(sorted(self.tickers))}), interval={self.interval}s"
+        )
 
     async def stop(self) -> None:
         """Stop the price publisher."""
@@ -76,18 +79,36 @@ class PricePublisher:
 
     async def _run(self) -> None:
         """Main loop that fetches and publishes prices."""
+        cycle_count = 0
         while self._running:
             try:
+                cycle_count += 1
                 await self._publish_all_prices()
+                # Log status every 12 cycles (~1 minute at 5s interval)
+                if cycle_count % 12 == 0:
+                    logger.info(
+                        f"PricePublisher: completed {cycle_count} cycles, "
+                        f"tracking {len(self.tickers)} tickers"
+                    )
             except Exception as e:
-                logger.error(f"Error publishing prices: {e}")
+                logger.error(f"PricePublisher: error in publish cycle: {e}", exc_info=True)
 
             await asyncio.sleep(self.interval)
 
     async def _publish_all_prices(self) -> None:
         """Fetch and publish prices for all tracked tickers in parallel."""
+        logger.debug(f"PricePublisher: fetching prices for {len(self.tickers)} tickers")
         tasks = [self._fetch_and_publish(ticker) for ticker in self.tickers]
-        await asyncio.gather(*tasks, return_exceptions=True)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Count successes and failures
+        success_count = sum(1 for r in results if r is None)  # None means no exception
+        failure_count = len(results) - success_count
+        if failure_count > 0:
+            logger.warning(
+                f"PricePublisher: {success_count}/{len(self.tickers)} prices published, "
+                f"{failure_count} failures"
+            )
 
     async def _fetch_and_publish(self, ticker: str) -> None:
         """Fetch and publish price for a single ticker."""
@@ -104,9 +125,15 @@ class PricePublisher:
                         "timestamp": quote.get("timestamp"),
                     },
                 )
-                logger.debug(f"Published price for {ticker}: {quote.get('price')}")
+                logger.debug(f"PricePublisher: published {ticker} @ ${quote.get('price')}")
+            else:
+                logger.warning(f"PricePublisher: no quote data returned for {ticker}")
         except Exception as e:
-            logger.warning(f"Failed to fetch/publish price for {ticker}: {e}")
+            logger.error(
+                f"PricePublisher: failed to fetch/publish {ticker}: {e}",
+                exc_info=True,
+            )
+            raise  # Re-raise so gather() can track it
 
     def add_ticker(self, ticker: str) -> None:
         """Add a ticker to track."""
