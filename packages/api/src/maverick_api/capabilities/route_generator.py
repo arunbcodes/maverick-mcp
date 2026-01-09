@@ -183,53 +183,98 @@ def create_capability_endpoint(
     # Get input schema from capability for proper parameter validation
     input_schema = getattr(capability, "input_schema", None)
 
-    if input_schema is not None:
-        # Create endpoint with proper Pydantic model for parameter validation
-        # This ensures FastAPI generates correct OpenAPI documentation
-        async def endpoint_with_schema(
-            request_id: str = Depends(get_request_id),
-            user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
-            params: input_schema = Depends(),
-        ) -> APIResponse[Any]:
-            """Auto-generated endpoint for {capability_id}."""
-            try:
-                # Execute capability via orchestrator
-                result = await execute_capability(
-                    capability_id=capability_id,
-                    input_data=params.model_dump(),
-                    user_id=user.id if user else None,
-                )
+    # Determine HTTP method to choose query params vs body parsing
+    method = (capability.api.method if capability.api else "POST").upper()
 
-                if result.get("success"):
-                    return APIResponse(
-                        data=result.get("data"),
-                        meta=ResponseMeta(
-                            request_id=request_id,
-                            timestamp=datetime.now(UTC),
-                        ),
+    if input_schema is not None:
+        if method in ("GET", "DELETE"):
+            # GET/DELETE requests use query parameters via Depends()
+            async def endpoint_with_query_params(
+                request_id: str = Depends(get_request_id),
+                user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
+                params: input_schema = Depends(),
+            ) -> APIResponse[Any]:
+                """Auto-generated endpoint for {capability_id}."""
+                try:
+                    result = await execute_capability(
+                        capability_id=capability_id,
+                        input_data=params.model_dump(),
+                        user_id=user.id if user else None,
                     )
-                else:
+
+                    if result.get("success"):
+                        return APIResponse(
+                            data=result.get("data"),
+                            meta=ResponseMeta(
+                                request_id=request_id,
+                                timestamp=datetime.now(UTC),
+                            ),
+                        )
+                    else:
+                        raise HTTPException(
+                            status_code=500,
+                            detail={
+                                "error": result.get("error"),
+                                "error_type": result.get("error_type"),
+                            },
+                        )
+                except HTTPException:
+                    raise
+                except Exception as e:
+                    logger.error(f"Error executing capability {capability_id}: {e}")
                     raise HTTPException(
                         status_code=500,
-                        detail={
-                            "error": result.get("error"),
-                            "error_type": result.get("error_type"),
-                        },
+                        detail={"error": str(e), "error_type": type(e).__name__},
                     )
-            except HTTPException:
-                raise
-            except Exception as e:
-                logger.error(f"Error executing capability {capability_id}: {e}")
-                raise HTTPException(
-                    status_code=500,
-                    detail={"error": str(e), "error_type": type(e).__name__},
-                )
 
-        # Update function metadata for OpenAPI
-        endpoint_with_schema.__name__ = f"capability_{capability_id}"
-        endpoint_with_schema.__doc__ = capability.description
+            endpoint_with_query_params.__name__ = f"capability_{capability_id}"
+            endpoint_with_query_params.__doc__ = capability.description
+            return endpoint_with_query_params
 
-        return endpoint_with_schema
+        else:
+            # POST/PUT/PATCH requests parse from request body (no Depends())
+            async def endpoint_with_body(
+                request_id: str = Depends(get_request_id),
+                user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
+                params: input_schema = ...,
+            ) -> APIResponse[Any]:
+                """Auto-generated endpoint for {capability_id}."""
+                try:
+                    result = await execute_capability(
+                        capability_id=capability_id,
+                        input_data=params.model_dump(),
+                        user_id=user.id if user else None,
+                    )
+
+                    if result.get("success"):
+                        return APIResponse(
+                            data=result.get("data"),
+                            meta=ResponseMeta(
+                                request_id=request_id,
+                                timestamp=datetime.now(UTC),
+                            ),
+                        )
+                    else:
+                        raise HTTPException(
+                            status_code=500,
+                            detail={
+                                "error": result.get("error"),
+                                "error_type": result.get("error_type"),
+                            },
+                        )
+                except HTTPException:
+                    raise
+                except Exception as e:
+                    logger.error(f"Error executing capability {capability_id}: {e}")
+                    raise HTTPException(
+                        status_code=500,
+                        detail={"error": str(e), "error_type": type(e).__name__},
+                    )
+
+            endpoint_with_body.__name__ = f"capability_{capability_id}"
+            endpoint_with_body.__doc__ = capability.description
+            return endpoint_with_body
+
     else:
         # Fallback to **kwargs for capabilities without schema
         async def endpoint_handler(
@@ -239,7 +284,6 @@ def create_capability_endpoint(
         ) -> APIResponse[Any]:
             """Auto-generated endpoint for {capability_id}."""
             try:
-                # Execute capability via orchestrator
                 result = await execute_capability(
                     capability_id=capability_id,
                     input_data=kwargs,
@@ -271,10 +315,8 @@ def create_capability_endpoint(
                     detail={"error": str(e), "error_type": type(e).__name__},
                 )
 
-        # Update function metadata for OpenAPI
         endpoint_handler.__name__ = f"capability_{capability_id}"
         endpoint_handler.__doc__ = capability.description
-
         return endpoint_handler
 
 
