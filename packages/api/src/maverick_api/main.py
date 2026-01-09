@@ -80,16 +80,37 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception as e:
         logger.warning(f"Failed to initialize task queue: {e}")
 
-    # Start price publisher for SSE real-time updates
+    # Initialize SSE manager (with Redis fallback to in-memory)
     try:
-        from maverick_api.workers.price_publisher import PricePublisher
+        from maverick_api.sse.manager import SSEManager
+        from maverick_api.sse.memory_manager import InMemorySSEManager
 
-        price_publisher = PricePublisher(redis)
-        await price_publisher.start()
-        app.state.price_publisher = price_publisher
-        logger.info("Price publisher started")
+        # Try Redis-based SSE manager first
+        try:
+            await redis.ping()
+            sse_manager = SSEManager(redis)
+            app.state.sse_manager = sse_manager
+            logger.info("SSE manager initialized (Redis)")
+        except Exception as e:
+            logger.warning(f"Redis unavailable for SSE, using in-memory fallback: {e}")
+            sse_manager = InMemorySSEManager()
+            app.state.sse_manager = sse_manager
+            logger.info("SSE manager initialized (in-memory, no horizontal scaling)")
     except Exception as e:
-        logger.warning(f"Failed to start price publisher: {e}")
+        logger.warning(f"Failed to initialize SSE manager: {e}")
+        sse_manager = None
+
+    # Start price publisher for SSE real-time updates
+    if sse_manager:
+        try:
+            from maverick_api.workers.price_publisher import PricePublisher
+
+            price_publisher = PricePublisher(sse_manager)
+            await price_publisher.start()
+            app.state.price_publisher = price_publisher
+            logger.info("Price publisher started")
+        except Exception as e:
+            logger.warning(f"Failed to start price publisher: {e}")
 
     yield
 

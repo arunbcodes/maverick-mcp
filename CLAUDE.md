@@ -94,7 +94,9 @@ MaverickMCP is a personal stock analysis MCP server built for Claude Desktop. It
    # Database (optional - uses SQLite by default)
    DATABASE_URL=postgresql://localhost/maverick
 
-   # Redis (optional - works without caching)
+   # Redis (recommended for SSE and caching)
+   # Without Redis: SSE uses in-memory pub/sub (single-instance only, no horizontal scaling)
+   # With Redis: SSE works across multiple workers/pods
    REDIS_HOST=localhost
    REDIS_PORT=6379
    ```

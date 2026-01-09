@@ -2,16 +2,15 @@
 Background worker to publish live price updates.
 
 This runs as a background task and publishes price updates
-to Redis pub/sub channels that SSE clients subscribe to.
+to SSE channels (Redis-based or in-memory).
 """
+
+from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Set
+from typing import Set, Any, Protocol
 
-from redis.asyncio import Redis
-
-from maverick_api.sse.manager import SSEManager
 from maverick_data.providers.yfinance_provider import YFinanceProvider
 
 logger = logging.getLogger(__name__)
@@ -23,17 +22,25 @@ DEFAULT_TICKERS = {"AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "SPY", "QQQ"}
 UPDATE_INTERVAL = 5.0
 
 
+class SSEPublisher(Protocol):
+    """Protocol for SSE manager (Redis or in-memory)."""
+
+    async def publish_price(self, ticker: str, data: dict) -> None:
+        """Publish price update."""
+        ...
+
+
 class PricePublisher:
     """
     Background service that fetches prices and publishes to SSE.
 
     This worker periodically fetches real-time quotes for tracked tickers
-    and publishes them to Redis pub/sub, which SSE clients subscribe to.
+    and publishes them via the SSE manager (Redis-based or in-memory).
     """
 
     def __init__(
         self,
-        redis: Redis,
+        sse_manager: SSEPublisher,
         tickers: Set[str] | None = None,
         interval: float = UPDATE_INTERVAL,
     ):
@@ -41,11 +48,11 @@ class PricePublisher:
         Initialize the price publisher.
 
         Args:
-            redis: Redis client for pub/sub
+            sse_manager: SSE manager for pub/sub (SSEManager or InMemorySSEManager)
             tickers: Set of tickers to track (defaults to popular tickers)
             interval: Update interval in seconds
         """
-        self.sse_manager = SSEManager(redis)
+        self.sse_manager = sse_manager
         self.provider = YFinanceProvider()
         self.tickers = tickers.copy() if tickers else DEFAULT_TICKERS.copy()
         self.interval = interval

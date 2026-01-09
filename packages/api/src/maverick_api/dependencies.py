@@ -175,14 +175,40 @@ async def get_screening_service(
 
 # --- SSE Manager ---
 
+# Global in-memory SSE manager (singleton, used when Redis unavailable)
+_memory_sse_manager = None
 
-async def get_sse_manager(
-    redis: Redis = Depends(get_redis),
-):
-    """Get SSE manager for real-time updates."""
+
+async def get_sse_manager(request: Request):
+    """
+    Get SSE manager for real-time updates.
+
+    Uses Redis-based manager when available, falls back to in-memory
+    manager for single-instance deployments without Redis.
+    """
+    global _memory_sse_manager
+
     from maverick_api.sse.manager import SSEManager
+    from maverick_api.sse.memory_manager import InMemorySSEManager
 
-    return SSEManager(redis=redis)
+    # Try to get Redis from app state (set during lifespan)
+    redis = getattr(request.app.state, "redis", None)
+
+    if redis is not None:
+        try:
+            # Quick ping to verify Redis is connected
+            await redis.ping()
+            return SSEManager(redis=redis)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Redis unavailable for SSE, using in-memory fallback: {e}")
+
+    # Fallback to in-memory manager
+    if _memory_sse_manager is None:
+        _memory_sse_manager = InMemorySSEManager()
+
+    return _memory_sse_manager
 
 
 __all__ = [
