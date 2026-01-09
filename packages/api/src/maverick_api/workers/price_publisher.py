@@ -85,24 +85,28 @@ class PricePublisher:
             await asyncio.sleep(self.interval)
 
     async def _publish_all_prices(self) -> None:
-        """Fetch and publish prices for all tracked tickers."""
-        for ticker in self.tickers:
-            try:
-                quote = await self.provider.get_realtime_quote(ticker)
-                if quote:
-                    await self.sse_manager.publish_price(
-                        ticker,
-                        {
-                            "price": quote.get("price"),
-                            "change": quote.get("change"),
-                            "change_percent": quote.get("change_percent"),
-                            "volume": quote.get("volume"),
-                            "timestamp": quote.get("timestamp"),
-                        },
-                    )
-                    logger.debug(f"Published price for {ticker}: {quote.get('price')}")
-            except Exception as e:
-                logger.warning(f"Failed to fetch/publish price for {ticker}: {e}")
+        """Fetch and publish prices for all tracked tickers in parallel."""
+        tasks = [self._fetch_and_publish(ticker) for ticker in self.tickers]
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def _fetch_and_publish(self, ticker: str) -> None:
+        """Fetch and publish price for a single ticker."""
+        try:
+            quote = await self.provider.get_realtime_quote(ticker)
+            if quote:
+                await self.sse_manager.publish_price(
+                    ticker,
+                    {
+                        "price": quote.get("price"),
+                        "change": quote.get("change"),
+                        "change_percent": quote.get("change_percent"),
+                        "volume": quote.get("volume"),
+                        "timestamp": quote.get("timestamp"),
+                    },
+                )
+                logger.debug(f"Published price for {ticker}: {quote.get('price')}")
+        except Exception as e:
+            logger.warning(f"Failed to fetch/publish price for {ticker}: {e}")
 
     def add_ticker(self, ticker: str) -> None:
         """Add a ticker to track."""
