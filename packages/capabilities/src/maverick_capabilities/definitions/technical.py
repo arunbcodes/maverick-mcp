@@ -23,7 +23,7 @@ TECHNICAL_CAPABILITIES = [
         description="Calculate Relative Strength Index for a stock.",
         group=CapabilityGroup.TECHNICAL,
         service_class=TechnicalService,
-        method_name="calculate_rsi",
+        method_name="get_rsi",
         execution=ExecutionConfig(
             mode=ExecutionMode.SYNC,
             timeout_seconds=15,
@@ -49,7 +49,7 @@ TECHNICAL_CAPABILITIES = [
         description="Calculate Moving Average Convergence Divergence indicator.",
         group=CapabilityGroup.TECHNICAL,
         service_class=TechnicalService,
-        method_name="calculate_macd",
+        method_name="get_macd",
         execution=ExecutionConfig(
             mode=ExecutionMode.SYNC,
             timeout_seconds=15,
@@ -75,7 +75,7 @@ TECHNICAL_CAPABILITIES = [
         description="Calculate Bollinger Bands for volatility analysis.",
         group=CapabilityGroup.TECHNICAL,
         service_class=TechnicalService,
-        method_name="calculate_bollinger_bands",
+        method_name="get_bollinger",
         execution=ExecutionConfig(
             mode=ExecutionMode.SYNC,
             timeout_seconds=15,
@@ -101,7 +101,7 @@ TECHNICAL_CAPABILITIES = [
         description="Calculate SMA and EMA moving averages.",
         group=CapabilityGroup.TECHNICAL,
         service_class=TechnicalService,
-        method_name="calculate_moving_averages",
+        method_name="get_moving_averages",
         execution=ExecutionConfig(
             mode=ExecutionMode.SYNC,
             timeout_seconds=15,
@@ -127,7 +127,7 @@ TECHNICAL_CAPABILITIES = [
         description="Complete technical analysis with all indicators, support/resistance, and signals.",
         group=CapabilityGroup.TECHNICAL,
         service_class=TechnicalService,
-        method_name="get_full_analysis",
+        method_name="get_summary",
         execution=ExecutionConfig(
             mode=ExecutionMode.SYNC,
             timeout_seconds=60,
@@ -155,30 +155,8 @@ TECHNICAL_CAPABILITIES = [
         audit=AuditConfig(log=True, log_input=True, log_output=True),
         tags=["comprehensive", "all-indicators", "signals"],
     ),
-    Capability(
-        id="support_resistance",
-        title="Calculate Support/Resistance",
-        description="Identify key support and resistance levels.",
-        group=CapabilityGroup.TECHNICAL,
-        service_class=TechnicalService,
-        method_name="calculate_support_resistance",
-        execution=ExecutionConfig(
-            mode=ExecutionMode.SYNC,
-            timeout_seconds=30,
-            cache_enabled=True,
-            cache_ttl_seconds=600,
-        ),
-        mcp=MCPConfig(
-            expose=True,
-            tool_name="technical_levels",
-            category="technical",
-        ),
-        api=APIConfig(
-            expose=True,
-            path="/api/v1/technical/levels",
-            method="POST",
-        ),
-        audit=AuditConfig(log=True, log_input=True),
-        tags=["support", "resistance", "levels", "price-action"],
-    ),
+    # Note: support_resistance capability not included - calculate_support_resistance exists
+    # in maverick_core.technical.indicators but is not wrapped in TechnicalService.
+    # To enable this capability, add get_support_resistance() method to TechnicalService
+    # that wraps maverick_core.technical.calculate_support_resistance
 ]

@@ -114,41 +114,12 @@ PORTFOLIO_CAPABILITIES = [
         tags=["position", "sell", "remove"],
     ),
     Capability(
-        id="portfolio_clear",
-        title="Clear Portfolio",
-        description="Clear all positions from portfolio (requires confirmation).",
-        group=CapabilityGroup.PORTFOLIO,
-        service_class=PortfolioService,
-        method_name="clear_portfolio",
-        execution=ExecutionConfig(
-            mode=ExecutionMode.SYNC,
-            timeout_seconds=10,
-        ),
-        mcp=MCPConfig(
-            expose=True,
-            tool_name="portfolio_clear",
-            category="portfolio",
-        ),
-        api=APIConfig(
-            expose=True,
-            path="/api/v1/portfolio/clear",
-            method="POST",
-        ),
-        audit=AuditConfig(
-            log=True,
-            log_input=True,
-            log_output=True,
-            retention_days=365,
-        ),
-        tags=["clear", "reset", "dangerous"],
-    ),
-    Capability(
         id="portfolio_summary",
         title="Get Portfolio Summary",
-        description="Get portfolio summary with total value, P&L, and allocation breakdown.",
+        description="Get portfolio summary with total value, P&L, and position count.",
         group=CapabilityGroup.PORTFOLIO,
         service_class=PortfolioService,
-        method_name="get_portfolio_summary",
+        method_name="get_portfolio",
         execution=ExecutionConfig(
             mode=ExecutionMode.SYNC,
             timeout_seconds=30,
@@ -170,6 +141,37 @@ PORTFOLIO_CAPABILITIES = [
             component="PortfolioSummaryWidget",
         ),
         audit=AuditConfig(log=True),
-        tags=["summary", "overview", "allocation"],
+        tags=["summary", "overview", "pnl"],
     ),
+    Capability(
+        id="portfolio_performance",
+        title="Get Portfolio Performance Chart",
+        description="Get portfolio performance time series data for charting with benchmark comparison.",
+        group=CapabilityGroup.PORTFOLIO,
+        service_class=PortfolioService,
+        method_name="get_performance",
+        execution=ExecutionConfig(
+            mode=ExecutionMode.SYNC,
+            timeout_seconds=30,
+            cache_enabled=True,
+            cache_ttl_seconds=60,
+        ),
+        mcp=MCPConfig(
+            expose=True,
+            tool_name="portfolio_performance",
+            category="portfolio",
+        ),
+        api=APIConfig(
+            expose=True,
+            path="/api/v1/portfolio/performance",
+            method="GET",
+        ),
+        ui=UIConfig(
+            expose=True,
+            component="PortfolioPerformanceChart",
+        ),
+        audit=AuditConfig(log=True),
+        tags=["performance", "chart", "returns", "benchmark"],
+    ),
+    # Note: portfolio_clear capability removed - no corresponding service method
 ]
