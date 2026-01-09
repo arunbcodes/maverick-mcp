@@ -100,6 +100,7 @@ class SSEManager:
         Yields:
             Price update dictionaries for matching tickers, or heartbeat events
         """
+        logger.info(f"SSE: Client subscribing to prices for {tickers}")
         pubsub = self.redis.pubsub()
         await pubsub.subscribe(self.PRICE_CHANNEL)
         last_event_time = time.time()
@@ -116,6 +117,7 @@ class SSEManager:
                     if message is None:
                         # No message, check if we need heartbeat
                         if time.time() - last_event_time >= HEARTBEAT_INTERVAL:
+                            logger.debug("SSE: Sending heartbeat (no message)")
                             yield {"_heartbeat": True, "timestamp": time.time()}
                             last_event_time = time.time()
                         continue
@@ -125,6 +127,7 @@ class SSEManager:
 
                     try:
                         data = json.loads(message["data"])
+                        logger.debug(f"SSE: Received price message for {data.get('ticker')}")
                         if data.get("ticker") in tickers:
                             yield data
                             last_event_time = time.time()
@@ -134,9 +137,14 @@ class SSEManager:
 
                 except asyncio.TimeoutError:
                     # Timeout - send heartbeat
+                    logger.debug("SSE: Sending heartbeat (timeout)")
                     yield {"_heartbeat": True, "timestamp": time.time()}
                     last_event_time = time.time()
+        except Exception as e:
+            logger.error(f"SSE: Error in subscribe_prices: {e}")
+            raise
         finally:
+            logger.info(f"SSE: Client unsubscribing from prices for {tickers}")
             await pubsub.unsubscribe(self.PRICE_CHANNEL)
 
     async def subscribe_portfolio(
@@ -154,6 +162,7 @@ class SSEManager:
         Yields:
             Portfolio update dictionaries, or heartbeat events
         """
+        logger.info(f"SSE: Client subscribing to portfolio updates for user {user_id}")
         channel = self.PORTFOLIO_CHANNEL.format(user_id=user_id)
         pubsub = self.redis.pubsub()
         await pubsub.subscribe(channel)
@@ -169,6 +178,7 @@ class SSEManager:
 
                     if message is None:
                         if time.time() - last_event_time >= HEARTBEAT_INTERVAL:
+                            logger.debug(f"SSE: Sending portfolio heartbeat for user {user_id}")
                             yield {"_heartbeat": True, "timestamp": time.time()}
                             last_event_time = time.time()
                         continue
@@ -177,6 +187,7 @@ class SSEManager:
                         continue
 
                     try:
+                        logger.debug(f"SSE: Received portfolio update for user {user_id}")
                         yield json.loads(message["data"])
                         last_event_time = time.time()
                     except json.JSONDecodeError:
@@ -184,9 +195,14 @@ class SSEManager:
                         continue
 
                 except asyncio.TimeoutError:
+                    logger.debug(f"SSE: Sending portfolio heartbeat (timeout) for user {user_id}")
                     yield {"_heartbeat": True, "timestamp": time.time()}
                     last_event_time = time.time()
+        except Exception as e:
+            logger.error(f"SSE: Error in subscribe_portfolio for user {user_id}: {e}")
+            raise
         finally:
+            logger.info(f"SSE: Client unsubscribing from portfolio for user {user_id}")
             await pubsub.unsubscribe(channel)
 
     async def subscribe_alerts(
@@ -204,6 +220,7 @@ class SSEManager:
         Yields:
             Alert dictionaries, or heartbeat events
         """
+        logger.info(f"SSE: Client subscribing to alerts for user {user_id}")
         channel = self.ALERTS_CHANNEL.format(user_id=user_id)
         pubsub = self.redis.pubsub()
         await pubsub.subscribe(channel)
@@ -219,6 +236,7 @@ class SSEManager:
 
                     if message is None:
                         if time.time() - last_event_time >= HEARTBEAT_INTERVAL:
+                            logger.debug(f"SSE: Sending alerts heartbeat for user {user_id}")
                             yield {"_heartbeat": True, "timestamp": time.time()}
                             last_event_time = time.time()
                         continue
@@ -227,6 +245,7 @@ class SSEManager:
                         continue
 
                     try:
+                        logger.debug(f"SSE: Received alert for user {user_id}")
                         yield json.loads(message["data"])
                         last_event_time = time.time()
                     except json.JSONDecodeError:
@@ -234,9 +253,14 @@ class SSEManager:
                         continue
 
                 except asyncio.TimeoutError:
+                    logger.debug(f"SSE: Sending alerts heartbeat (timeout) for user {user_id}")
                     yield {"_heartbeat": True, "timestamp": time.time()}
                     last_event_time = time.time()
+        except Exception as e:
+            logger.error(f"SSE: Error in subscribe_alerts for user {user_id}: {e}")
+            raise
         finally:
+            logger.info(f"SSE: Client unsubscribing from alerts for user {user_id}")
             await pubsub.unsubscribe(channel)
 
 
