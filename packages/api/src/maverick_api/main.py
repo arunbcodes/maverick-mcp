@@ -80,10 +80,29 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception as e:
         logger.warning(f"Failed to initialize task queue: {e}")
 
+    # Start price publisher for SSE real-time updates
+    try:
+        from maverick_api.workers.price_publisher import PricePublisher
+
+        price_publisher = PricePublisher(redis)
+        await price_publisher.start()
+        app.state.price_publisher = price_publisher
+        logger.info("Price publisher started")
+    except Exception as e:
+        logger.warning(f"Failed to start price publisher: {e}")
+
     yield
 
     # Shutdown - Close connections
     logger.info("Shutting down...")
+
+    # Stop price publisher
+    if hasattr(app.state, "price_publisher"):
+        try:
+            await app.state.price_publisher.stop()
+            logger.info("Price publisher stopped")
+        except Exception as e:
+            logger.warning(f"Error stopping price publisher: {e}")
 
     # Stop task queue
     if hasattr(app.state, "task_queue"):
