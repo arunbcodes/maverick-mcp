@@ -70,15 +70,23 @@ def initialize_capabilities(
         logger.debug("Capabilities already initialized")
         return
 
-    # Reset any existing state
-    reset_registry()
+    # Reset orchestrator and audit logger but preserve registry if already populated
+    # This handles the case where capabilities were registered before lifespan
+    # (e.g., for route generation in create_app)
+    registry = get_registry()
+    already_registered = len(registry.list_all()) > 0
+
+    if already_registered:
+        logger.debug("Capabilities already registered, preserving registry")
+    else:
+        reset_registry()
+        register_all_capabilities()
+        registry = get_registry()
+
     reset_orchestrator()
     reset_audit_logger()
 
-    # Register all capability definitions
-    register_all_capabilities()
-    registry = get_registry()
-    logger.info(f"Registered {len(registry.list_all())} capabilities")
+    logger.info(f"Registry has {len(registry.list_all())} capabilities")
 
     # Initialize orchestrator
     orchestrator = create_orchestrator(orchestrator_type, registry=registry)
