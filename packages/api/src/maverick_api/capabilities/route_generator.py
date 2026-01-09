@@ -167,6 +167,7 @@ def create_capability_endpoint(
 
     This creates an async endpoint that:
     - Validates input parameters using the capability's input_schema
+    - Falls back to introspecting the service method if no schema defined
     - Executes the capability via the orchestrator
     - Returns a standardized APIResponse
 
@@ -179,9 +180,10 @@ def create_capability_endpoint(
         FastAPI-compatible async function
     """
     from maverick_server.capabilities_integration import execute_capability
+    from maverick_capabilities.schema_generator import generate_schema_for_capability
 
-    # Get input schema from capability for proper parameter validation
-    input_schema = getattr(capability, "input_schema", None)
+    # Get input schema - either explicitly defined or generated via introspection
+    input_schema = generate_schema_for_capability(capability)
 
     # Determine HTTP method to choose query params vs body parsing
     method = (capability.api.method if capability.api else "POST").upper()

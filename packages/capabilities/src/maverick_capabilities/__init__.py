@@ -44,6 +44,10 @@ from maverick_capabilities.audit import (
     set_audit_logger,
     reset_audit_logger,
 )
+from maverick_capabilities.schema_generator import (
+    generate_input_schema_from_method,
+    generate_schema_for_capability,
+)
 
 __all__ = [
     # Models
@@ -75,4 +79,7 @@ __all__ = [
     "get_audit_logger",
     "set_audit_logger",
     "reset_audit_logger",
+    # Schema generation
+    "generate_input_schema_from_method",
+    "generate_schema_for_capability",
 ]
