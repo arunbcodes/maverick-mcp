@@ -135,6 +135,16 @@ def create_app(
     app.state.settings = settings
     app.state.testing = testing
 
+    # Register capabilities BEFORE configuring routers
+    # This ensures the capability registry is populated when routes are generated
+    try:
+        from maverick_capabilities.definitions import register_all_capabilities
+
+        register_all_capabilities()
+        logger.info("Capabilities registered for route generation")
+    except Exception as e:
+        logger.warning(f"Failed to register capabilities: {e}")
+
     # Add middleware (order matters - last added = first executed)
     _configure_middleware(app, settings)
 
