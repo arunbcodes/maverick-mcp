@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Type
 
+from pydantic import BaseModel
+
 
 class ExecutionMode(str, Enum):
     """How the capability should be executed."""
@@ -147,6 +149,9 @@ class Capability:
 
     # Alternative: callable directly (for simple functions)
     handler: Callable[..., Any] | None = None
+
+    # Input schema for parameter validation (Pydantic model)
+    input_schema: Type[BaseModel] | None = None
 
     # Configuration
     execution: ExecutionConfig = field(default_factory=ExecutionConfig)

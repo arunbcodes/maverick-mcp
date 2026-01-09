@@ -166,7 +166,7 @@ def create_capability_endpoint(
     Create a FastAPI endpoint handler for a capability.
 
     This creates an async endpoint that:
-    - Validates input parameters
+    - Validates input parameters using the capability's input_schema
     - Executes the capability via the orchestrator
     - Returns a standardized APIResponse
 
@@ -180,50 +180,102 @@ def create_capability_endpoint(
     """
     from maverick_server.capabilities_integration import execute_capability
 
-    async def endpoint_handler(
-        request_id: str = Depends(get_request_id),
-        user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
-        **kwargs: Any,
-    ) -> APIResponse[Any]:
-        """Auto-generated endpoint for {capability_id}."""
-        try:
-            # Execute capability via orchestrator
-            result = await execute_capability(
-                capability_id=capability_id,
-                input_data=kwargs,
-                user_id=user.id if user else None,
-            )
+    # Get input schema from capability for proper parameter validation
+    input_schema = getattr(capability, "input_schema", None)
 
-            if result.get("success"):
-                return APIResponse(
-                    data=result.get("data"),
-                    meta=ResponseMeta(
-                        request_id=request_id,
-                        timestamp=datetime.now(UTC),
-                    ),
+    if input_schema is not None:
+        # Create endpoint with proper Pydantic model for parameter validation
+        # This ensures FastAPI generates correct OpenAPI documentation
+        async def endpoint_with_schema(
+            request_id: str = Depends(get_request_id),
+            user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
+            params: input_schema = Depends(),
+        ) -> APIResponse[Any]:
+            """Auto-generated endpoint for {capability_id}."""
+            try:
+                # Execute capability via orchestrator
+                result = await execute_capability(
+                    capability_id=capability_id,
+                    input_data=params.model_dump(),
+                    user_id=user.id if user else None,
                 )
-            else:
+
+                if result.get("success"):
+                    return APIResponse(
+                        data=result.get("data"),
+                        meta=ResponseMeta(
+                            request_id=request_id,
+                            timestamp=datetime.now(UTC),
+                        ),
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=500,
+                        detail={
+                            "error": result.get("error"),
+                            "error_type": result.get("error_type"),
+                        },
+                    )
+            except HTTPException:
+                raise
+            except Exception as e:
+                logger.error(f"Error executing capability {capability_id}: {e}")
                 raise HTTPException(
                     status_code=500,
-                    detail={
-                        "error": result.get("error"),
-                        "error_type": result.get("error_type"),
-                    },
+                    detail={"error": str(e), "error_type": type(e).__name__},
                 )
-        except HTTPException:
-            raise
-        except Exception as e:
-            logger.error(f"Error executing capability {capability_id}: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail={"error": str(e), "error_type": type(e).__name__},
-            )
 
-    # Update function metadata for OpenAPI
-    endpoint_handler.__name__ = f"capability_{capability_id}"
-    endpoint_handler.__doc__ = capability.description
+        # Update function metadata for OpenAPI
+        endpoint_with_schema.__name__ = f"capability_{capability_id}"
+        endpoint_with_schema.__doc__ = capability.description
 
-    return endpoint_handler
+        return endpoint_with_schema
+    else:
+        # Fallback to **kwargs for capabilities without schema
+        async def endpoint_handler(
+            request_id: str = Depends(get_request_id),
+            user: AuthenticatedUser = Depends(get_current_user) if require_auth else None,
+            **kwargs: Any,
+        ) -> APIResponse[Any]:
+            """Auto-generated endpoint for {capability_id}."""
+            try:
+                # Execute capability via orchestrator
+                result = await execute_capability(
+                    capability_id=capability_id,
+                    input_data=kwargs,
+                    user_id=user.id if user else None,
+                )
+
+                if result.get("success"):
+                    return APIResponse(
+                        data=result.get("data"),
+                        meta=ResponseMeta(
+                            request_id=request_id,
+                            timestamp=datetime.now(UTC),
+                        ),
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=500,
+                        detail={
+                            "error": result.get("error"),
+                            "error_type": result.get("error_type"),
+                        },
+                    )
+            except HTTPException:
+                raise
+            except Exception as e:
+                logger.error(f"Error executing capability {capability_id}: {e}")
+                raise HTTPException(
+                    status_code=500,
+                    detail={"error": str(e), "error_type": type(e).__name__},
+                )
+
+        # Update function metadata for OpenAPI
+        endpoint_handler.__name__ = f"capability_{capability_id}"
+        endpoint_handler.__doc__ = capability.description
+
+        return endpoint_handler
 
 
 def generate_capability_routes(
