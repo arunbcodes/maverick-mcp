@@ -134,33 +134,12 @@ async def get_stock_service():
     """
     from maverick_services import StockService
     from maverick_data import YFinanceProvider, get_cache_manager
+
     provider = YFinanceProvider()
-    cache_manager = get_cache_manager()
-    # Get the actual cache provider, not the manager
-    cache = cache_manager._ensure_initialized()
+    # CacheManager now implements async ICacheProvider interface
+    cache = get_cache_manager()
     service = StockService(provider=provider, cache=cache)
     return service
-"""
-    try:
-        from maverick_services import StockService
-        from maverick_data import YFinanceProvider, get_cache_manager
-        provider = YFinanceProvider()
-
-        # Try to get cache manager, but don't fail if Redis is not available
-        try:
-            cache_manager = get_cache_manager()
-            # Get the actual cache provider, not the manager
-            cache = cache_manager._ensure_initialized()
-            #logger.info(f"StockService cache using Redis initialized")
-        except Exception as cache_error:
-            #logger.warning(f"StockService cache not available, proceeding without cache: {cache_error}")
-            cache = None
-        service = StockService(provider=provider, cache=cache)
-        return service
-    except Exception as e:
-        logger.error(f"Failed to create stock service: {e}")
-        raise
-"""
 
 async def get_technical_service():
     """Get technical analysis service."""

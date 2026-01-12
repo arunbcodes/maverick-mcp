@@ -96,7 +96,7 @@ class MemoryCache(ICacheProvider):
                     pass
         return memory_bytes
 
-    def get(self, key: str) -> Any:
+    async def get(self, key: str) -> Any:
         """Get value from cache."""
         if key in self._cache:
             entry = self._cache[key]
@@ -110,7 +110,7 @@ class MemoryCache(ICacheProvider):
         self._stats["misses"] += 1
         return None
 
-    def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in cache with optional TTL."""
         entry: dict[str, Any] = {"data": value}
         if ttl:
@@ -125,21 +125,21 @@ class MemoryCache(ICacheProvider):
 
         return True
 
-    def delete(self, key: str) -> bool:
+    async def delete(self, key: str) -> bool:
         """Delete value from cache."""
         if key in self._cache:
             del self._cache[key]
             return True
         return False
 
-    def exists(self, key: str) -> bool:
+    async def exists(self, key: str) -> bool:
         """Check if key exists in cache."""
         if key in self._cache:
             entry = self._cache[key]
             return "expiry" not in entry or entry["expiry"] > time.time()
         return False
 
-    def clear(self, pattern: str | None = None) -> int:
+    async def clear(self, pattern: str | None = None) -> int:
         """Clear cache entries matching pattern."""
         if pattern:
             if pattern.endswith("*"):
@@ -158,7 +158,7 @@ class MemoryCache(ICacheProvider):
             self._cache.clear()
             return count
 
-    def get_stats(self) -> dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total_requests = self._stats["hits"] + self._stats["misses"]
         hit_rate = (
@@ -179,6 +179,6 @@ class MemoryCache(ICacheProvider):
             "hit_rate_percent": round(hit_rate, 2),
         }
 
-    def close(self) -> None:
+    async def close(self) -> None:
         """Close cache (clear all entries)."""
         self._cache.clear()

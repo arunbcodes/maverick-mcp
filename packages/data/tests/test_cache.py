@@ -69,69 +69,77 @@ class TestMemoryCache:
         cache = MemoryCache(max_size=100)
         assert cache is not None
 
-    def test_set_and_get(self):
+    @pytest.mark.asyncio
+    async def test_set_and_get(self):
         """Test set and get operations."""
         cache = MemoryCache()
-        cache.set("test_key", "test_value")
-        assert cache.get("test_key") == "test_value"
+        await cache.set("test_key", "test_value")
+        assert await cache.get("test_key") == "test_value"
 
-    def test_get_missing_key(self):
+    @pytest.mark.asyncio
+    async def test_get_missing_key(self):
         """Test getting missing key returns None."""
         cache = MemoryCache()
-        assert cache.get("nonexistent") is None
+        assert await cache.get("nonexistent") is None
 
-    def test_delete(self):
+    @pytest.mark.asyncio
+    async def test_delete(self):
         """Test delete operation."""
         cache = MemoryCache()
-        cache.set("test_key", "test_value")
-        assert cache.delete("test_key") is True
-        assert cache.get("test_key") is None
+        await cache.set("test_key", "test_value")
+        assert await cache.delete("test_key") is True
+        assert await cache.get("test_key") is None
 
-    def test_exists(self):
+    @pytest.mark.asyncio
+    async def test_exists(self):
         """Test exists operation."""
         cache = MemoryCache()
-        cache.set("test_key", "test_value")
-        assert cache.exists("test_key") is True
-        assert cache.exists("nonexistent") is False
+        await cache.set("test_key", "test_value")
+        assert await cache.exists("test_key") is True
+        assert await cache.exists("nonexistent") is False
 
-    def test_clear_all(self):
+    @pytest.mark.asyncio
+    async def test_clear_all(self):
         """Test clear all entries."""
         cache = MemoryCache()
-        cache.set("key1", "value1")
-        cache.set("key2", "value2")
-        count = cache.clear()
+        await cache.set("key1", "value1")
+        await cache.set("key2", "value2")
+        count = await cache.clear()
         assert count == 2
-        assert cache.get("key1") is None
-        assert cache.get("key2") is None
+        assert await cache.get("key1") is None
+        assert await cache.get("key2") is None
 
-    def test_clear_pattern(self):
+    @pytest.mark.asyncio
+    async def test_clear_pattern(self):
         """Test clear with pattern."""
         cache = MemoryCache()
-        cache.set("stock:AAPL", "value1")
-        cache.set("stock:MSFT", "value2")
-        cache.set("other:data", "value3")
-        count = cache.clear("stock:*")
+        await cache.set("stock:AAPL", "value1")
+        await cache.set("stock:MSFT", "value2")
+        await cache.set("other:data", "value3")
+        count = await cache.clear("stock:*")
         assert count == 2
-        assert cache.get("stock:AAPL") is None
-        assert cache.get("other:data") == "value3"
+        assert await cache.get("stock:AAPL") is None
+        assert await cache.get("other:data") == "value3"
 
-    def test_stats(self):
+    @pytest.mark.asyncio
+    async def test_stats(self):
         """Test get_stats method."""
         cache = MemoryCache()
-        cache.set("key1", "value1")
-        cache.get("key1")  # Hit
-        cache.get("nonexistent")  # Miss
+        await cache.set("key1", "value1")
+        await cache.get("key1")  # Hit
+        await cache.get("nonexistent")  # Miss
 
-        stats = cache.get_stats()
+        stats = await cache.get_stats()
         assert stats["backend"] == "memory"
         assert stats["hits"] == 1
         assert stats["misses"] == 1
         assert stats["sets"] == 1
 
-    def test_ttl_expiration(self):
+    @pytest.mark.asyncio
+    async def test_ttl_expiration(self):
         """Test TTL expiration."""
         cache = MemoryCache()
-        cache.set("expire_key", "value", ttl=0)  # Expires immediately
+        await cache.set("expire_key", "value", ttl=0)  # Expires immediately
         # Note: The entry exists but is expired
         # A proper test would use time.sleep, but we test the mechanism
 
@@ -210,22 +218,25 @@ class TestCacheManager:
         manager = CacheManager()
         assert manager is not None
 
-    def test_cache_manager_set_get(self):
+    @pytest.mark.asyncio
+    async def test_cache_manager_set_get(self):
         """Test set and get through manager."""
         manager = CacheManager()
-        manager.set("test_key", "test_value", ttl=3600)
-        assert manager.get("test_key") == "test_value"
+        await manager.set("test_key", "test_value", ttl=3600)
+        assert await manager.get("test_key") == "test_value"
 
-    def test_cache_manager_delete(self):
+    @pytest.mark.asyncio
+    async def test_cache_manager_delete(self):
         """Test delete through manager."""
         manager = CacheManager()
-        manager.set("test_key", "test_value")
-        assert manager.delete("test_key") is True
-        assert manager.get("test_key") is None
+        await manager.set("test_key", "test_value")
+        assert await manager.delete("test_key") is True
+        assert await manager.get("test_key") is None
 
-    def test_cache_manager_stats(self):
+    @pytest.mark.asyncio
+    async def test_cache_manager_stats(self):
         """Test get_stats through manager."""
         manager = CacheManager()
-        stats = manager.get_stats()
+        stats = await manager.get_stats()
         assert "memory" in stats
         assert "enabled" in stats
