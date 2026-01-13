@@ -12,8 +12,10 @@ from typing import Any, Callable, Protocol
 
 from fastmcp import FastMCP
 
-logger = logging.getLogger(__name__)
+from maverick_core.config.settings import get_settings
 
+logger = logging.getLogger(__name__)
+settings = get_settings()
 
 def configure_warnings() -> None:
     """Configure warning filters for known deprecation warnings."""

@@ -217,11 +217,18 @@ class Sentry(BaseSettings):
 
 class Server(BaseSettings): # Name McpServer??
     """MCP Server configuration settings."""
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix=f"{PREFIX}MCP_",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
     server_name: Optional[str] = Field(default="MaverickMCP", description="Name of MCP server") # Used by Server
     server_host: Optional[str] = Field(default="0.0.0.0", description="Server listener IP address") # Used by Server
     server_port: Optional[int] = Field(default=8000, description="Server listener TCP port") # Used by Server
     server_transport: Optional[str] = Field(default="sse", description="Server MCP transport (SSE, Streaminghttp, STDIO)") # Used by Server
-
+    seed_demodata: Optional[bool] = Field(default=False, description="Seed demo data on first startup") # Used by Server
 
 class Settings(BaseSettings):
     """Main application settings container."""
@@ -250,7 +257,7 @@ class Settings(BaseSettings):
     ui: UISettings = Field(default_factory=UISettings, description="UI settings")
     validation: ValidationSettings = Field(default_factory=ValidationSettings, description="Validation settings")
     research: ResearchSettings = Field(default_factory=ResearchSettings, description="Research settings")
-
+    server: Server = Field(default_factory=Server, description="MCP server settings")
 
     # Authentication - JWT
     jwt_secret: Optional[str] = Field(default="change-me-in-production-use-openssl-rand-hex-32")
@@ -300,6 +307,7 @@ class Settings(BaseSettings):
     enable_redis: Optional[bool] = Field(default=True, description="Enable Redis for Server")
     enable_research: Optional[bool] = Field(default=True, description="Enable Research for Server")
     enable_india: Optional[bool] = Field(default=True, description="Enable India stock market")
+    enable_backtesting: Optional[bool] = Field(default=True, description="Enable Backtesting")
 
     @field_validator("log_level", mode="before")
     @classmethod
@@ -329,6 +337,35 @@ class Settings(BaseSettings):
         """Convert settings to dictionary."""
         return self.model_dump()
 
+    @property
+    def has_tiingo(self) -> bool:
+        """Check if Tiingo API is configured."""
+        return bool(self.tiingo_api_key)
+
+    @property
+    def has_openrouter(self) -> bool:
+        """Check if OpenRouter API is configured."""
+        return bool(self.openrouter_api_key)
+
+    @property
+    def has_exa(self) -> bool:
+        """Check if Exa API is configured."""
+        return bool(self.exa_api_key)
+
+    def validate(self) -> list[str]:
+        """Validate settings and return list of warnings."""
+        warnings = []
+
+        if not self.tiingo_api_key:
+            warnings.append("TIINGO_API_KEY not set - stock data features will be limited")
+
+        if not self.openrouter_api_key and self.enable_research:
+            warnings.append("OPENROUTER_API_KEY not set - research features will be disabled")
+
+        if not self.exa_api_key and self.enable_research:
+            warnings.append("EXA_API_KEY not set - web search in research will be limited")
+
+        return warnings
 
 def load_settings_from_environment() -> Settings:
     """
