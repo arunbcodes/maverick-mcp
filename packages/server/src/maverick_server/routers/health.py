@@ -17,6 +17,62 @@ from maverick_server.config import get_settings
 logger = logging.getLogger(__name__)
 
 
+async def get_system_status() -> Dict[str, Any]:
+    """Get comprehensive system health status.
+
+    This is the core logic that can be called directly from HTTP routes
+    or via MCP tools.
+
+    Returns:
+        Dictionary containing system health information
+    """
+    settings = get_settings()
+
+    # Check component availability
+    components = {
+        "database": _check_database(),
+        "cache": _check_cache(settings),
+        "tiingo_api": settings.has_tiingo,
+        "openrouter_api": settings.has_openrouter,
+        "exa_api": settings.has_exa,
+    }
+
+    # Check optional packages
+    optional_packages = {
+        "maverick_agents": _check_package("maverick_agents"),
+        "maverick_backtest": _check_package("maverick_backtest"),
+        "maverick_india": _check_package("maverick_india"),
+    }
+
+    all_required_healthy = all([
+        components["database"],
+        components["tiingo_api"],
+    ])
+
+    return {
+        "status": "healthy" if all_required_healthy else "degraded",
+        "timestamp": datetime.now().isoformat(),
+        "system": {
+            "python_version": sys.version,
+            "platform": platform.platform(),
+            "architecture": platform.machine(),
+        },
+        "server": {
+            "name": settings.server_name,
+            "host": settings.server_host,
+            "port": settings.server_port,
+            "transport": settings.transport,
+        },
+        "components": components,
+        "optional_packages": optional_packages,
+        "feature_flags": {
+            "research_enabled": settings.enable_research,
+            "backtesting_enabled": settings.enable_backtesting,
+            "india_enabled": settings.enable_india,
+        },
+    }
+
+
 def register_health_tools(mcp: FastMCP) -> None:
     """Register health check tools with MCP server."""
 
@@ -29,51 +85,7 @@ def register_health_tools(mcp: FastMCP) -> None:
         Returns:
             Dictionary containing system health information
         """
-        settings = get_settings()
-
-        # Check component availability
-        components = {
-            "database": _check_database(),
-            "cache": _check_cache(settings),
-            "tiingo_api": settings.has_tiingo,
-            "openrouter_api": settings.has_openrouter,
-            "exa_api": settings.has_exa,
-        }
-
-        # Check optional packages
-        optional_packages = {
-            "maverick_agents": _check_package("maverick_agents"),
-            "maverick_backtest": _check_package("maverick_backtest"),
-            "maverick_india": _check_package("maverick_india"),
-        }
-
-        all_required_healthy = all([
-            components["database"],
-            components["tiingo_api"],
-        ])
-
-        return {
-            "status": "healthy" if all_required_healthy else "degraded",
-            "timestamp": datetime.now().isoformat(),
-            "system": {
-                "python_version": sys.version,
-                "platform": platform.platform(),
-                "architecture": platform.machine(),
-            },
-            "server": {
-                "name": settings.server_name,
-                "host": settings.server_host,
-                "port": settings.server_port,
-                "transport": settings.transport,
-            },
-            "components": components,
-            "optional_packages": optional_packages,
-            "feature_flags": {
-                "research_enabled": settings.enable_research,
-                "backtesting_enabled": settings.enable_backtesting,
-                "india_enabled": settings.enable_india,
-            },
-        }
+        return await get_system_status()
 
     @mcp.tool()
     async def health_get_configuration() -> Dict[str, Any]:

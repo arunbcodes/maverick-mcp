@@ -232,6 +232,14 @@ class MaverickServer:
 
                 return PlainTextResponse("OK")
 
+            @self._fastmcp.custom_route("/health/detailed", methods=["GET"])
+            async def health_detailed(request):
+                from starlette.responses import JSONResponse
+                from maverick_server.routers.health import get_system_status
+
+                result = await get_system_status()
+                return JSONResponse(result)
+
             logger.info("Health endpoints registered: /health, /health/ready, /health/live")
 
 
