@@ -175,7 +175,7 @@ def _create_query_endpoint(
             result = await execute_capability(
                 capability_id=capability_id,
                 input_data=params.model_dump(),
-                user_id=user.id if user else None,
+                user_id=user.user_id if user else None,
             )
 
             if result.get("success"):
@@ -228,7 +228,7 @@ def _create_body_endpoint(
             result = await execute_capability(
                 capability_id=capability_id,
                 input_data=params.model_dump(),
-                user_id=user.id if user else None,
+                user_id=user.user_id if user else None,
             )
 
             if result.get("success"):
@@ -280,7 +280,7 @@ def _create_kwargs_endpoint(
             result = await execute_capability(
                 capability_id=capability_id,
                 input_data=kwargs,
-                user_id=user.id if user else None,
+                user_id=user.user_id if user else None,
             )
 
             if result.get("success"):
