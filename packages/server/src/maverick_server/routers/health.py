@@ -12,9 +12,66 @@ from typing import Any, Dict
 
 from fastmcp import FastMCP
 
-from maverick_server.config import get_settings
+#from maverick_server.config import get_settings
+from maverick_core.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
+
+
+async def get_system_status() -> Dict[str, Any]:
+    """Get comprehensive system health status.
+
+    This is the core logic that can be called directly from HTTP routes
+    or via MCP tools.
+
+    Returns:
+        Dictionary containing system health information
+    """
+    settings = get_settings()
+
+    # Check component availability
+    components = {
+        "database": _check_database(),
+        "cache": _check_cache(settings),
+        "tiingo_api": settings.has_tiingo,
+        "openrouter_api": settings.has_openrouter,
+        "exa_api": settings.has_exa,
+    }
+
+    # Check optional packages
+    optional_packages = {
+        "maverick_agents": _check_package("maverick_agents"),
+        "maverick_backtest": _check_package("maverick_backtest"),
+        "maverick_india": _check_package("maverick_india"),
+    }
+
+    all_required_healthy = all([
+        components["database"],
+        components["tiingo_api"],
+    ])
+
+    return {
+        "status": "healthy" if all_required_healthy else "degraded",
+        "timestamp": datetime.now().isoformat(),
+        "system": {
+            "python_version": sys.version,
+            "platform": platform.platform(),
+            "architecture": platform.machine(),
+        },
+        "server": {
+            "name": settings.server.server_name,
+            "host": settings.server.server_host,
+            "port": settings.server.server_port,
+            "transport": settings.server.server_transport,
+        },
+        "components": components,
+        "optional_packages": optional_packages,
+        "feature_flags": {
+            "research_enabled": settings.enable_research,
+            "backtesting_enabled": settings.enable_backtesting,
+            "india_enabled": settings.enable_india,
+        },
+    }
 
 
 def register_health_tools(mcp: FastMCP) -> None:
@@ -29,51 +86,7 @@ def register_health_tools(mcp: FastMCP) -> None:
         Returns:
             Dictionary containing system health information
         """
-        settings = get_settings()
-
-        # Check component availability
-        components = {
-            "database": _check_database(),
-            "cache": _check_cache(settings),
-            "tiingo_api": settings.has_tiingo,
-            "openrouter_api": settings.has_openrouter,
-            "exa_api": settings.has_exa,
-        }
-
-        # Check optional packages
-        optional_packages = {
-            "maverick_agents": _check_package("maverick_agents"),
-            "maverick_backtest": _check_package("maverick_backtest"),
-            "maverick_india": _check_package("maverick_india"),
-        }
-
-        all_required_healthy = all([
-            components["database"],
-            components["tiingo_api"],
-        ])
-
-        return {
-            "status": "healthy" if all_required_healthy else "degraded",
-            "timestamp": datetime.now().isoformat(),
-            "system": {
-                "python_version": sys.version,
-                "platform": platform.platform(),
-                "architecture": platform.machine(),
-            },
-            "server": {
-                "name": settings.server_name,
-                "host": settings.server_host,
-                "port": settings.server_port,
-                "transport": settings.transport,
-            },
-            "components": components,
-            "optional_packages": optional_packages,
-            "feature_flags": {
-                "research_enabled": settings.enable_research,
-                "backtesting_enabled": settings.enable_backtesting,
-                "india_enabled": settings.enable_india,
-            },
-        }
+        return await get_system_status()
 
     @mcp.tool()
     async def health_get_configuration() -> Dict[str, Any]:
@@ -86,19 +99,19 @@ def register_health_tools(mcp: FastMCP) -> None:
 
         return {
             "server": {
-                "name": settings.server_name,
-                "host": settings.server_host,
-                "port": settings.server_port,
-                "transport": settings.transport,
+                "name": settings.server.server_name,
+                "host": settings.server.server_host,
+                "port": settings.server.server_port,
+                "transport": settings.server.server_transport,
                 "log_level": settings.log_level,
             },
             "database": {
-                "type": "sqlite" if "sqlite" in settings.database_url else "postgresql",
-                "configured": bool(settings.database_url),
+                "type": "sqlite" if "sqlite" in settings.database.url else "postgresql",
+                "configured": bool(settings.database.url),
             },
             "cache": {
-                "type": "redis" if settings.redis_host else "memory",
-                "redis_configured": bool(settings.redis_host),
+                "type": "redis" if settings.redis.host else "memory",
+                "redis_configured": bool(settings.redis.host),
             },
             "apis": {
                 "tiingo": settings.has_tiingo,
@@ -164,22 +177,40 @@ def _check_database() -> bool:
     """Check if database is accessible."""
     try:
         from maverick_data import get_db
+        from sqlalchemy import text
         with next(get_db()) as db:
-            db.execute("SELECT 1")
+            db.execute(text("SELECT 1"))
         return True
-    except Exception:
+    except Exception as e:
+        logger.error(f"Database check failed: {e}")
         return False
 
 
 def _check_cache(settings) -> bool:
     """Check if cache is accessible."""
-    if settings.redis_host:
+    if settings.redis.host:
         try:
             import redis
-            r = redis.Redis(host=settings.redis_host, port=settings.redis_port)
+            client_params: dict[str, Any] = {
+                "host": settings.redis.host,
+                "port": settings.redis.port,
+                "db": settings.redis.db,
+
+            }
+            if settings.redis.password and settings.redis.username:
+                client_params["password"] = settings.redis.password
+                client_params["username"] = settings.redis.username
+
+            if settings.redis.ssl:
+                client_params["ssl"] = True
+                client_params["ssl_check_hostname"] = False
+
+            #r = redis.Redis(host=settings.redis_host, port=settings.redis_port)
+            r = redis.Redis(**client_params)
             r.ping()
             return True
-        except Exception:
+        except Exception as e:
+            logger.error(f"Cache check failed: {e}")
             return False
     return True  # Memory cache always available
 
@@ -206,7 +237,7 @@ def _get_recommendations(settings) -> list[str]:
     """Get configuration recommendations."""
     recommendations = []
 
-    if not settings.redis_host:
+    if not settings.redis.host:
         recommendations.append(
             "Consider enabling Redis for better caching performance"
         )
@@ -216,7 +247,7 @@ def _get_recommendations(settings) -> list[str]:
             "Set OPENROUTER_API_KEY to enable AI-powered research features"
         )
 
-    if "sqlite" in settings.database_url:
+    if "sqlite" in settings.database.url:
         recommendations.append(
             "Consider PostgreSQL for production workloads"
         )

@@ -21,7 +21,8 @@ import logging
 import sys
 
 from maverick_server import MaverickServer, configure_warnings
-from maverick_server.config import get_settings
+#from maverick_server.config import get_settings
+from maverick_core.config.settings import get_settings
 from maverick_server.routers import register_all_tools, register_auto_generated_tools
 from maverick_server.capabilities_integration import (
     initialize_capabilities,
@@ -42,19 +43,19 @@ def main() -> int:
     parser.add_argument(
         "--transport",
         choices=["stdio", "sse", "streamable-http"],
-        default=settings.transport,
-        help=f"Transport type (default: {settings.transport})",
+        default=settings.server.server_transport,
+        help=f"Transport type (default: {settings.server.server_transport})",
     )
     parser.add_argument(
         "--port",
         type=int,
-        default=settings.server_port,
-        help=f"Server port (default: {settings.server_port})",
+        default=settings.server.server_port,
+        help=f"Server port (default: {settings.server.server_port})",
     )
     parser.add_argument(
         "--host",
-        default=settings.server_host,
-        help=f"Server host (default: {settings.server_host})",
+        default=settings.server.server_host,
+        help=f"Server host (default: {settings.server.server_host})",
     )
     parser.add_argument(
         "--log-level",
@@ -64,8 +65,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--name",
-        default=settings.server_name,
-        help=f"Server name (default: {settings.server_name})",
+        default=settings.server.server_name,
+        help=f"Server name (default: {settings.server.server_name})",
     )
     parser.add_argument(
         "--auto-gen",

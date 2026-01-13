@@ -10,9 +10,10 @@ from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from maverick_core.config.settings import Settings
 
 
-class Settings(BaseSettings):
+class Settings1(BaseSettings):
     """Application settings loaded from environment."""
 
     model_config = SettingsConfigDict(
@@ -72,6 +73,9 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = Field(default="INFO")
     log_format: str = Field(
+        default="%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
+    request_log_format: str = Field(
         default="%(asctime)s [%(request_id)s] %(levelname)s %(name)s: %(message)s"
     )
 
@@ -85,7 +89,9 @@ class Settings(BaseSettings):
     def parse_cors_origins(cls, v):
         """Parse CORS origins from comma-separated string or list."""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
+            if not v.strip():
+                return None  # Use default when empty
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
 
     @property

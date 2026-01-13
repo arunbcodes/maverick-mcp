@@ -12,8 +12,10 @@ from typing import Any, Callable, Protocol
 
 from fastmcp import FastMCP
 
-logger = logging.getLogger(__name__)
+from maverick_core.config.settings import get_settings
 
+logger = logging.getLogger(__name__)
+settings = get_settings()
 
 def configure_warnings() -> None:
     """Configure warning filters for known deprecation warnings."""
@@ -231,6 +233,14 @@ class MaverickServer:
                 from starlette.responses import PlainTextResponse
 
                 return PlainTextResponse("OK")
+
+            @self._fastmcp.custom_route("/health/detailed", methods=["GET"])
+            async def health_detailed(request):
+                from starlette.responses import JSONResponse
+                from maverick_server.routers.health import get_system_status
+
+                result = await get_system_status()
+                return JSONResponse(result)
 
             logger.info("Health endpoints registered: /health, /health/ready, /health/live")
 

@@ -11,12 +11,14 @@ from fastapi import Depends, HTTPException, Request
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from maverick_api.config import Settings, get_settings
+from maverick_core.config import Settings, get_settings
+#from maverick_api.config import Settings, get_settings
+from maverick_api.main import logger
 from maverick_schemas.auth import AuthenticatedUser
 
 
 # --- Settings ---
-
+#logger = logging.getLogger(__name__)
 
 def get_current_settings() -> Settings:
     """Get settings dependency."""
@@ -40,7 +42,7 @@ async def get_redis_pool() -> Redis:
     if _redis_pool is None:
         settings = get_settings()
         _redis_pool = Redis.from_url(
-            settings.redis_url,
+            settings.redis.url,
             encoding="utf-8",
             decode_responses=False,
             # Connection pool settings
@@ -134,10 +136,10 @@ async def get_stock_service():
     from maverick_data import YFinanceProvider, get_cache_manager
 
     provider = YFinanceProvider()
+    # CacheManager now implements async ICacheProvider interface
     cache = get_cache_manager()
-
-    return StockService(provider=provider, cache=cache)
-
+    service = StockService(provider=provider, cache=cache)
+    return service
 
 async def get_technical_service():
     """Get technical analysis service."""

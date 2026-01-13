@@ -24,7 +24,8 @@ from maverick_server.tools import (
 )
 
 # Configuration
-from maverick_server.config import Settings, get_settings
+#from maverick_server.config import Settings, get_settings
+from maverick_core.config.settings import Settings, get_settings
 
 # Router registration
 from maverick_server.routers import register_all_tools

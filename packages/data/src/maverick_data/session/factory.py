@@ -21,33 +21,30 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool, QueuePool
 
 from maverick_data.models.base import Base
+from maverick_core.config import get_settings
 
 logger = logging.getLogger("maverick_data.session")
 
+settings = get_settings()
 
 def _get_database_url() -> str:
     """Get database URL from environment, defaulting to SQLite."""
-    if os.getenv("GITHUB_ACTIONS") == "true" or os.getenv("CI") == "true":
+    if settings.github_actions == True or settings.ci == True:
         return "sqlite:///:memory:"
-    return (
-        os.getenv("MAVERICK_DATABASE_URL")
-        or os.getenv("DATABASE_URL")
-        or os.getenv("POSTGRES_URL")
-        or "sqlite:///maverick_mcp.db"
-    )
+    return settings.database.url
 
 
 def _get_db_config() -> dict[str, Any]:
     """Get database configuration from environment."""
     return {
-        "pool_size": int(os.getenv("DB_POOL_SIZE", "5")),
-        "max_overflow": int(os.getenv("DB_MAX_OVERFLOW", "10")),
-        "pool_timeout": float(os.getenv("DB_POOL_TIMEOUT", "30")),
-        "pool_recycle": int(os.getenv("DB_POOL_RECYCLE", "3600")),
-        "pool_pre_ping": os.getenv("DB_POOL_PRE_PING", "true").lower() == "true",
-        "echo": os.getenv("DB_ECHO", "false").lower() == "true",
-        "use_pooling": os.getenv("DB_USE_POOLING", "true").lower() == "true",
-        "statement_timeout": int(os.getenv("DB_STATEMENT_TIMEOUT", "30000")),
+        "pool_size": settings.database.pool_size,
+        "max_overflow": settings.database.pool_max_overflow,
+        "pool_timeout": settings.database.pool_timeout,
+        "pool_recycle": settings.database.pool_recycle,
+        "pool_pre_ping": settings.database.pool_pre_ping,
+        "echo": settings.database.echo,
+        "use_pooling": settings.database.use_pooling,
+        "statement_timeout": settings.database.statement_timeout,
     }
 
 
