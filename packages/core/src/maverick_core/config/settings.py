@@ -54,8 +54,8 @@ class DatabaseSettings(BaseSettings):
     statement_timeout: Optional[int] = Field(default=30000, description="DB Statement timeout")
 
     # Support declaring a full Postgres connection in one line. Take precedence over individual settings.
-    database_url: Optional[str] | None = Field(validation_alias=f"{PREFIX}DATABASE_URL", default="", description="Postgres database url")
-    postgres_url: Optional[str] | None = Field(validation_alias=f"{PREFIX}POSTGRES_URL", default="", description="Postgres database url")
+    database_url: Optional[str] | None = Field(default="", description="Postgres database url")
+    postgres_url: Optional[str] | None = Field(default="", description="Postgres database url")
 
 
     @property
@@ -227,7 +227,7 @@ class Settings(BaseSettings):
     """Main application settings container."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        #env_file=".env",
         env_prefix="MAVERICK_",
         env_file_encoding="utf-8",
         case_sensitive=False,
@@ -357,6 +357,7 @@ def get_settings() -> Settings:
     if settings.is_production:
         # Apply production-specific settings
         settings.api.debug = False
+        settings.log_level = "warning"
         settings.api.log_level = "warning"
 
     logger.debug(f"Settings loaded for environment: {settings.environment}")

@@ -194,7 +194,7 @@ def create_app(
     app.state.testing = testing
 
     # Debug logging on ENV and startup parameters
-    logger.debug(f"****** Using settings: {app.state.settings.to_dict()}")
+    logger.info(f"****** Using settings: {app.state.settings.to_dict()}")
 
     # Register capabilities BEFORE configuring routers
     # This ensures the capability registry is populated when routes are generated
@@ -289,7 +289,7 @@ def _configure_routers(app: FastAPI) -> None:
             tags=["Screening (Auto)"],
             require_auth=True,
         )
-        app.include_router(screening_router, prefix="/api/v1")
+        app.include_router(screening_router, prefix="/api/v2")
 
         # Generate REST endpoints from portfolio capabilities
         portfolio_router = generate_capability_routes(
@@ -298,7 +298,7 @@ def _configure_routers(app: FastAPI) -> None:
             tags=["Portfolio (Auto)"],
             require_auth=True,
         )
-        app.include_router(portfolio_router, prefix="/api/v1")
+        app.include_router(portfolio_router, prefix="/api/v2")
 
         # Generate REST endpoints from technical capabilities
         technical_router = generate_capability_routes(
@@ -307,7 +307,7 @@ def _configure_routers(app: FastAPI) -> None:
             tags=["Technical (Auto)"],
             require_auth=True,
         )
-        app.include_router(technical_router, prefix="/api/v1")
+        app.include_router(technical_router, prefix="/api/v2")
 
         # Async task endpoints for long-running operations
         async_router = create_async_endpoints(
@@ -315,7 +315,7 @@ def _configure_routers(app: FastAPI) -> None:
             prefix="/tasks",
             tags=["Async Tasks"],
         )
-        app.include_router(async_router, prefix="/api/v1")
+        app.include_router(async_router, prefix="/api/v2")
 
         logger.info("Registered capability-based routes")
     except Exception as e:
