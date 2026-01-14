@@ -205,6 +205,14 @@ async def get_capability(capability_id: str) -> CapabilityDetail:
         }
         if cap.api
         else None,
+        ui={
+            "expose": cap.ui.expose,
+            "component": cap.ui.expose,
+            "route": cap.ui.route,
+            "menu_group": cap.ui.menu_group,
+            "manu_label": cap.ui.menu_label,
+            "menu_order": cap.ui.menu_order,
+        },
         deprecated=cap.deprecated,
         tags=cap.tags,
     )

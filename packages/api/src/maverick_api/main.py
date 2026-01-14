@@ -61,9 +61,30 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Initialize capabilities system
     try:
-        from maverick_server.capabilities_integration import initialize_capabilities
+        from maverick_server.capabilities_integration import (
+            initialize_capabilities,
+            register_service_instance,
+        )
         initialize_capabilities()
         logger.info("Capabilities system initialized")
+
+        # Register service factories that create fresh instances per request
+        # This ensures proper session lifecycle management
+        from maverick_services import PortfolioService, ScreeningService
+        from maverick_data import PortfolioRepository, ScreeningRepository
+
+        def create_portfolio_service():
+            """Factory that creates PortfolioService with fresh repository."""
+            return PortfolioService(repository=PortfolioRepository())
+
+        def create_screening_service():
+            """Factory that creates ScreeningService with fresh repository."""
+            return ScreeningService(repository=ScreeningRepository())
+
+        register_service_instance("PortfolioService", create_portfolio_service)
+        register_service_instance("ScreeningService", create_screening_service)
+
+        logger.info("Registered PortfolioService and ScreeningService factories with orchestrator")
     except Exception as e:
         logger.warning(f"Failed to initialize capabilities: {e}")
 

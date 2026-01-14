@@ -90,3 +90,7 @@ site/
 # Cloudflare tunnel binary
 cloudflared
 coverage_services/
+
+# AI Assistant Rules
+!.cursorrules
+/.windsurf/

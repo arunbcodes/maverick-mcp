@@ -16,7 +16,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from maverick_data.models import UserPortfolio, PortfolioPosition
-from maverick_data.session import get_async_db
+from maverick_data.session import get_async_session
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +49,9 @@ class PortfolioRepository:
         """Get database session."""
         if self._session:
             return self._session
-        async for session in get_async_db():
-            return session
-        raise RuntimeError("Failed to get database session")
+        # Create a new session for this repository instance
+        self._session = get_async_session()
+        return self._session
 
     async def get_portfolio(
         self,
