@@ -250,6 +250,18 @@ def get_session() -> Session:
     return SessionLocal()
 
 
+def get_async_session() -> AsyncSession:
+    """
+    Get async database session (direct session for manual management).
+    
+    The caller is responsible for closing the session when done.
+    Use this for cases where the async generator pattern doesn't work,
+    such as in repository classes that manage their own session lifecycle.
+    """
+    async_session_factory = _get_async_session_factory()
+    return async_session_factory()
+
+
 async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
     """Get an async database session using the cached engine."""
     async_session_factory = _get_async_session_factory()

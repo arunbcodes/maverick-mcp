@@ -9,6 +9,7 @@ and suitable for most use cases.
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 from datetime import datetime, UTC
 from typing import Any, AsyncIterator
@@ -58,16 +59,33 @@ class ServiceOrchestrator(Orchestrator):
         self._executions: dict[UUID, ExecutionResult] = {}
         self._tasks: dict[UUID, asyncio.Task] = {}
 
-    def register_service(self, name: str, instance: Any) -> None:
-        """Register a service instance."""
-        self._service_factory[name] = instance
+    def register_service(self, name: str, instance_or_factory: Any) -> None:
+        """
+        Register a service instance or factory.
+        
+        Args:
+            name: Service class name
+            instance_or_factory: Either a service instance or a callable
+                that returns a service instance (for per-request creation)
+        """
+        self._service_factory[name] = instance_or_factory
 
     def _get_service(self, capability: Capability) -> Any:
         """Get or create service instance for a capability."""
         service_name = capability.service_class.__name__
 
         if service_name in self._service_factory:
-            return self._service_factory[service_name]
+            instance_or_factory = self._service_factory[service_name]
+            # If it's a callable (factory function), call it to get instance
+            if callable(instance_or_factory) and not isinstance(instance_or_factory, type):
+                # Check if it looks like a factory (not a class or instance)
+                if hasattr(instance_or_factory, '__call__') and not hasattr(instance_or_factory, '__self__'):
+                    try:
+                        return instance_or_factory()
+                    except TypeError:
+                        # Not a factory, treat as instance
+                        return instance_or_factory
+            return instance_or_factory
 
         # Try to instantiate (might fail if service requires dependencies)
         try:
@@ -79,6 +97,25 @@ class ServiceOrchestrator(Orchestrator):
                 f"Cannot instantiate service {service_name}: {e}. "
                 "Register it via register_service() or service_factory."
             ) from e
+
+    async def _cleanup_service(self, service: Any) -> None:
+        """
+        Cleanup a factory-created service after use.
+        
+        Closes any database sessions held by the service's repository.
+        """
+        try:
+            # Check if service has a repository with a session to close
+            repository = getattr(service, "_repository", None)
+            if repository is None:
+                repository = getattr(service, "repository", None)
+            
+            if repository is not None:
+                session = getattr(repository, "_session", None)
+                if session is not None and hasattr(session, "close"):
+                    await session.close()
+        except Exception as e:
+            logger.warning(f"Error cleaning up service: {e}")
 
     async def execute(
         self,
@@ -111,17 +148,32 @@ class ServiceOrchestrator(Orchestrator):
             )
 
         started_at = datetime.now(UTC)
+        service = None
+        is_factory_created = False
 
         try:
             # Get service instance
-            service = (
-                context.service_instance
-                if context.service_instance
-                else self._get_service(capability)
-            )
+            if context.service_instance:
+                service = context.service_instance
+            else:
+                service = self._get_service(capability)
+                # Check if this was created by a factory (needs cleanup)
+                service_name = capability.service_class.__name__
+                if service_name in self._service_factory:
+                    instance_or_factory = self._service_factory[service_name]
+                    is_factory_created = (
+                        callable(instance_or_factory) 
+                        and not isinstance(instance_or_factory, type)
+                    )
 
             # Get method
             method = capability.get_method(service)
+
+            # Inject user_id from context if method expects it and not already provided
+            if context.user_id and "user_id" not in input_data:
+                sig = inspect.signature(method)
+                if "user_id" in sig.parameters:
+                    input_data = {**input_data, "user_id": context.user_id}
 
             # Execute with timeout
             timeout = capability.execution.timeout_seconds
@@ -172,6 +224,11 @@ class ServiceOrchestrator(Orchestrator):
                 started_at=started_at,
                 completed_at=datetime.now(UTC),
             )
+
+        finally:
+            # Cleanup factory-created services that may hold resources
+            if is_factory_created and service is not None:
+                await self._cleanup_service(service)
 
     async def execute_async(
         self,
